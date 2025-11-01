@@ -23,10 +23,22 @@
                 <span class="logo-subtext">CASINO</span>
             </div>
             <div class="player-stats">
+                <div class="wallet-switch" id="walletToggle">
+                    <button class="wallet-btn active" data-wallet="real">💰 Реал</button>
+                    <button class="wallet-btn" data-wallet="demo">🎲 Демо</button>
+                </div>
                 <div class="balance">
-                    <span class="balance-label">БАЛАНС</span>
-                    <span class="balance-amount" id="playerBalance">1000</span>
-                    <span class="currency">💎</span>
+                    <div class="balance-header">
+                        <span class="balance-label">БАЛАНС</span>
+                        <span class="wallet-badge" id="walletBadge">РЕАЛ</span>
+                    </div>
+                    <div class="balance-values">
+                        <span class="balance-amount" id="playerBalance">1000</span>
+                        <span class="currency">💎</span>
+                    </div>
+                    <div class="balance-secondary">
+                        <span class="other-wallet" id="otherWalletBalance">Демо: 0 💎</span>
+                    </div>
                 </div>
                 <div class="level">
                     <span class="level-label">УРОВЕНЬ</span>
@@ -41,6 +53,9 @@
                     </button>
                     <button class="control-btn" id="soundToggle" onclick="toggleSound()" title="Включить/выключить звук">
                         🔊
+                    </button>
+                    <button class="control-btn hidden" id="demoTopUpButton" title="Пополнить демо-счет">
+                        ♻️
                     </button>
                 </div>
             </div>

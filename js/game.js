@@ -8,21 +8,249 @@ class BlackjackGame {
         this.playerScore = 0;
         this.dealerScore = 0;
         this.currentBet = 50;
-        this.playerBalance = 1000;
+        this.playerBalance = 0;
         this.playerLevel = 1;
         this.gameInProgress = false;
         this.canDouble = false;
         this.achievements = [];
-        
+        this.currentRoundId = null;
+        this.activeRoundBet = null;
+        this.baseRoundBet = null;
+
+        this.walletType = this.normalizeWallet(window.blackjackApi?.getWalletType?.());
+        this.balances = { real: 0, demo: 0 };
+        this.demoSettings = { defaultBalance: 10000, topUpThreshold: 500 };
+        this.demoTopUpInProgress = false;
+
+        this.cacheDomElements();
+        this.setupWalletControls();
         this.initializeGame();
+    }
+
+    normalizeWallet(value) {
+        return value === 'demo' ? 'demo' : 'real';
+    }
+
+    cacheDomElements() {
+        this.balanceElement = document.getElementById('playerBalance');
+        this.otherWalletElement = document.getElementById('otherWalletBalance');
+        this.walletBadge = document.getElementById('walletBadge');
+        this.walletToggle = document.getElementById('walletToggle');
+        this.walletButtons = this.walletToggle ? Array.from(this.walletToggle.querySelectorAll('[data-wallet]')) : [];
+        this.demoTopUpButton = document.getElementById('demoTopUpButton');
+    }
+
+    setupWalletControls() {
+        if (this.walletButtons && this.walletButtons.length) {
+            this.walletButtons.forEach(button => {
+                button.addEventListener('click', () => this.switchWallet(button.dataset.wallet));
+            });
+        }
+        this.demoTopUpButton?.addEventListener('click', () => this.resetDemoBalance());
+    }
+
+    syncCurrentBalance() {
+        this.playerBalance = Number(this.balances[this.walletType] ?? 0);
+        this.ensureBetWithinBalance();
+        this.updateBalanceDisplay();
+    }
+
+    ensureBetWithinBalance() {
+        if (this.currentBet > this.playerBalance) {
+            const minimumBet = 10;
+            this.currentBet = Math.max(minimumBet, Math.min(this.playerBalance, this.currentBet));
+            if (this.currentBet < minimumBet) {
+                this.currentBet = minimumBet;
+            }
+        }
+    }
+
+    formatChips(value) {
+        return Number(value || 0).toLocaleString('ru-RU', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
+    }
+
+    updateWalletButtons() {
+        if (!this.walletButtons) return;
+        this.walletButtons.forEach(button => {
+            const isActive = this.normalizeWallet(button.dataset.wallet) === this.walletType;
+            button.classList.toggle('active', isActive);
+        });
+    }
+
+    updateBalanceDisplay() {
+        if (this.balanceElement) {
+            this.balanceElement.textContent = this.formatChips(this.playerBalance);
+        }
+        if (this.walletBadge) {
+            this.walletBadge.textContent = this.walletType === 'demo' ? 'ДЕМО' : 'РЕАЛ';
+            this.walletBadge.classList.toggle('demo', this.walletType === 'demo');
+        }
+        if (this.otherWalletElement) {
+            const otherWallet = this.walletType === 'demo' ? 'real' : 'demo';
+            const label = otherWallet === 'demo' ? 'Демо' : 'Реал';
+            this.otherWalletElement.textContent = `${label}: ${this.formatChips(this.balances[otherWallet])} 💎`;
+        }
+        this.updateWalletButtons();
+        this.updateDemoTopUpState();
+    }
+
+    updateDemoTopUpState() {
+        if (!this.demoTopUpButton) return;
+        const threshold = Number(this.demoSettings.topUpThreshold || 0);
+        const shouldShow = this.walletType === 'demo' && threshold >= 0 && this.playerBalance < threshold;
+        this.demoTopUpButton.classList.toggle('hidden', !shouldShow);
+        this.demoTopUpButton.disabled = this.demoTopUpInProgress;
+    }
+
+    switchWallet(wallet) {
+        const target = this.normalizeWallet(wallet);
+        if (target === this.walletType) return;
+        if (this.gameInProgress) {
+            this.showMessage('🎲 Завершите текущий раунд перед сменой счета.');
+            return;
+        }
+        this.walletType = target;
+        window.blackjackApi?.setWalletType?.(target);
+        this.syncCurrentBalance();
+        this.updateUI();
+    }
+
+    async resetDemoBalance() {
+        if (this.demoTopUpInProgress || typeof window.blackjackApi?.resetDemoBalance !== 'function') {
+            return;
+        }
+        this.demoTopUpInProgress = true;
+        this.updateDemoTopUpState();
+        try {
+            const response = await window.blackjackApi.resetDemoBalance();
+            if (!response.success) {
+                throw new Error(response.error || 'Не удалось пополнить демо-счет');
+            }
+            const data = response.data || {};
+            if (data.balances) {
+                this.balances.real = Number(data.balances.real ?? this.balances.real);
+                this.balances.demo = Number(data.balances.demo ?? this.balances.demo);
+            } else if (typeof data.balance === 'number') {
+                this.balances.demo = Number(data.balance);
+            }
+            this.syncCurrentBalance();
+            this.showMessage('💎 Демо-счет пополнен!');
+            this.updateUI();
+        } catch (error) {
+            console.error('demo reset failed', error);
+            this.showMessage(`⚠️ ${error.message}`);
+        } finally {
+            this.demoTopUpInProgress = false;
+            this.updateDemoTopUpState();
+        }
+    }
+
+    applyServerState(state, { previousBalance } = {}) {
+        if (!state) return;
+
+        const normalizedWallet = this.normalizeWallet(state.walletType || this.walletType);
+        const prevBalance = Number(previousBalance ?? this.balances[normalizedWallet] ?? this.playerBalance ?? 0);
+
+        if (state.balances) {
+            if (typeof state.balances.real === 'number') {
+                this.balances.real = Number(state.balances.real);
+            }
+            if (typeof state.balances.demo === 'number') {
+                this.balances.demo = Number(state.balances.demo);
+            }
+        } else if (typeof state.balance === 'number') {
+            this.balances[normalizedWallet] = Number(state.balance);
+        }
+
+        this.walletType = normalizedWallet;
+        window.blackjackApi?.setWalletType?.(normalizedWallet);
+        this.syncCurrentBalance();
+
+        this.currentRoundId = state.roundId;
+        this.playerCards = (state.playerCards || []).map(card => ({
+            rank: card.rank,
+            suit: card.suit,
+            hidden: !!card.hidden
+        }));
+        this.dealerCards = (state.dealerCards || []).map(card => ({
+            rank: card.rank,
+            suit: card.suit,
+            hidden: !!card.hidden
+        }));
+
+        this.playerScore = state.playerScore ?? this.playerScore;
+        this.dealerScore = state.dealerScore ?? this.dealerScore;
+        this.baseRoundBet = Number(state.baseBet ?? this.currentBet);
+        this.activeRoundBet = Number(state.finalBet ?? state.baseBet ?? this.currentBet);
+        this.canDouble = !state.doubleDown && state.status === 'pending' && this.playerCards.length === 2 && this.playerBalance >= this.baseRoundBet;
+        this.gameInProgress = state.status === 'pending';
+
+        this.renderCards();
+        this.updateScores();
+        this.updateUI();
+
+        const message = state.message;
+        if (message) {
+            this.showMessage(message);
+        }
+
+        if (!this.gameInProgress && state.result) {
+            this.handleFinishedRound(state, prevBalance);
+        }
+    }
+
+    handleFinishedRound(state, previousBalance) {
+        const balanceChange = Number(this.playerBalance) - Number(previousBalance);
+        const winAmount = Number(state.winAmount || Math.max(balanceChange, 0));
+        const result = state.result;
+
+        this.hideGameButtons();
+        this.endGame(result, winAmount, { balanceChange });
+        this.activeRoundBet = null;
+        this.baseRoundBet = null;
+        this.updateDemoTopUpState();
     }
 
     // Инициализация игры
     initializeGame() {
+        this.updateBalanceDisplay();
         this.updateUI();
         this.loadPlayerData();
-        this.createDeck();
-        this.showMessage("🎮 Добро пожаловать в BlackJack Casino!");
+        this.refreshProfile();
+        this.showMessage('🎮 Добро пожаловать в BlackJack Casino!');
+    }
+
+    async refreshProfile() {
+        if (!window.blackjackApi?.getPlayerProfile) {
+            return;
+        }
+        try {
+            const response = await window.blackjackApi.getPlayerProfile();
+            if (!response.success) {
+                throw new Error(response.error || 'Не удалось загрузить профиль');
+            }
+            const { player, stats, demo } = response.data;
+            this.balances.real = Number(player.balance || 0);
+            this.balances.demo = Number(player.demo_balance || player.demoBalance || this.balances.demo);
+            this.playerLevel = player.level || 1;
+            if (demo) {
+                this.demoSettings = {
+                    ...this.demoSettings,
+                    ...demo
+                };
+            }
+            if (window.playerStats && stats) {
+                window.playerStats.hydrateFromServer?.(stats);
+            }
+            this.syncCurrentBalance();
+            this.updateUI();
+        } catch (error) {
+            console.error('Profile load failed', error);
+            this.showMessage('⚠️ Не удалось синхронизировать профиль.');
+        }
     }
 
     // Создание колоды карт
@@ -64,10 +292,11 @@ class BlackjackGame {
         let aces = 0;
 
         for (let card of cards) {
+            if (card.hidden) continue;
             if (card.rank === 'A') {
                 aces++;
             }
-            score += card.value;
+            score += this.getCardValue(card.rank);
         }
 
         // Корректируем тузы
@@ -81,155 +310,119 @@ class BlackjackGame {
 
     // Начало новой игры
     startNewGame() {
-        if (this.playerBalance < this.currentBet) {
-            this.showMessage("❌ Недостаточно средств для ставки!");
+        if (!window.blackjackApi?.startRound) {
+            this.showMessage('🔌 Сервер недоступен, попробуйте позже.');
             return;
         }
 
-        this.gameInProgress = true;
-        this.canDouble = true;
-        this.playerCards = [];
-        this.dealerCards = [];
-        
-        // Снимаем ставку
-        this.playerBalance -= this.currentBet;
-        
-        // Создаем новую колоду если осталось мало карт
-        if (this.deck.length < 20) {
-            this.createDeck();
+        if (this.gameInProgress) {
+            return;
         }
 
-        // Раздаем карты
-        this.playerCards.push(this.drawCard());
-        this.dealerCards.push(this.drawCard());
-        this.playerCards.push(this.drawCard());
-        this.dealerCards.push(this.drawCard());
-
-        this.updateScores();
-        this.renderCards();
-        this.updateUI();
-
-        // Проверяем блэкджек игрока
-        if (this.playerScore === 21) {
-            // Проверяем есть ли блэкджек у дилера
-            const dealerFirstCard = this.dealerCards[0].value;
-            if (dealerFirstCard === 10 || dealerFirstCard === 11) {
-                // У дилера может быть блэкджек - проверяем
-                this.showMessage("🎩 Проверяем блэкджек дилера...");
-                setTimeout(() => {
-                    this.revealDealerCard();
-                    if (this.calculateScore(this.dealerCards) === 21) {
-                        this.showMessage("🤝 Два блэкджека! Ничья!");
-                        this.endGame('push', this.currentBet);
-                    } else {
-                        this.showMessage("🎉 БЛЭКДЖЕК! Поздравляем!");
-                        this.playSound('win'); // Звук выигрыша для блэкджека
-                        this.endGame('blackjack');
-                    }
-                }, 1500);
+        if (this.playerBalance < this.currentBet) {
+            if (this.walletType === 'demo') {
+                this.showMessage('💡 Пополните демо-счет для продолжения.');
+                this.updateDemoTopUpState();
             } else {
-                this.showMessage("🎉 БЛЭКДЖЕК! Поздравляем!");
-                this.playSound('win'); // Звук выигрыша для блэкджека
-                this.endGame('blackjack');
+                this.showMessage('❌ Недостаточно средств для ставки!');
             }
-        } else {
-            this.showMessage("🎯 Ваш ход! ВЗЯТЬ или СТОП?");
-            this.showGameButtons();
-            
-            // Пульсация кнопок для привлечения внимания
-            if (window.AnimationController) {
-                setTimeout(() => {
-                    const hitBtn = document.querySelector('.hit-btn');
-                    const standBtn = document.querySelector('.stand-btn');
-                    if (hitBtn) AnimationController.pulseElement(hitBtn);
-                    if (standBtn) AnimationController.pulseElement(standBtn);
-                }, 500);
-            }
+            return;
         }
 
-        // Звук раздачи карт
-        this.playSound('deal');
+        this.showMessage('🃏 Запрашиваем новую раздачу...');
+
+        window.blackjackApi.startRound(this.currentBet, this.walletType)
+            .then(response => {
+                if (!response.success) {
+                    throw new Error(response.error || 'Не удалось начать раунд');
+                }
+                const state = response.data;
+                const previousBalance = this.playerBalance;
+                this.applyServerState(state, { previousBalance });
+                this.showGameButtons();
+                this.playSound('deal');
+                if (state.status === 'pending') {
+                    this.showMessage('🎯 Ваш ход! ВЗЯТЬ или СТОП?');
+                }
+            })
+            .catch(error => {
+                console.error('startRound failed', error);
+                this.showMessage(`⚠️ ${error.message}`);
+                this.refreshProfile();
+            });
     }
 
     // Взять карту (HIT)
     hit() {
-        if (!this.gameInProgress) return;
+        if (!this.gameInProgress || !this.currentRoundId) return;
+        if (!window.blackjackApi?.hitRound) return;
 
-        this.playerCards.push(this.drawCard());
-        this.canDouble = false; // После взятия карты нельзя удваивать
-        this.updateScores();
-        this.renderCards();
-
-        if (this.playerScore > 21) {
-            // ПЕРЕБОР - игрок проиграл
-            this.showMessage("💥 ПЕРЕБОР! Вы проиграли!");
-            this.endGame('bust');
-        } else if (this.playerScore === 21) {
-            // Ровно 21 - автоматически переход к дилеру
-            this.showMessage("🎯 21 очко! Ход дилера...");
-            setTimeout(() => {
-                this.stand();
-            }, 1000);
-        } else {
-            this.showMessage("🎯 Ваш ход! ВЗЯТЬ или СТОП?");
-        }
-
-        this.updateUI();
         this.playSound('hit');
+        window.blackjackApi.hitRound(this.currentRoundId)
+            .then(response => {
+                if (!response.success) {
+                    throw new Error(response.error || 'Не удалось взять карту');
+                }
+                const state = response.data;
+                const previousBalance = this.playerBalance;
+                this.applyServerState(state, { previousBalance });
+                if (state.status === 'pending') {
+                    this.showMessage('🎯 Ваш ход! ВЗЯТЬ или СТОП?');
+                }
+            })
+            .catch(error => {
+                console.error('hit failed', error);
+                this.showMessage(`⚠️ ${error.message}`);
+                this.refreshProfile();
+            });
     }
 
     // Остановиться (STAND)
     stand() {
-        if (!this.gameInProgress) return;
+        if (!this.gameInProgress || !this.currentRoundId) return;
+        if (!window.blackjackApi?.settleRound) return;
 
-        this.canDouble = false;
-        this.showMessage("🎩 Ход дилера...");
-        
-        // Дилер играет
-        setTimeout(() => {
-            this.dealerPlay();
-        }, 1000);
-
-        this.updateUI();
         this.playSound('stand');
+        this.showMessage('🎩 Ход дилера...');
+
+        window.blackjackApi.settleRound(this.currentRoundId)
+            .then(response => {
+                if (!response.success) {
+                    throw new Error(response.error || 'Не удалось завершить раунд');
+                }
+                const state = response.data;
+                const previousBalance = this.playerBalance;
+                this.applyServerState(state, { previousBalance });
+            })
+            .catch(error => {
+                console.error('stand failed', error);
+                this.showMessage(`⚠️ ${error.message}`);
+                this.refreshProfile();
+            });
     }
 
     // Удвоить ставку (DOUBLE) - только с первых двух карт
     doubleDown() {
-        if (!this.gameInProgress || !this.canDouble || this.playerCards.length !== 2) return;
-        
-        if (this.playerBalance < this.currentBet) {
-            this.showMessage("❌ Недостаточно средств для удвоения!");
-            return;
-        }
-
-        // Удваиваем ставку
-        this.playerBalance -= this.currentBet;
-        this.currentBet *= 2;
-        this.canDouble = false;
-        
-        this.showMessage("💰 Ставка удвоена! Получаете одну карту...");
-        
-        // При удвоении берём только ОДНУ карту и автоматически заканчиваем ход
-        setTimeout(() => {
-            this.playerCards.push(this.drawCard());
-            this.updateScores();
-            this.renderCards();
-
-            if (this.playerScore > 21) {
-                this.showMessage("💥 ПЕРЕБОР после удвоения!");
-                this.endGame('bust');
-            } else {
-                this.showMessage(`💰 ${this.playerScore} очков. Ход дилера...`);
-                setTimeout(() => {
-                    this.dealerPlay();
-                }, 1000);
-            }
-            
-            this.updateUI();
-        }, 800);
+        if (!this.gameInProgress || !this.canDouble || !this.currentRoundId) return;
+        if (!window.blackjackApi?.doubleRound) return;
 
         this.playSound('double');
+        this.showMessage('💰 Удваиваем ставку...');
+
+        window.blackjackApi.doubleRound(this.currentRoundId)
+            .then(response => {
+                if (!response.success) {
+                    throw new Error(response.error || 'Не удалось удвоить ставку');
+                }
+                const state = response.data;
+                const previousBalance = this.playerBalance;
+                this.applyServerState(state, { previousBalance });
+            })
+            .catch(error => {
+                console.error('double failed', error);
+                this.showMessage(`⚠️ ${error.message}`);
+                this.refreshProfile();
+            });
     }
 
     // Игра дилера - по правилам блэкджека
@@ -317,47 +510,35 @@ class BlackjackGame {
     }
 
     // Завершение игры
-    endGame(result, winAmount = 0) {
+    endGame(result, winAmount = 0, { balanceChange = 0 } = {}) {
         this.gameInProgress = false;
-        const oldBalance = this.playerBalance;
-        this.playerBalance += winAmount;
-        
+
         // Обновляем статистику
         this.updatePlayerStats(result, winAmount);
-        
-        // Показываем результат с анимацией
+
+        const balanceElement = document.getElementById('playerBalance');
+
         if (winAmount > 0) {
             this.showVictory(winAmount);
             this.createFireworks();
             this.playSound('win');
-            
-            // Анимируем увеличение баланса
-            if (window.AnimationController && winAmount > 0) {
-                const balanceElement = document.getElementById('playerBalance');
-                AnimationController.animateBalanceIncrease(balanceElement, winAmount - (this.playerBalance - oldBalance));
+
+            if (window.AnimationController && balanceChange > 0) {
+                AnimationController.animateBalanceIncrease(balanceElement, balanceChange);
             }
         } else if (result === 'push') {
             this.playSound('push');
         } else {
             this.playSound('lose');
-            
-            // Анимация тряски при проигрыше
             if (window.AnimationController) {
-                const balanceElement = document.getElementById('playerBalance');
                 AnimationController.shakeElement(balanceElement);
             }
         }
 
-        // Проверяем достижения
-        this.checkAchievements(result);
-        
-        // Сбрасываем ставку к базовой
-        this.currentBet = Math.min(this.currentBet, 50);
-        
+    this.checkAchievements(result);
+    this.currentBet = Math.min(this.currentBet, Math.max(this.playerBalance, 10));
         this.updateUI();
-        this.hideGameButtons();
-        
-        // Автоматически готовим к новой игре
+
         setTimeout(() => {
             this.showStartButton();
         }, 3000);
@@ -427,7 +608,7 @@ class BlackjackGame {
         this.dealerCards.forEach((card, index) => {
             let cardElement;
             
-            if (index === 1 && this.gameInProgress) {
+            if (card.hidden) {
                 // Скрытая карта дилера
                 cardElement = document.createElement('div');
                 cardElement.className = 'card face-down';
@@ -471,13 +652,11 @@ class BlackjackGame {
 
     // Обновление интерфейса
     updateUI() {
-        const balanceEl = document.getElementById('playerBalance');
         const levelEl = document.getElementById('playerLevel');
         const betEl = document.getElementById('currentBet');
         
-        if (balanceEl) balanceEl.textContent = this.playerBalance;
         if (levelEl) levelEl.textContent = this.playerLevel;
-        if (betEl) betEl.textContent = this.currentBet;
+        if (betEl) betEl.textContent = this.gameInProgress && this.activeRoundBet ? this.activeRoundBet : this.currentBet;
         
         // Обновляем кнопки если они видимы
         this.updateDoubleButton();
@@ -526,7 +705,8 @@ class BlackjackGame {
     updateDoubleButton() {
         const doubleBtn = document.getElementById('doubleButton');
         if (doubleBtn) {
-            if (this.canDouble && this.currentBet * 2 <= this.playerBalance) {
+            const required = this.baseRoundBet || this.currentBet;
+            if (this.canDouble && required * 2 <= this.playerBalance + (this.gameInProgress ? required : 0)) {
                 doubleBtn.disabled = false;
             } else {
                 doubleBtn.disabled = true;
@@ -543,6 +723,9 @@ class BlackjackGame {
             this.currentBet = newBet;
             this.updateUI();
             this.playSound('bet');
+        } else if (this.walletType === 'demo' && newBet > this.playerBalance) {
+            this.showMessage('💡 Пополните демо-счет для увеличения ставки.');
+            this.updateDemoTopUpState();
         }
     }
 
@@ -554,6 +737,9 @@ class BlackjackGame {
             this.currentBet = amount;
             this.updateUI();
             this.playSound('bet');
+        } else if (this.walletType === 'demo') {
+            this.showMessage('💡 Пополните демо-счет для этой ставки.');
+            this.updateDemoTopUpState();
         }
     }
 

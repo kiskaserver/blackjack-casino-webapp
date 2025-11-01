@@ -1,0 +1,27 @@
+{
+  "name": "blackjack-casino-backend",
+  "version": "0.1.0",
+  "description": "Backend services for Blackjack Casino webapp (balance, anti-cheat, payments, admin dashboard).",
+  "main": "src/index.js",
+  "scripts": {
+    "dev": "node src/index.js",
+    "start": "node src/index.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "body-parser": "^1.20.3",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "express-rate-limit": "^7.5.0",
+    "helmet": "^7.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
+    "pg": "^8.11.3",
+    "pg-format": "^1.0.4",
+    "uuid": "^9.0.1"
+  }
+}
