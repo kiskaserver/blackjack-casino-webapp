@@ -28,7 +28,7 @@ router.post('/cryptomus/invoice', limiter, verifyTelegram, async (req, res) => {
 
 router.post('/cryptomus/webhook', async (req, res) => {
   try {
-    if (!paymentService.verifyCryptomusWebhook({ body: req.body, headers: req.headers })) {
+    if (!paymentService.verifyCryptomusWebhook({ body: req.body, headers: req.headers, rawBody: req.rawBody })) {
       return res.status(401).json({ success: false, error: 'Invalid signature' });
     }
 

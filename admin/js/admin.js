@@ -2,9 +2,10 @@ const API_BASE = '/api/admin';
 
 const state = {
   adminId: '',
-  adminSecret: '',
   connected: false,
-  settings: null
+  settings: null,
+  sessionToken: '',
+  tokenExpiresAt: null
 };
 
 const adminIdInput = document.getElementById('adminId');
@@ -16,6 +17,7 @@ const playerLookupSection = document.getElementById('playerLookup');
 const settingsSection = document.getElementById('settings');
 const withdrawalsSection = document.getElementById('withdrawals');
 const playersSection = document.getElementById('playersSection');
+const verificationsSection = document.getElementById('verificationsSection');
 const batchesSection = document.getElementById('batchesSection');
 const riskSection = document.getElementById('riskSection');
 const overviewGrid = document.getElementById('overviewGrid');
@@ -30,6 +32,7 @@ const feesTable = document.getElementById('feesTable');
 const saveFeesButton = document.getElementById('saveFeesButton');
 const withdrawalsBody = document.getElementById('withdrawalsBody');
 const playersBody = document.getElementById('playersBody');
+const verificationsBody = document.getElementById('verificationsBody');
 const batchesBody = document.getElementById('batchesBody');
 const riskBody = document.getElementById('riskBody');
 
@@ -42,6 +45,8 @@ const forceBatchButton = document.getElementById('forceBatchButton');
 const refreshRiskButton = document.getElementById('refreshRiskButton');
 const riskSeverityFilter = document.getElementById('riskSeverityFilter');
 const riskTypeFilter = document.getElementById('riskTypeFilter');
+const refreshVerificationsButton = document.getElementById('refreshVerificationsButton');
+const verificationStatusFilter = document.getElementById('verificationStatusFilter');
 
 const sections = [
   overviewSection,
@@ -50,6 +55,7 @@ const sections = [
   settingsSection,
   withdrawalsSection,
   playersSection,
+  verificationsSection,
   batchesSection,
   riskSection
 ];
@@ -59,6 +65,57 @@ const toggleSections = visible => {
     if (!section) return;
     section.classList.toggle('hidden', !visible);
   });
+};
+
+const formatStars = value => {
+  const number = Number(value || 0);
+  return number.toLocaleString('ru-RU', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+};
+
+const formatDate = value => {
+  if (!value) {
+    return '—';
+  }
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '—';
+  }
+  return date.toLocaleString('ru-RU');
+};
+
+const translatePlayerStatus = status => {
+  const map = {
+    active: 'Активен',
+    suspended: 'Приостановлен',
+    limited: 'Ограничен',
+    verified: 'Верифицирован',
+    banned: 'Заблокирован'
+  };
+  return map[status] || status || 'Неизвестно';
+};
+
+const translateVerificationStatus = status => {
+  const map = {
+    unverified: 'Не проверен',
+    pending: 'На проверке',
+    verified: 'Подтвержден',
+    rejected: 'Отклонен',
+    review: 'Нужны данные'
+  };
+  return map[status] || status || 'Неизвестно';
+};
+
+const translateVerificationRequestStatus = status => {
+  const map = {
+    pending: 'На проверке',
+    approved: 'Одобрено',
+    rejected: 'Отклонено',
+    resubmit: 'Нужны документы'
+  };
+  return map[status] || status || 'Неизвестно';
 };
 
 toggleSections(false);
@@ -135,9 +192,17 @@ const formatStatus = status => {
 const formatWallet = wallet => (wallet === 'demo' ? 'Демо' : 'Реал');
 
 // Centralised fetch helper that applies admin headers and unified error handling.
+const handleUnauthorized = () => {
+  state.sessionToken = '';
+  state.tokenExpiresAt = null;
+  state.connected = false;
+  state.settings = null;
+  toggleSections(false);
+};
+
 const request = async (path, options = {}) => {
-  if (!state.adminId || !state.adminSecret) {
-    throw new Error('Укажите ID администратора и пароль');
+  if (!state.sessionToken) {
+    throw new Error('Требуется авторизация');
   }
 
   const { method = 'GET', body, headers } = options;
@@ -146,8 +211,7 @@ const request = async (path, options = {}) => {
     headers: new Headers(headers || {})
   };
 
-  fetchOptions.headers.set('X-Admin-Id', state.adminId);
-  fetchOptions.headers.set('X-Admin-Secret', state.adminSecret);
+  fetchOptions.headers.set('Authorization', `Bearer ${state.sessionToken}`);
 
   if (body !== undefined) {
     fetchOptions.headers.set('Content-Type', 'application/json');
@@ -163,12 +227,60 @@ const request = async (path, options = {}) => {
     payload = null;
   }
 
+  if (response.status === 401) {
+    handleUnauthorized();
+    throw new Error('Сессия администратора истекла, авторизуйтесь повторно');
+  }
+
   if (!response.ok || !payload?.success) {
     const message = payload?.error || response.statusText || 'Запрос завершился ошибкой';
     throw new Error(message);
   }
 
   return payload.data;
+};
+
+const loginAdmin = async ({ adminId, secret }) => {
+  const response = await fetch(`${API_BASE}/auth/login`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({ adminId, secret })
+  });
+
+  let payload = null;
+  try {
+    payload = await response.json();
+  } catch (error) {
+    payload = null;
+  }
+
+  if (!response.ok || !payload?.success) {
+    const message = payload?.error || response.statusText || 'Не удалось авторизоваться';
+    throw new Error(message);
+  }
+
+  return payload.data;
+};
+
+const logoutAdmin = async () => {
+  if (!state.sessionToken) {
+    handleUnauthorized();
+    return;
+  }
+  try {
+    await fetch(`${API_BASE}/auth/logout`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${state.sessionToken}`
+      }
+    });
+  } catch (error) {
+    // ignore network errors on logout
+  } finally {
+    handleUnauthorized();
+  }
 };
 
 const renderOverview = stats => {
@@ -243,6 +355,7 @@ const renderPlayerDetails = payload => {
     <div><strong>Баланс (реал):</strong> ${formatCurrency(player.balance)}</div>
     <div><strong>Баланс (демо):</strong> ${formatCurrency(player.demo_balance)}</div>
     <div><strong>Уровень:</strong> ${escapeHtml(player.level)}</div>
+    <div><strong>Статус:</strong> ${escapeHtml(translatePlayerStatus(player.status))}</div>
     <div class="wallet-stats-block">
       <div class="wallet-stats-title">Реал</div>
       <div>Игры: ${realStats.totalGames}</div>
@@ -362,12 +475,34 @@ const renderPlayers = players => {
   (players || []).forEach(player => {
     const tr = document.createElement('tr');
     tr.dataset.telegramId = player.telegram_id;
+    tr.dataset.playerId = player.id;
+    const isActive = Boolean(player.is_active);
+    const statusLabel = translatePlayerStatus(player.status);
+    const verificationStatus = String(player.verification_status || 'unverified').toLowerCase();
+    const verificationLabel = translateVerificationStatus(verificationStatus);
+    const verificationClass = `verification-${verificationStatus}`;
+    const actions = [
+      '<button data-action="edit">Редактировать</button>',
+      `<button data-action="toggle-status" data-current="${isActive}">${isActive ? 'Заблокировать' : 'Разблокировать'}</button>`,
+      '<button data-action="credit">+ Баланс</button>',
+      '<button data-action="debit">- Баланс</button>',
+      '<button data-action="override">Подкрутка</button>',
+      '<button data-action="clear-override">Сброс</button>'
+    ];
+    if (verificationStatus !== 'unverified') {
+      actions.push('<button data-action="view-verification">KYC</button>');
+    }
     tr.innerHTML = `
       <td>${escapeHtml(player.telegram_id)}</td>
       <td>${escapeHtml(player.username || '')}</td>
       <td>
-        <span class="status ${player.is_active ? 'active' : 'inactive'}">
-          ${player.is_active ? 'Активен' : 'Заблокирован'}
+        <span class="status ${isActive ? 'active' : 'inactive'}">
+          ${escapeHtml(statusLabel)}
+        </span>
+      </td>
+      <td>
+        <span class="status ${verificationClass}">
+          ${escapeHtml(verificationLabel)}
         </span>
       </td>
       <td>${formatStars(player.balance)}</td>
@@ -375,15 +510,63 @@ const renderPlayers = players => {
       <td>${player.level || 1}</td>
       <td>${formatDate(player.created_at)}</td>
       <td>
-        <button data-action="edit">Редактировать</button>
-        <button data-action="toggle-status" data-current="${player.is_active}">${player.is_active ? 'Заблокировать' : 'Разблокировать'}</button>
-        <button data-action="credit">+ Баланс</button>
-        <button data-action="debit">- Баланс</button>
-        <button data-action="override">Подкрутка</button>
-        <button data-action="clear-override">Сброс</button>
+        ${actions.join(' ')}
       </td>
     `;
     playersBody.appendChild(tr);
+  });
+};
+
+const renderVerifications = requests => {
+  if (!verificationsBody) return;
+  verificationsBody.innerHTML = '';
+  (requests || []).forEach(request => {
+    const tr = document.createElement('tr');
+    tr.dataset.verificationId = request.id;
+    tr.dataset.playerId = request.player_id;
+    const status = String(request.status || '').toLowerCase();
+    const statusLabel = translateVerificationRequestStatus(status);
+    const statusClass = `verification-${status}`;
+    const playerInfo = request.player
+      ? `${escapeHtml(request.player.username || request.player.telegram_id || '')} (${escapeHtml(request.player.telegram_id || '')})`
+      : `ID ${escapeHtml(String(request.player_id))}`;
+    const docLinks = [];
+    if (request.document_front_url) {
+      docLinks.push(`<a href="${escapeHtml(request.document_front_url)}" target="_blank" rel="noopener noreferrer">Лицевая</a>`);
+    }
+    if (request.document_back_url) {
+      docLinks.push(`<a href="${escapeHtml(request.document_back_url)}" target="_blank" rel="noopener noreferrer">Оборот</a>`);
+    }
+    if (request.selfie_url) {
+      docLinks.push(`<a href="${escapeHtml(request.selfie_url)}" target="_blank" rel="noopener noreferrer">Селфи</a>`);
+    }
+    if (request.additional_document_url) {
+      docLinks.push(`<a href="${escapeHtml(request.additional_document_url)}" target="_blank" rel="noopener noreferrer">Дополнительно</a>`);
+    }
+    const actions = [];
+    if (status === 'pending' || status === 'resubmit') {
+      actions.push('<button data-action="approve" class="btn-small btn-success">Одобрить</button>');
+      actions.push('<button data-action="reject" class="btn-small btn-danger">Отклонить</button>');
+    }
+    if (status === 'pending') {
+      actions.push('<button data-action="resubmit" class="btn-small">Запросить доп. документы</button>');
+    }
+    actions.push('<button data-action="view" class="btn-small">Просмотр</button>');
+
+    tr.innerHTML = `
+      <td>${escapeHtml(request.id)}</td>
+      <td>${playerInfo}</td>
+      <td>
+        <span class="status ${statusClass}">${escapeHtml(statusLabel)}</span>
+      </td>
+      <td>${escapeHtml(request.document_type || '—')}</td>
+      <td>${formatDate(request.submitted_at)}</td>
+      <td>${formatDate(request.reviewed_at)}</td>
+      <td>${docLinks.length ? docLinks.join('<br>') : '—'}</td>
+      <td>${escapeHtml(request.note || request.rejection_reason || '—')}</td>
+      <td>${actions.join(' ')}</td>
+    `;
+    verificationsBody.appendChild(tr);
   });
 };
 
@@ -419,6 +602,7 @@ const renderRiskEvents = events => {
   riskBody.innerHTML = '';
   (events || []).forEach(event => {
     const tr = document.createElement('tr');
+    const details = event.payload || event.details || {};
     tr.innerHTML = `
       <td>${formatDate(event.created_at)}</td>
       <td>${escapeHtml(event.telegram_id)}</td>
@@ -428,7 +612,7 @@ const renderRiskEvents = events => {
           ${translateSeverity(event.severity)}
         </span>
       </td>
-      <td><pre>${escapeHtml(JSON.stringify(event.details, null, 2))}</pre></td>
+      <td><pre>${escapeHtml(JSON.stringify(details, null, 2))}</pre></td>
     `;
     riskBody.appendChild(tr);
   });
@@ -488,6 +672,16 @@ const loadPlayers = async () => {
   renderPlayers(data);
 };
 
+const loadVerifications = async () => {
+  let url = '/verifications?limit=100';
+  const status = verificationStatusFilter?.value;
+  if (status) {
+    url += `&status=${encodeURIComponent(status)}`;
+  }
+  const data = await request(url);
+  renderVerifications(data);
+};
+
 const loadBatches = async () => {
   const data = await request('/withdrawal-batches');
   renderBatches(data);
@@ -529,6 +723,7 @@ const refreshAll = async () => {
     loadTransactions(),
     loadSettings(),
     loadWithdrawals(),
+    loadVerifications(),
     loadPlayers(),
     loadBatches(),
     loadRiskEvents()
@@ -544,18 +739,19 @@ connectButton?.addEventListener('click', async () => {
     return;
   }
 
-  state.adminId = adminId;
-  state.adminSecret = adminSecret;
-
   setConnectLoading(true);
 
   try {
-    await refreshAll();
+    const session = await loginAdmin({ adminId, secret: adminSecret });
+    state.adminId = adminId;
+    state.sessionToken = session.token;
+    state.tokenExpiresAt = session.expiresIn ? Date.now() + session.expiresIn * 1000 : null;
     state.connected = true;
+    passwordInput.value = '';
     toggleSections(true);
+    await refreshAll();
   } catch (error) {
-    state.connected = false;
-    toggleSections(false);
+    handleUnauthorized();
     alert(error.message);
   } finally {
     setConnectLoading(false);
@@ -659,6 +855,7 @@ playersBody?.addEventListener('click', async event => {
 
   const row = button.closest('tr');
   const telegramId = row?.dataset.telegramId;
+  const playerId = row?.dataset.playerId;
   if (!telegramId) return;
 
   try {
@@ -678,10 +875,15 @@ playersBody?.addEventListener('click', async event => {
       await Promise.all([loadPlayers(), loadOverview(), loadTransactions()]);
     } else if (button.dataset.action === 'edit') {
       const balance = prompt('Новый баланс (в звездах):');
-      if (balance !== null && !isNaN(balance)) {
+      if (balance !== null) {
+        const numericBalance = Number(balance);
+        if (!Number.isFinite(numericBalance) || numericBalance < 0) {
+          alert('Некорректный баланс');
+          return;
+        }
         await request(`/players/${telegramId}/balance`, {
           method: 'PUT',
-          body: { balance: parseInt(balance) }
+          body: { balance: numericBalance }
         });
         showSuccess('Баланс игрока обновлен');
         await loadPlayers();
@@ -718,9 +920,105 @@ playersBody?.addEventListener('click', async event => {
     } else if (button.dataset.action === 'clear-override') {
       await request(`/house-overrides/${telegramId}`, { method: 'DELETE' });
       alert('Подкрутка сброшена');
+    } else if (button.dataset.action === 'view-verification') {
+      if (!playerId) {
+        alert('Нет данных для верификации');
+        return;
+      }
+      const data = await request(`/verifications?playerId=${encodeURIComponent(playerId)}&limit=1`);
+      const requestData = Array.isArray(data) && data.length ? data[0] : null;
+      if (!requestData) {
+        alert('Запросы на верификацию не найдены');
+        return;
+      }
+      const details = [
+        `Статус: ${translateVerificationRequestStatus(requestData.status)}`,
+        `Тип документа: ${requestData.document_type || '—'}`,
+        `Номер: ${requestData.document_number || '—'}`,
+        `Страна: ${requestData.country || '—'}`,
+        `Комментарий: ${requestData.note || requestData.rejection_reason || '—'}`,
+        `Лицевая: ${requestData.document_front_url || '—'}`,
+        `Оборот: ${requestData.document_back_url || '—'}`,
+        `Селфи: ${requestData.selfie_url || '—'}`,
+        `Дополнительно: ${requestData.additional_document_url || '—'}`
+      ].join('\n');
+      alert(details);
     }
   } catch (error) {
     alert(error.message);
+  }
+});
+
+verificationsBody?.addEventListener('click', async event => {
+  const button = event.target.closest('button');
+  if (!button) return;
+
+  const row = button.closest('tr');
+  const verificationId = row?.dataset.verificationId;
+  if (!verificationId) return;
+
+  try {
+    if (button.dataset.action === 'view') {
+      const data = await request(`/verifications/${verificationId}`);
+      const info = data ? [
+        `Игрок: ${data.player ? `${data.player.username || data.player.telegram_id || ''} (${data.player.telegram_id || ''})` : '—'}`,
+        `Статус: ${translateVerificationRequestStatus(data.status)}`,
+        `Тип документа: ${data.document_type || '—'}`,
+        `Номер: ${data.document_number || '—'}`,
+        `Страна: ${data.country || '—'}`,
+        `Комментарий: ${data.note || data.rejection_reason || '—'}`,
+        `Лицевая: ${data.document_front_url || '—'}`,
+        `Оборот: ${data.document_back_url || '—'}`,
+        `Селфи: ${data.selfie_url || '—'}`,
+        `Дополнительно: ${data.additional_document_url || '—'}`,
+        `Метаданные: ${JSON.stringify(data.metadata || {}, null, 2)}`
+      ].join('\n') : 'Данные не найдены';
+      alert(info);
+      return;
+    }
+
+    let endpoint = '';
+    const body = {};
+
+    if (button.dataset.action === 'approve') {
+      const note = prompt('Комментарий для записи (необязательно):', '') || undefined;
+      endpoint = `/verifications/${verificationId}/approve`;
+      if (note) {
+        body.note = note;
+      }
+    } else if (button.dataset.action === 'reject') {
+      const reason = prompt('Причина отклонения?', '');
+      if (!reason) {
+        alert('Причина обязательна');
+        return;
+      }
+      const note = prompt('Комментарий для записи (необязательно):', '') || undefined;
+      endpoint = `/verifications/${verificationId}/reject`;
+      body.reason = reason;
+      if (note) {
+        body.note = note;
+      }
+    } else if (button.dataset.action === 'resubmit') {
+      const reason = prompt('Опишите необходимые дополнения для игрока', '');
+      if (!reason) {
+        alert('Описание необходимо для повторного запроса');
+        return;
+      }
+      const note = prompt('Комментарий для записи (необязательно):', '') || undefined;
+      endpoint = `/verifications/${verificationId}/request-resubmission`;
+      body.reason = reason;
+      if (note) {
+        body.note = note;
+      }
+    } else {
+      return;
+    }
+
+    await request(endpoint, { method: 'POST', body });
+    showSuccess('Статус верификации обновлен');
+    await Promise.all([loadVerifications(), loadPlayers()]);
+  } catch (error) {
+    showError(error.message || 'Ошибка обновления статуса');
   }
 });
 
@@ -732,6 +1030,9 @@ playerSearchInput?.addEventListener('keypress', event => {
     searchPlayers();
   }
 });
+
+refreshVerificationsButton?.addEventListener('click', loadVerifications);
+verificationStatusFilter?.addEventListener('change', loadVerifications);
 
 refreshBatchesButton?.addEventListener('click', loadBatches);
 forceBatchButton?.addEventListener('click', async () => {
@@ -768,3 +1069,7 @@ batchesBody?.addEventListener('click', async event => {
 refreshRiskButton?.addEventListener('click', loadRiskEvents);
 riskSeverityFilter?.addEventListener('change', loadRiskEvents);
 riskTypeFilter?.addEventListener('change', loadRiskEvents);
+
+window.adminPanel = {
+  logout: logoutAdmin
+};

@@ -24,7 +24,7 @@ const updateBatchStatus = async ({ batchId, status, metadata }) => {
     `UPDATE withdrawal_batches
      SET status = $2,
          metadata = COALESCE(metadata, '{}'::jsonb) || $3::jsonb,
-         processed_at = CASE WHEN $2 = 'processed' THEN NOW() ELSE processed_at END,
+         processed_at = CASE WHEN $2 IN ('processed', 'completed') THEN NOW() ELSE processed_at END,
          updated_at = NOW()
      WHERE id = $1
      RETURNING *
@@ -41,6 +41,17 @@ const getScheduledBatches = async () => {
        AND scheduled_for <= NOW()
      ORDER BY scheduled_for ASC
     `
+  );
+  return res.rows;
+};
+
+const listBatches = async ({ limit = 50 }) => {
+  const res = await db.query(
+    `SELECT * FROM withdrawal_batches
+     ORDER BY scheduled_for DESC
+     LIMIT $1
+    `,
+    [limit]
   );
   return res.rows;
 };
@@ -81,5 +92,6 @@ module.exports = {
   updateBatchStatus,
   getScheduledBatches,
   assignWithdrawalsToBatch,
-  getWithdrawalsInBatch
+  getWithdrawalsInBatch,
+  listBatches
 };

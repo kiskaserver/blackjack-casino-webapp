@@ -37,6 +37,12 @@ module.exports = {
     ipWhitelist: (process.env.IP_WHITELIST || '')
       .split(',')
       .map(ip => ip.trim())
-      .filter(Boolean)
+      .filter(Boolean),
+    allowedOrigins: (process.env.ALLOWED_ORIGINS || '')
+      .split(',')
+      .map(origin => origin.trim())
+      .filter(Boolean),
+    adminSessionTtlSeconds: Number(process.env.ADMIN_SESSION_TTL_SECONDS || 3600),
+    telegramInitMaxAgeSeconds: Number(process.env.TELEGRAM_INIT_MAX_AGE_SECONDS || 60)
   }
 };

@@ -5,6 +5,7 @@ const { sendSuccess, sendError } = require('../utils/http');
 const playerRepository = require('../repositories/playerRepository');
 const settingsService = require('../services/settingsService');
 const balanceService = require('../services/balanceService');
+const verificationService = require('../services/verificationService');
 
 const router = express.Router();
 
@@ -91,6 +92,97 @@ router.post('/demo/reset', limiter, verifyTelegram, async (req, res) => {
     });
   } catch (error) {
     sendError(res, error, 500);
+  }
+});
+
+router.get('/verification', limiter, verifyTelegram, async (req, res) => {
+  try {
+    const user = req.telegramUser;
+    const player = await playerRepository.getOrCreatePlayer({
+      telegramId: String(user.id),
+      username: user.username,
+      firstName: user.first_name,
+      lastName: user.last_name
+    });
+
+    const mostRecent = await verificationService.getLatestVerificationForPlayer(player.id);
+
+    sendSuccess(res, {
+      verification_status: player.verification_status,
+      request: mostRecent ? {
+        id: mostRecent.id,
+        status: mostRecent.status,
+        document_type: mostRecent.document_type,
+        submitted_at: mostRecent.submitted_at,
+        reviewed_at: mostRecent.reviewed_at,
+        note: mostRecent.note,
+        rejection_reason: mostRecent.rejection_reason
+      } : null
+    });
+  } catch (error) {
+    sendError(res, error, 500);
+  }
+});
+
+router.post('/verification', limiter, verifyTelegram, async (req, res) => {
+  try {
+    const {
+      documentType,
+      documentNumber,
+      country,
+      documentFrontUrl,
+      documentBackUrl,
+      selfieUrl,
+      additionalDocumentUrl,
+      metadata
+    } = req.body || {};
+
+    if (!documentType || typeof documentType !== 'string') {
+      throw new Error('Тип документа обязателен');
+    }
+    if (!documentFrontUrl || typeof documentFrontUrl !== 'string') {
+      throw new Error('Ссылка на лицевую сторону документа обязательна');
+    }
+    if (!selfieUrl || typeof selfieUrl !== 'string') {
+      throw new Error('Ссылка на селфи обязательна');
+    }
+
+    const user = req.telegramUser;
+    const player = await playerRepository.getOrCreatePlayer({
+      telegramId: String(user.id),
+      username: user.username,
+      firstName: user.first_name,
+      lastName: user.last_name
+    });
+
+    const submission = await verificationService.submitVerification({
+      playerId: player.id,
+      documentType,
+      documentNumber: documentNumber || null,
+      country: country || null,
+      documentFrontUrl,
+      documentBackUrl: documentBackUrl || null,
+      selfieUrl,
+      additionalDocumentUrl: additionalDocumentUrl || null,
+      metadata: typeof metadata === 'object' && metadata !== null ? metadata : {}
+    });
+
+    const refreshed = await playerRepository.getPlayerById(player.id);
+
+    sendSuccess(res, {
+      verification_status: refreshed?.verification_status || submission.status,
+      request: {
+        id: submission.id,
+        status: submission.status,
+        document_type: submission.document_type,
+        submitted_at: submission.submitted_at
+      }
+    });
+  } catch (error) {
+    if (error.code === '23505' || error.message === 'Pending verification already exists') {
+      return sendError(res, new Error('У вас уже есть запрос на рассмотрении'), 409);
+    }
+    sendError(res, error, 400);
   }
 });
 

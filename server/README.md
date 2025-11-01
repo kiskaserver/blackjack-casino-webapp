@@ -58,7 +58,7 @@ Server-side companion for the Blackjack Casino WebApp. Provides trusted game log
 | `GET`  | `/api/admin/stats/player/:telegramId` | Player deep-dive (admin) |
 | `GET`  | `/api/admin/transactions/recent` | Recent ledger activity (admin) |
 
-All player endpoints require `X-Telegram-Init-Data` header with the exact `initData` string from WebApp. Admin endpoints require `X-Admin-Id` header matching one of the IDs in `ADMIN_TELEGRAM_IDS`.
+All player endpoints require the `X-Telegram-Init-Data` header with the exact `initData` string from the Telegram WebApp. Admin endpoints require a Bearer token issued by `POST /api/admin/auth/login` (pass `adminId` and `secret`). Tokens are short-lived, bound to the caller IP, and validated against Redis-backed sessions.
 
 ## Next Steps
 

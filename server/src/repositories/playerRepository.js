@@ -1,8 +1,9 @@
 const db = require('../config/database');
 
-const findPlayerByTelegramId = async telegramId => {
-  const result = await db.query(
-    `SELECT id, telegram_id, username, first_name, last_name, balance, demo_balance, level, created_at
+const findPlayerByTelegramId = async (telegramId, client = null) => {
+  const runner = client || db;
+  const result = await runner.query(
+  `SELECT id, telegram_id, username, first_name, last_name, balance, demo_balance, level, status, verification_status, trusted, created_at
      FROM players
      WHERE telegram_id = $1
     `,
@@ -11,9 +12,10 @@ const findPlayerByTelegramId = async telegramId => {
   return result.rows[0] || null;
 };
 
-const getPlayerById = async playerId => {
-  const res = await db.query(
-    `SELECT id, telegram_id, username, first_name, last_name, balance, demo_balance, level, created_at
+const getPlayerById = async (playerId, client = null) => {
+  const runner = client || db;
+  const res = await runner.query(
+  `SELECT id, telegram_id, username, first_name, last_name, balance, demo_balance, level, status, verification_status, trusted, created_at
      FROM players
      WHERE id = $1
     `,
@@ -29,9 +31,9 @@ const getOrCreatePlayer = async ({ telegramId, username, firstName, lastName }) 
   }
 
   const inserted = await db.query(
-    `INSERT INTO players (telegram_id, username, first_name, last_name)
-     VALUES ($1, $2, $3, $4)
-     RETURNING id, telegram_id, username, first_name, last_name, balance, demo_balance, level, created_at
+  `INSERT INTO players (telegram_id, username, first_name, last_name)
+   VALUES ($1, $2, $3, $4)
+   RETURNING id, telegram_id, username, first_name, last_name, balance, demo_balance, level, status, verification_status, trusted, created_at
     `,
     [telegramId, username, firstName, lastName]
   );
@@ -146,12 +148,26 @@ const getPlayerStats = async ({ playerId }) => {
 
 const listPlayers = async ({ limit = 50, offset = 0 }) => {
   const res = await db.query(
-    `SELECT id, telegram_id, username, first_name, last_name, balance, demo_balance, level, created_at, updated_at
+  `SELECT id, telegram_id, username, first_name, last_name, balance, demo_balance, level, status, verification_status, created_at, updated_at
      FROM players
      ORDER BY created_at DESC
      LIMIT $1 OFFSET $2
     `,
     [limit, offset]
+  );
+  return res.rows;
+};
+
+const searchPlayers = async ({ query, limit = 50 }) => {
+  const q = `%${query}%`;
+  const res = await db.query(
+  `SELECT id, telegram_id, username, first_name, last_name, balance, demo_balance, level, status, verification_status, created_at, updated_at
+     FROM players
+     WHERE telegram_id ILIKE $1 OR username ILIKE $1
+     ORDER BY created_at DESC
+     LIMIT $2
+    `,
+    [q, limit]
   );
   return res.rows;
 };
@@ -164,6 +180,19 @@ const updateStatus = async ({ playerId, status }) => {
   return res.rows[0] || null;
 };
 
+const updateVerificationStatus = async ({ playerId, verificationStatus }, client = null) => {
+  const runner = client || db;
+  const res = await runner.query(
+    `UPDATE players
+     SET verification_status = $2,
+         updated_at = NOW()
+     WHERE id = $1
+     RETURNING verification_status`,
+    [playerId, verificationStatus]
+  );
+  return res.rows[0] || null;
+};
+
 module.exports = {
   getOrCreatePlayer,
   updateBalance,
@@ -171,5 +200,7 @@ module.exports = {
   findPlayerByTelegramId,
   getPlayerById,
   listPlayers,
-  updateStatus
+  updateStatus,
+  searchPlayers,
+  updateVerificationStatus
 };

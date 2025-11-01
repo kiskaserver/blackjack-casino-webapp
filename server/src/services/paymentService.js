@@ -7,14 +7,22 @@ const playerRepository = require('../repositories/playerRepository');
 const settingsService = require('./settingsService');
 const paymentRepository = require('../repositories/paymentRepository');
 
-const encodePayload = payload => Buffer.from(JSON.stringify(payload)).toString('base64');
-
-const cryptomusSign = payload => {
-  return crypto
-    .createHash('md5')
-    .update(encodePayload(payload) + config.cryptomus.apiKey)
-    .digest('hex');
+const toBuffer = payload => {
+  if (Buffer.isBuffer(payload)) {
+    return payload;
+  }
+  if (typeof payload === 'string') {
+    return Buffer.from(payload, 'utf8');
+  }
+  return Buffer.from(JSON.stringify(payload));
 };
+
+const encodePayload = payload => toBuffer(payload).toString('base64');
+
+const cryptomusSign = payload => crypto
+  .createHash('md5')
+  .update(encodePayload(payload) + config.cryptomus.apiKey)
+  .digest('hex');
 
 const createCryptomusInvoice = async ({ amount, currency = 'USDT', orderId, network = 'TRC20', telegramUser }) => {
   const userInfo = telegramUser || {};
@@ -43,9 +51,13 @@ const createCryptomusInvoice = async ({ amount, currency = 'USDT', orderId, netw
   return { invoice: data.result, playerId: player.id };
 };
 
-const verifyCryptomusWebhook = ({ body, headers }) => {
+const verifyCryptomusWebhook = ({ body, headers, rawBody }) => {
   const { sign: signature } = headers;
-  const expected = cryptomusSign(body);
+  if (!body || typeof body !== 'object') {
+    return false;
+  }
+  const payloadForSignature = rawBody?.length ? rawBody : body;
+  const expected = cryptomusSign(payloadForSignature);
   const valid = signature === expected && body.merchant === config.cryptomus.merchantId;
   return valid;
 };

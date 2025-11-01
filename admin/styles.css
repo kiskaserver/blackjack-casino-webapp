@@ -204,7 +204,7 @@ button:disabled {
     max-width: 200px;
 }
 
-.players-controls, .batches-controls, .risk-controls {
+.players-controls, .batches-controls, .risk-controls, .verifications-controls {
     margin-bottom: 20px;
     display: flex;
     gap: 10px;
@@ -250,6 +250,33 @@ button:disabled {
 
 .status.failed {
     background: #f87171;
+    color: #fff;
+}
+
+.status.verification-unverified {
+    background: #6b7280;
+    color: #fff;
+}
+
+.status.verification-pending {
+    background: #fbbf24;
+    color: #000;
+}
+
+.status.verification-verified,
+.status.verification-approved {
+    background: #34d399;
+    color: #000;
+}
+
+.status.verification-rejected {
+    background: #ef4444;
+    color: #fff;
+}
+
+.status.verification-resubmit,
+.status.verification-review {
+    background: #3b82f6;
     color: #fff;
 }
 

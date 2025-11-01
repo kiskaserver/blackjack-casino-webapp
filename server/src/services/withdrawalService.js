@@ -344,8 +344,79 @@ const updateWithdrawalStatus = async ({ id, status, note }) => {
   return updated;
 };
 
+const processBatchNow = async (batchId, { assignPending = false } = {}) => {
+  if (!batchId) {
+    throw new Error('Batch ID required');
+  }
+
+  const batch = await batchRepository.getBatchById(batchId);
+  if (!batch) {
+    throw new Error('Batch not found');
+  }
+
+  try {
+    await batchRepository.updateBatchStatus({
+      batchId,
+      status: 'processing',
+      metadata: { triggeredAt: new Date().toISOString() }
+    });
+
+    if (assignPending) {
+      const scheduledBefore = batch.scheduled_for || new Date();
+      const pendingWithdrawals = await withdrawalRepository.listWithdrawals({
+        status: 'approved',
+        scheduledBefore,
+        processingMode: 'batch',
+        limit: 1000
+      });
+      if (pendingWithdrawals.length) {
+        await batchRepository.assignWithdrawalsToBatch({
+          batchId,
+          withdrawalIds: pendingWithdrawals.map(w => w.id)
+        });
+      }
+    }
+
+    const withdrawalsBefore = await batchRepository.getWithdrawalsInBatch(batchId);
+    const totalToProcess = withdrawalsBefore.length;
+
+    if (totalToProcess === 0) {
+      await batchRepository.updateBatchStatus({
+        batchId,
+        status: 'completed',
+        metadata: { completedAt: new Date().toISOString(), withdrawalCount: 0 }
+      });
+      return { processedWithdrawals: 0 };
+    }
+
+    await processCryptoBatch(batchId);
+
+    await batchRepository.updateBatchStatus({
+      batchId,
+      status: 'completed',
+      metadata: {
+        completedAt: new Date().toISOString(),
+        withdrawalCount: totalToProcess
+      }
+    });
+
+    return { processedWithdrawals: totalToProcess };
+  } catch (error) {
+    await batchRepository.updateBatchStatus({
+      batchId,
+      status: 'failed',
+      metadata: {
+        error: error.message,
+        failedAt: new Date().toISOString()
+      }
+    });
+    throw error;
+  }
+};
+
 module.exports = {
   requestWithdrawal,
   listWithdrawals,
-  updateWithdrawalStatus
+  updateWithdrawalStatus,
+  processBatchNow
 };

@@ -1,31 +1,29 @@
-const crypto = require('crypto');
-const config = require('../config/env');
+const { verifyToken } = require('../services/adminAuthService');
 
-const timingSafeEqual = (a, b) => {
-  const bufA = Buffer.from(a);
-  const bufB = Buffer.from(b);
-  if (bufA.length !== bufB.length) {
-    return false;
+const getClientIp = req => {
+  const forwarded = req.headers['x-forwarded-for'];
+  if (forwarded) {
+    return String(forwarded).split(',')[0].trim();
   }
-  return crypto.timingSafeEqual(bufA, bufB);
+  return req.ip;
 };
 
-const adminAuth = (req, res, next) => {
-  const adminId = req.headers['x-admin-id'];
-  const adminSecret = req.headers['x-admin-secret'];
+const adminAuth = async (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization || '';
+    const parts = authHeader.split(' ');
+    const token = parts.length === 2 && /^Bearer$/i.test(parts[0]) ? parts[1] : null;
 
-  if (!adminId || !adminSecret) {
-    return res.status(401).json({ success: false, error: 'Missing admin credentials' });
+    if (!token) {
+      return res.status(401).json({ success: false, error: 'Admin token required' });
+    }
+
+    const { adminId, sessionId } = await verifyToken({ token, ip: getClientIp(req) });
+    req.admin = { id: adminId, sessionId, token };
+    return next();
+  } catch (error) {
+    return res.status(401).json({ success: false, error: error.message || 'Admin authentication failed' });
   }
-
-  const hasId = config.adminTelegramIds.includes(String(adminId));
-  const secretOk = timingSafeEqual(adminSecret, config.adminPanelSecret);
-
-  if (!hasId || !secretOk) {
-    return res.status(403).json({ success: false, error: 'Admin access denied' });
-  }
-
-  next();
 };
 
 module.exports = adminAuth;

@@ -15,9 +15,30 @@ const { ensurePayoutSchedules } = require('./jobs/payoutQueue');
 
 const app = express();
 
+const allowedOrigins = config.security.allowedOrigins || [];
+if (allowedOrigins.length) {
+  app.use(cors({
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(origin)) {
+        return callback(null, origin || true);
+      }
+      log.warn('Blocked CORS origin', { origin });
+      return callback(null, false);
+    },
+    credentials: true
+  }));
+} else {
+  app.use(cors());
+}
+
 app.use(helmet());
-app.use(cors());
-app.use(bodyParser.json());
+app.use(bodyParser.json({
+  verify: (req, _res, buffer) => {
+    if (buffer?.length) {
+      req.rawBody = Buffer.from(buffer);
+    }
+  }
+}));
 app.use(loggerMiddleware);
 
 const adminStaticPath = path.resolve(__dirname, '..', '..', 'admin');
