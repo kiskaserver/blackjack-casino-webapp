@@ -4,7 +4,15 @@ const defaultSettings = {
   payouts: {
     blackjackMultiplier: 1.5,
     winMultiplier: 1,
-    pushReturn: 1
+    pushReturn: 1,
+    crypto: {
+      autoApprovalThreshold: 200,
+      manualReviewThreshold: 1000,
+      urgentFeePercent: 0.02,
+      allowUrgent: true,
+      batchHourUtc: 23,
+      cutoffHourUtc: 22
+    }
   },
   house: {
     biasMode: 'fair', // fair | favor_house | favor_player
@@ -21,13 +29,28 @@ const defaultSettings = {
     }
   },
   antiFraud: {
-    velocityThreshold: 15,
-    maxDailyWin: 5000,
-    flaggedRigProbability: 0.5
+    velocity: {
+      enabled: true,
+      threshold: 15,
+      windowMinutes: 10,
+      intervalMinutes: 5,
+      cooldownMinutes: 60
+    },
+    dailyWinCap: {
+      enabled: true,
+      maxNetProfit: 5000,
+      checkIntervalMinutes: 30,
+      cooldownHours: 24,
+      timezone: 'UTC'
+    },
+    flaggedRigProbability: 0.5,
+    sweepIntervalMinutes: 60
   },
   demo: {
+    enabled: true,
     defaultBalance: 10000,
-    topUpThreshold: 500
+    topUpThreshold: 500,
+    allowPlayerOverrides: true
   }
 };
 

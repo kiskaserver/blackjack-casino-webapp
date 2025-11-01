@@ -9,6 +9,9 @@ const gameRoutes = require('./routes/gameRoutes');
 const paymentRoutes = require('./routes/paymentRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const playerRoutes = require('./routes/playerRoutes');
+const { runMigrations } = require('./config/migrations');
+const { ensureRiskSchedules } = require('./jobs/riskQueue');
+const { ensurePayoutSchedules } = require('./jobs/payoutQueue');
 
 const app = express();
 
@@ -34,6 +37,21 @@ app.use((err, _req, res, _next) => {
   res.status(500).json({ success: false, error: 'Internal server error' });
 });
 
-app.listen(config.port, () => {
-  log.info('Server started', { port: config.port, env: config.nodeEnv });
-});
+const bootstrap = async () => {
+  try {
+    await runMigrations();
+    await Promise.all([
+      ensureRiskSchedules(),
+      ensurePayoutSchedules()
+    ]);
+
+    app.listen(config.port, () => {
+      log.info('Server started', { port: config.port, env: config.nodeEnv });
+    });
+  } catch (error) {
+    log.error('Failed to bootstrap server', { error: error.message });
+    process.exit(1);
+  }
+};
+
+bootstrap();

@@ -16,6 +16,8 @@ const playerLookupSection = document.getElementById('playerLookup');
 const settingsSection = document.getElementById('settings');
 const withdrawalsSection = document.getElementById('withdrawals');
 const playersSection = document.getElementById('playersSection');
+const batchesSection = document.getElementById('batchesSection');
+const riskSection = document.getElementById('riskSection');
 const overviewGrid = document.getElementById('overviewGrid');
 const transactionsBody = document.getElementById('transactionsBody');
 const lookupButton = document.getElementById('lookupButton');
@@ -28,6 +30,18 @@ const feesTable = document.getElementById('feesTable');
 const saveFeesButton = document.getElementById('saveFeesButton');
 const withdrawalsBody = document.getElementById('withdrawalsBody');
 const playersBody = document.getElementById('playersBody');
+const batchesBody = document.getElementById('batchesBody');
+const riskBody = document.getElementById('riskBody');
+
+// Additional control elements
+const refreshPlayersButton = document.getElementById('refreshPlayersButton');
+const playerSearchInput = document.getElementById('playerSearchInput');
+const searchPlayerButton = document.getElementById('searchPlayerButton');
+const refreshBatchesButton = document.getElementById('refreshBatchesButton');
+const forceBatchButton = document.getElementById('forceBatchButton');
+const refreshRiskButton = document.getElementById('refreshRiskButton');
+const riskSeverityFilter = document.getElementById('riskSeverityFilter');
+const riskTypeFilter = document.getElementById('riskTypeFilter');
 
 const sections = [
   overviewSection,
@@ -35,7 +49,9 @@ const sections = [
   playerLookupSection,
   settingsSection,
   withdrawalsSection,
-  playersSection
+  playersSection,
+  batchesSection,
+  riskSection
 ];
 
 const toggleSections = visible => {
@@ -71,6 +87,23 @@ const formatCurrency = value => {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
+};
+
+const showSuccess = message => {
+  // Simple success notification
+  alert(`✅ ${message}`);
+};
+
+const showError = message => {
+  // Simple error notification
+  alert(`❌ ${message}`);
+};
+
+const showLoading = elementId => {
+  const element = document.getElementById(elementId);
+  if (element) {
+    element.innerHTML = '<tr><td colspan="100%">Загрузка...</td></tr>';
+  }
 };
 
 const formatMethod = method => {
@@ -193,16 +226,41 @@ const renderPlayerDetails = payload => {
   }
 
   const { player, stats } = payload;
+  const parseStats = source => ({
+    totalGames: Number(source?.totalGames || source?.total_games || 0),
+    wins: Number(source?.wins || 0),
+    losses: Number(source?.losses || 0),
+    blackjacks: Number(source?.blackjacks || 0),
+    pushes: Number(source?.pushes || 0),
+    netProfit: Number(source?.netProfit || source?.net_profit || 0)
+  });
+
+  const realStats = parseStats(stats?.wallets?.real || stats || {});
+  const demoStats = parseStats(stats?.wallets?.demo || {});
+
   playerDetails.innerHTML = `
     <div><strong>Игрок:</strong> ${escapeHtml(player.username || 'N/A')} (${escapeHtml(player.telegram_id)})</div>
-    <div><strong>Баланс:</strong> ${formatCurrency(player.balance)}</div>
+    <div><strong>Баланс (реал):</strong> ${formatCurrency(player.balance)}</div>
+    <div><strong>Баланс (демо):</strong> ${formatCurrency(player.demo_balance)}</div>
     <div><strong>Уровень:</strong> ${escapeHtml(player.level)}</div>
-    <div><strong>Всего игр:</strong> ${stats.totalGames}</div>
-    <div><strong>Победы:</strong> ${stats.wins}</div>
-    <div><strong>Поражения:</strong> ${stats.losses}</div>
-    <div><strong>Блэкджеков:</strong> ${stats.blackjacks}</div>
-    <div><strong>Ничьи:</strong> ${stats.pushes}</div>
-    <div><strong>Net P&amp;L:</strong> ${formatCurrency(stats.netProfit)}</div>
+    <div class="wallet-stats-block">
+      <div class="wallet-stats-title">Реал</div>
+      <div>Игры: ${realStats.totalGames}</div>
+      <div>Победы: ${realStats.wins}</div>
+      <div>Поражения: ${realStats.losses}</div>
+      <div>Блэкджеков: ${realStats.blackjacks}</div>
+      <div>Ничьи: ${realStats.pushes}</div>
+      <div>Net P&L: ${formatCurrency(realStats.netProfit)}</div>
+    </div>
+    <div class="wallet-stats-block demo">
+      <div class="wallet-stats-title">Демо</div>
+      <div>Игры: ${demoStats.totalGames}</div>
+      <div>Победы: ${demoStats.wins}</div>
+      <div>Поражения: ${demoStats.losses}</div>
+      <div>Блэкджеков: ${demoStats.blackjacks}</div>
+      <div>Ничьи: ${demoStats.pushes}</div>
+      <div>Net P&L: ${formatCurrency(demoStats.netProfit)}</div>
+    </div>
   `;
 };
 
@@ -307,9 +365,18 @@ const renderPlayers = players => {
     tr.innerHTML = `
       <td>${escapeHtml(player.telegram_id)}</td>
       <td>${escapeHtml(player.username || '')}</td>
-      <td>${formatCurrency(player.balance)}</td>
-      <td>${new Date(player.created_at).toLocaleString()}</td>
       <td>
+        <span class="status ${player.is_active ? 'active' : 'inactive'}">
+          ${player.is_active ? 'Активен' : 'Заблокирован'}
+        </span>
+      </td>
+      <td>${formatStars(player.balance)}</td>
+      <td>${formatStars(player.demo_balance)}</td>
+      <td>${player.level || 1}</td>
+      <td>${formatDate(player.created_at)}</td>
+      <td>
+        <button data-action="edit">Редактировать</button>
+        <button data-action="toggle-status" data-current="${player.is_active}">${player.is_active ? 'Заблокировать' : 'Разблокировать'}</button>
         <button data-action="credit">+ Баланс</button>
         <button data-action="debit">- Баланс</button>
         <button data-action="override">Подкрутка</button>
@@ -318,6 +385,82 @@ const renderPlayers = players => {
     `;
     playersBody.appendChild(tr);
   });
+};
+
+const renderBatches = batches => {
+  if (!batchesBody) return;
+  batchesBody.innerHTML = '';
+  (batches || []).forEach(batch => {
+    const tr = document.createElement('tr');
+    tr.dataset.batchId = batch.id;
+    tr.innerHTML = `
+      <td>${escapeHtml(batch.id)}</td>
+      <td>${formatDate(batch.scheduled_for)}</td>
+      <td>
+        <span class="status ${batch.status}">
+          ${translateBatchStatus(batch.status)}
+        </span>
+      </td>
+      <td>${batch.withdrawal_count || 0}</td>
+      <td>${formatStars(batch.total_amount || 0)}</td>
+      <td>
+        ${batch.status === 'pending' ? 
+          '<button data-action="process">Обработать</button>' : 
+          '—'
+        }
+      </td>
+    `;
+    batchesBody.appendChild(tr);
+  });
+};
+
+const renderRiskEvents = events => {
+  if (!riskBody) return;
+  riskBody.innerHTML = '';
+  (events || []).forEach(event => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td>${formatDate(event.created_at)}</td>
+      <td>${escapeHtml(event.telegram_id)}</td>
+      <td>${translateRiskType(event.event_type)}</td>
+      <td>
+        <span class="risk-severity ${event.severity}">
+          ${translateSeverity(event.severity)}
+        </span>
+      </td>
+      <td><pre>${escapeHtml(JSON.stringify(event.details, null, 2))}</pre></td>
+    `;
+    riskBody.appendChild(tr);
+  });
+};
+
+// Translation helpers
+const translateBatchStatus = status => {
+  const translations = {
+    'pending': 'Ожидает',
+    'processing': 'Обрабатывается',
+    'completed': 'Завершен',
+    'failed': 'Ошибка'
+  };
+  return translations[status] || status;
+};
+
+const translateRiskType = type => {
+  const translations = {
+    'velocity_threshold': 'Превышение скорости игры',
+    'profit_threshold': 'Превышение лимита прибыли',
+    'win_rate_anomaly': 'Аномальная частота побед'
+  };
+  return translations[type] || type;
+};
+
+const translateSeverity = severity => {
+  const translations = {
+    'low': 'Низкая',
+    'medium': 'Средняя',
+    'high': 'Высокая'
+  };
+  return translations[severity] || severity;
 };
 
 const loadOverview = async () => {
@@ -345,13 +488,50 @@ const loadPlayers = async () => {
   renderPlayers(data);
 };
 
+const loadBatches = async () => {
+  const data = await request('/withdrawal-batches');
+  renderBatches(data);
+};
+
+const loadRiskEvents = async () => {
+  const severityFilter = riskSeverityFilter?.value;
+  const typeFilter = riskTypeFilter?.value;
+  
+  let url = '/risk-events';
+  const params = new URLSearchParams();
+  if (severityFilter) params.append('severity', severityFilter);
+  if (typeFilter) params.append('type', typeFilter);
+  if (params.toString()) url += '?' + params.toString();
+
+  const data = await request(url);
+  renderRiskEvents(data);
+};
+
+const searchPlayers = async () => {
+  const query = playerSearchInput?.value.trim();
+  if (!query) {
+    await loadPlayers();
+    return;
+  }
+
+  try {
+    const data = await request(`/players/search?q=${encodeURIComponent(query)}`);
+    renderPlayers(data);
+  } catch (error) {
+    showError('Ошибка поиска игроков');
+    console.error(error);
+  }
+};
+
 const refreshAll = async () => {
   await Promise.all([
     loadOverview(),
     loadTransactions(),
     loadSettings(),
     loadWithdrawals(),
-    loadPlayers()
+    loadPlayers(),
+    loadBatches(),
+    loadRiskEvents()
   ]);
 };
 
@@ -496,6 +676,25 @@ playersBody?.addEventListener('click', async event => {
         body: { amount, reason }
       });
       await Promise.all([loadPlayers(), loadOverview(), loadTransactions()]);
+    } else if (button.dataset.action === 'edit') {
+      const balance = prompt('Новый баланс (в звездах):');
+      if (balance !== null && !isNaN(balance)) {
+        await request(`/players/${telegramId}/balance`, {
+          method: 'PUT',
+          body: { balance: parseInt(balance) }
+        });
+        showSuccess('Баланс игрока обновлен');
+        await loadPlayers();
+      }
+    } else if (button.dataset.action === 'toggle-status') {
+      const currentStatus = button.dataset.current === 'true';
+      const newStatus = !currentStatus;
+      await request(`/players/${telegramId}/status`, {
+        method: 'PUT',
+        body: { is_active: newStatus }
+      });
+      showSuccess(`Статус игрока ${newStatus ? 'активирован' : 'деактивирован'}`);
+      await loadPlayers();
     } else if (button.dataset.action === 'override') {
       const mode = (prompt('Режим подкрутки (fair / favor_house / favor_player)', 'favor_house') || '').trim();
       const allowed = ['fair', 'favor_house', 'favor_player'];
@@ -524,3 +723,48 @@ playersBody?.addEventListener('click', async event => {
     alert(error.message);
   }
 });
+
+// Event listeners for new controls
+refreshPlayersButton?.addEventListener('click', loadPlayers);
+searchPlayerButton?.addEventListener('click', searchPlayers);
+playerSearchInput?.addEventListener('keypress', event => {
+  if (event.key === 'Enter') {
+    searchPlayers();
+  }
+});
+
+refreshBatchesButton?.addEventListener('click', loadBatches);
+forceBatchButton?.addEventListener('click', async () => {
+  try {
+    await request('/withdrawal-batches/force', { method: 'POST' });
+    showSuccess('Внеочередной батч создан');
+    await loadBatches();
+  } catch (error) {
+    showError('Ошибка создания батча');
+    console.error(error);
+  }
+});
+
+batchesBody?.addEventListener('click', async event => {
+  const button = event.target.closest('button');
+  if (!button) return;
+
+  const row = button.closest('tr');
+  const batchId = row?.dataset.batchId;
+  if (!batchId) return;
+
+  if (button.dataset.action === 'process') {
+    try {
+      await request(`/withdrawal-batches/${batchId}/process`, { method: 'POST' });
+      showSuccess('Батч запущен в обработку');
+      await loadBatches();
+    } catch (error) {
+      showError('Ошибка обработки батча');
+      console.error(error);
+    }
+  }
+});
+
+refreshRiskButton?.addEventListener('click', loadRiskEvents);
+riskSeverityFilter?.addEventListener('change', loadRiskEvents);
+riskTypeFilter?.addEventListener('change', loadRiskEvents);

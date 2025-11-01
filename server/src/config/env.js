@@ -21,6 +21,7 @@ module.exports = {
     .filter(Boolean),
   adminPanelSecret: required(process.env.ADMIN_PANEL_SECRET, 'ADMIN_PANEL_SECRET'),
   databaseUrl: required(process.env.DATABASE_URL, 'DATABASE_URL'),
+  redisUrl: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
   cryptomus: {
     merchantId: required(process.env.CRYPTOMUS_MERCHANT_ID, 'CRYPTOMUS_MERCHANT_ID'),
     apiKey: required(process.env.CRYPTOMUS_API_KEY, 'CRYPTOMUS_API_KEY'),

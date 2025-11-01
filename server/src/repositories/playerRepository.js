@@ -156,11 +156,20 @@ const listPlayers = async ({ limit = 50, offset = 0 }) => {
   return res.rows;
 };
 
+const updateStatus = async ({ playerId, status }) => {
+  const res = await db.query(
+    `UPDATE players SET status = $2, updated_at = NOW() WHERE id = $1 RETURNING status`,
+    [playerId, status]
+  );
+  return res.rows[0] || null;
+};
+
 module.exports = {
   getOrCreatePlayer,
   updateBalance,
   getPlayerStats,
   findPlayerByTelegramId,
   getPlayerById,
-  listPlayers
+  listPlayers,
+  updateStatus
 };

@@ -8,27 +8,76 @@ const createWithdrawal = async ({
   providerFee,
   netAmount,
   destination,
+  currency,
+  network,
+  priority = 'standard',
+  isUrgent = false,
+  processingMode = 'batch',
+  kycRequired = false,
   metadata
 }) => {
   const res = await db.query(
-    `INSERT INTO withdrawals (player_id, method, amount, platform_fee, provider_fee, net_amount, destination, metadata)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8::jsonb)
+    `INSERT INTO withdrawals (
+       player_id, method, amount, platform_fee, provider_fee, net_amount, destination, 
+       currency, network, priority, is_urgent, processing_mode, kyc_required, metadata
+     )
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14::jsonb)
      RETURNING *
     `,
-    [playerId, method, amount, platformFee, providerFee, netAmount, destination, JSON.stringify(metadata || {})]
+    [playerId, method, amount, platformFee, providerFee, netAmount, destination, 
+     currency, network, priority, isUrgent, processingMode, kycRequired, JSON.stringify(metadata || {})]
   );
   return res.rows[0];
 };
 
-const listWithdrawals = async ({ status, limit = 100 }) => {
+const getWithdrawalById = async id => {
+  const res = await db.query(
+    `SELECT w.*, p.telegram_id, p.username
+     FROM withdrawals w
+     JOIN players p ON p.id = w.player_id
+     WHERE w.id = $1
+    `,
+    [id]
+  );
+  return res.rows[0] || null;
+};
+
+const updateWithdrawalSchedule = async ({ id, scheduledFor, processingMode }) => {
+  const res = await db.query(
+    `UPDATE withdrawals
+     SET scheduled_for = $2,
+         processing_mode = $3,
+         updated_at = NOW()
+     WHERE id = $1
+     RETURNING *
+    `,
+    [id, scheduledFor, processingMode]
+  );
+  return res.rows[0] || null;
+};
+
+const listWithdrawals = async ({ status, limit = 100, scheduledBefore, processingMode }) => {
   const clauses = [];
   const params = [];
+  
   if (status) {
-    clauses.push('status = $' + (params.length + 1));
+    clauses.push('w.status = $' + (params.length + 1));
     params.push(status);
   }
+  
+  if (scheduledBefore) {
+    clauses.push('w.scheduled_for <= $' + (params.length + 1));
+    params.push(scheduledBefore);
+  }
+  
+  if (processingMode) {
+    clauses.push('w.processing_mode = $' + (params.length + 1));
+    params.push(processingMode);
+  }
+  
   params.push(limit);
   const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
+  
   const res = await db.query(
     `SELECT w.*, p.telegram_id, p.username
      FROM withdrawals w
@@ -58,6 +107,8 @@ const updateWithdrawalStatus = async ({ id, status, metadata }) => {
 
 module.exports = {
   createWithdrawal,
+  getWithdrawalById,
+  updateWithdrawalSchedule,
   listWithdrawals,
   updateWithdrawalStatus
 };

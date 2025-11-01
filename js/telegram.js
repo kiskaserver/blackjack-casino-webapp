@@ -556,7 +556,6 @@ function setupGameIntegration() {
         };
     }
 }
-});
 
 // Добавляем стили для Telegram темы
 const telegramStyles = document.createElement('style');
