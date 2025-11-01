@@ -9,12 +9,13 @@ const router = express.Router();
 
 router.post('/cryptomus/invoice', limiter, verifyTelegram, async (req, res) => {
   try {
-    const { amount, currency, network, orderId } = req.body;
-    if (!amount || amount <= 0) {
-      throw new Error('Amount must be positive');
+    const { amount, currency, network, orderId } = req.body || {};
+    const numericAmount = Number(amount);
+    if (!Number.isFinite(numericAmount) || numericAmount <= 0) {
+      throw new Error('Amount must be a positive number');
     }
     const response = await paymentService.createCryptomusInvoice({
-      amount,
+      amount: numericAmount,
       currency,
       network,
       orderId,

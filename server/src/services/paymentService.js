@@ -52,14 +52,27 @@ const createCryptomusInvoice = async ({ amount, currency = 'USDT', orderId, netw
 };
 
 const verifyCryptomusWebhook = ({ body, headers, rawBody }) => {
-  const { sign: signature } = headers;
+  const { sign: signature } = headers || {};
   if (!body || typeof body !== 'object') {
     return false;
   }
   const payloadForSignature = rawBody?.length ? rawBody : body;
   const expected = cryptomusSign(payloadForSignature);
-  const valid = signature === expected && body.merchant === config.cryptomus.merchantId;
-  return valid;
+  if (!signature || typeof signature !== 'string') {
+    return false;
+  }
+  const signatureHex = signature.trim().toLowerCase();
+  const expectedHex = expected.trim().toLowerCase();
+  if (signatureHex.length !== expectedHex.length) {
+    return false;
+  }
+  const signatureBuf = Buffer.from(signatureHex, 'hex');
+  const expectedBuf = Buffer.from(expectedHex, 'hex');
+  if (signatureBuf.length !== expectedBuf.length) {
+    return false;
+  }
+  const matches = crypto.timingSafeEqual(signatureBuf, expectedBuf);
+  return matches && body.merchant === config.cryptomus.merchantId;
 };
 
 const handleCryptomusWebhook = async ({ body }) => {
