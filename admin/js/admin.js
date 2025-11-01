@@ -5,7 +5,8 @@ const state = {
   connected: false,
   settings: null,
   sessionToken: '',
-  tokenExpiresAt: null
+  tokenExpiresAt: null,
+  verificationHosts: []
 };
 
 const adminIdInput = document.getElementById('adminId');
@@ -59,6 +60,64 @@ const sections = [
   batchesSection,
   riskSection
 ];
+
+const LOCAL_VERIFICATION_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
+
+const normalizeHost = value => (value || '').trim().toLowerCase();
+
+const matchesAllowedHost = (host, pattern) => {
+  const normalizedHost = normalizeHost(host);
+  const normalizedPattern = normalizeHost(pattern);
+  if (!normalizedHost || !normalizedPattern) {
+    return false;
+  }
+  if (normalizedPattern.startsWith('*.')) {
+    const suffix = normalizedPattern.slice(2);
+    return normalizedHost === suffix || normalizedHost.endsWith(`.${suffix}`);
+  }
+  return normalizedHost === normalizedPattern;
+};
+
+const isAllowedVerificationHost = host => {
+  const normalizedHost = normalizeHost(host);
+  if (!normalizedHost) {
+    return false;
+  }
+  if (Array.isArray(state.verificationHosts) && state.verificationHosts.length > 0) {
+    return state.verificationHosts.some(pattern => matchesAllowedHost(normalizedHost, pattern));
+  }
+  return LOCAL_VERIFICATION_HOSTS.has(normalizedHost);
+};
+
+const isAllowedVerificationUrl = urlString => {
+  if (!urlString) {
+    return false;
+  }
+  try {
+    const parsed = new URL(String(urlString).trim());
+    const protocol = parsed.protocol.toLowerCase();
+    const host = parsed.hostname;
+    if (protocol === 'https:') {
+      return isAllowedVerificationHost(host);
+    }
+    if (protocol === 'http:' && LOCAL_VERIFICATION_HOSTS.has(normalizeHost(host))) {
+      return isAllowedVerificationHost(host);
+    }
+    return false;
+  } catch (_error) {
+    return false;
+  }
+};
+
+const formatDocumentLink = (url, label) => {
+  if (!url) {
+    return null;
+  }
+  if (!isAllowedVerificationUrl(url)) {
+    return `<span class="blocked-link" title="Недоверенный адрес">${escapeHtml(label)}: заблокировано</span>`;
+  }
+  return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(label)}</a>`;
+};
 
 const toggleSections = visible => {
   sections.forEach(section => {
@@ -197,6 +256,7 @@ const handleUnauthorized = () => {
   state.tokenExpiresAt = null;
   state.connected = false;
   state.settings = null;
+  state.verificationHosts = [];
   toggleSections(false);
 };
 
@@ -531,18 +591,14 @@ const renderVerifications = requests => {
       ? `${escapeHtml(request.player.username || request.player.telegram_id || '')} (${escapeHtml(request.player.telegram_id || '')})`
       : `ID ${escapeHtml(String(request.player_id))}`;
     const docLinks = [];
-    if (request.document_front_url) {
-      docLinks.push(`<a href="${escapeHtml(request.document_front_url)}" target="_blank" rel="noopener noreferrer">Лицевая</a>`);
-    }
-    if (request.document_back_url) {
-      docLinks.push(`<a href="${escapeHtml(request.document_back_url)}" target="_blank" rel="noopener noreferrer">Оборот</a>`);
-    }
-    if (request.selfie_url) {
-      docLinks.push(`<a href="${escapeHtml(request.selfie_url)}" target="_blank" rel="noopener noreferrer">Селфи</a>`);
-    }
-    if (request.additional_document_url) {
-      docLinks.push(`<a href="${escapeHtml(request.additional_document_url)}" target="_blank" rel="noopener noreferrer">Дополнительно</a>`);
-    }
+    const frontLink = formatDocumentLink(request.document_front_url, 'Лицевая');
+    if (frontLink) docLinks.push(frontLink);
+    const backLink = formatDocumentLink(request.document_back_url, 'Оборот');
+    if (backLink) docLinks.push(backLink);
+    const selfieLink = formatDocumentLink(request.selfie_url, 'Селфи');
+    if (selfieLink) docLinks.push(selfieLink);
+    const additionalLink = formatDocumentLink(request.additional_document_url, 'Дополнительно');
+    if (additionalLink) docLinks.push(additionalLink);
     const actions = [];
     if (status === 'pending' || status === 'resubmit') {
       actions.push('<button data-action="approve" class="btn-small btn-success">Одобрить</button>');
@@ -647,6 +703,19 @@ const translateSeverity = severity => {
   return translations[severity] || severity;
 };
 
+const loadVerificationConfig = async () => {
+  try {
+    const data = await request('/security/verification-hosts');
+    const hosts = Array.isArray(data?.allowedHosts) ? data.allowedHosts : [];
+    state.verificationHosts = hosts
+      .map(host => host.trim().toLowerCase())
+      .filter(Boolean);
+  } catch (error) {
+    console.error('Не удалось загрузить список разрешенных хостов для документов', error);
+    state.verificationHosts = [];
+  }
+};
+
 const loadOverview = async () => {
   const data = await request('/stats/overview');
   renderOverview(data);
@@ -718,6 +787,7 @@ const searchPlayers = async () => {
 };
 
 const refreshAll = async () => {
+  await loadVerificationConfig();
   await Promise.all([
     loadOverview(),
     loadTransactions(),

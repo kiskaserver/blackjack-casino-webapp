@@ -22,13 +22,21 @@ if (allowedOrigins.length) {
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, origin || true);
       }
+      if (allowedOrigins.some(allowed => origin && origin.endsWith(`.${allowed}`))) {
+        return callback(null, origin);
+      }
       log.warn('Blocked CORS origin', { origin });
-      return callback(null, false);
+      return callback(new Error('Not allowed by CORS'));
     },
     credentials: true
   }));
 } else {
-  app.use(cors());
+  if (config.nodeEnv === 'production') {
+    log.warn('No ALLOWED_ORIGINS configured; rejecting cross-origin requests');
+    app.use(cors({ origin: false }));
+  } else {
+    app.use(cors({ credentials: true }));
+  }
 }
 
 app.use(helmet());

@@ -1,13 +1,52 @@
 const express = require('express');
+const { URL } = require('url');
 const limiter = require('../middleware/rateLimiter');
+const config = require('../config/env');
 const { verifyTelegram } = require('../middleware/verifyTelegram');
 const { sendSuccess, sendError } = require('../utils/http');
+const { log } = require('../utils/logger');
+const { isUrlAllowed } = require('../utils/url');
 const playerRepository = require('../repositories/playerRepository');
 const settingsService = require('../services/settingsService');
 const balanceService = require('../services/balanceService');
 const verificationService = require('../services/verificationService');
 
 const router = express.Router();
+
+const verificationAllowedHosts = config.security?.verificationAllowedHosts || [];
+const allowLocalFallback = config.nodeEnv !== 'production' && verificationAllowedHosts.length === 0;
+let loggedVerificationWarning = false;
+
+const isAllowedVerificationUrl = value => isUrlAllowed(value, {
+  allowedHosts: verificationAllowedHosts,
+  allowLocalhostFallback: allowLocalFallback
+});
+
+const sanitizeVerificationUrl = (value, { label, required }) => {
+  const trimmed = typeof value === 'string' ? value.trim() : '';
+  if (!trimmed) {
+    if (required) {
+      throw new Error(`Ссылка на ${label} обязательна`);
+    }
+    return null;
+  }
+
+  if (!verificationAllowedHosts.length && !allowLocalFallback && !loggedVerificationWarning) {
+    log.warn('Verification host allowlist is empty; rejecting non-local document URLs');
+    loggedVerificationWarning = true;
+  }
+
+  if (!isAllowedVerificationUrl(trimmed)) {
+    throw new Error(`Недопустимая ссылка на ${label}`);
+  }
+
+  try {
+    const canonical = new URL(trimmed);
+    return canonical.toString();
+  } catch (_error) {
+    throw new Error(`Недопустимая ссылка на ${label}`);
+  }
+};
 
 router.get('/profile', limiter, verifyTelegram, async (req, res) => {
   try {
@@ -140,12 +179,10 @@ router.post('/verification', limiter, verifyTelegram, async (req, res) => {
     if (!documentType || typeof documentType !== 'string') {
       throw new Error('Тип документа обязателен');
     }
-    if (!documentFrontUrl || typeof documentFrontUrl !== 'string') {
-      throw new Error('Ссылка на лицевую сторону документа обязательна');
-    }
-    if (!selfieUrl || typeof selfieUrl !== 'string') {
-      throw new Error('Ссылка на селфи обязательна');
-    }
+    const sanitizedFrontUrl = sanitizeVerificationUrl(documentFrontUrl, { label: 'лицевую сторону документа', required: true });
+    const sanitizedBackUrl = sanitizeVerificationUrl(documentBackUrl, { label: 'оборотную сторону документа', required: false });
+    const sanitizedSelfieUrl = sanitizeVerificationUrl(selfieUrl, { label: 'селфи', required: true });
+    const sanitizedAdditionalUrl = sanitizeVerificationUrl(additionalDocumentUrl, { label: 'дополнительный документ', required: false });
 
     const user = req.telegramUser;
     const player = await playerRepository.getOrCreatePlayer({
@@ -160,10 +197,10 @@ router.post('/verification', limiter, verifyTelegram, async (req, res) => {
       documentType,
       documentNumber: documentNumber || null,
       country: country || null,
-      documentFrontUrl,
-      documentBackUrl: documentBackUrl || null,
-      selfieUrl,
-      additionalDocumentUrl: additionalDocumentUrl || null,
+  documentFrontUrl: sanitizedFrontUrl,
+  documentBackUrl: sanitizedBackUrl,
+  selfieUrl: sanitizedSelfieUrl,
+  additionalDocumentUrl: sanitizedAdditionalUrl,
       metadata: typeof metadata === 'object' && metadata !== null ? metadata : {}
     });
 

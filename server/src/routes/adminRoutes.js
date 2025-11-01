@@ -11,7 +11,9 @@ const houseRepository = require('../repositories/houseRepository');
 const balanceService = require('../services/balanceService');
 const riskRepository = require('../repositories/riskRepository');
 const { validateCredentials, createSession, revokeSession } = require('../services/adminAuthService');
+const { generalLimiter, loginLimiter } = require('../middleware/adminRateLimiter');
 const verificationService = require('../services/verificationService');
+const config = require('../config/env');
 
 const router = express.Router();
 
@@ -94,7 +96,7 @@ const mapBatchWithStats = async batch => {
   };
 };
 
-router.post('/auth/login', async (req, res) => {
+router.post('/auth/login', loginLimiter, async (req, res) => {
   try {
     const { adminId, secret } = req.body || {};
     if (!validateCredentials({ adminId, secret })) {
@@ -108,7 +110,7 @@ router.post('/auth/login', async (req, res) => {
   }
 });
 
-router.post('/auth/logout', adminAuth, async (req, res) => {
+router.post('/auth/logout', adminAuth, generalLimiter, async (req, res) => {
   try {
     await revokeSession(req.admin?.sessionId);
     sendSuccess(res, { success: true });
@@ -117,7 +119,14 @@ router.post('/auth/logout', adminAuth, async (req, res) => {
   }
 });
 
+router.use(generalLimiter);
 router.use(adminAuth);
+
+router.get('/security/verification-hosts', async (_req, res) => {
+  sendSuccess(res, {
+    allowedHosts: config.security?.verificationAllowedHosts || []
+  });
+});
 
 router.get('/stats/overview', async (_req, res) => {
   try {

@@ -9,12 +9,33 @@ const SESSION_PREFIX = 'admin:session:';
 const ISSUER = 'blackjack-admin';
 
 const timingSafeEqual = (a, b) => {
-  const bufA = Buffer.from(String(a));
-  const bufB = Buffer.from(String(b));
+  if (typeof a !== 'string' || typeof b !== 'string') {
+    return false;
+  }
+  const bufA = Buffer.from(a, 'utf8');
+  const bufB = Buffer.from(b, 'utf8');
   if (bufA.length !== bufB.length) {
     return false;
   }
   return crypto.timingSafeEqual(bufA, bufB);
+};
+
+const verifyHashedSecret = (secret, storedHash) => {
+  if (!secret || !storedHash) {
+    return false;
+  }
+  const parts = storedHash.split(':');
+  if (parts.length !== 3) {
+    throw new Error('Invalid admin secret hash format');
+  }
+  const [scheme, saltPart, hashPart] = parts;
+  if (scheme !== 'scrypt') {
+    throw new Error('Unsupported admin secret hash algorithm');
+  }
+  const salt = Buffer.from(saltPart, 'base64');
+  const expected = Buffer.from(hashPart, 'hex');
+  const derived = crypto.scryptSync(secret, salt, expected.length);
+  return crypto.timingSafeEqual(expected, derived);
 };
 
 const validateCredentials = ({ adminId, secret }) => {
@@ -26,7 +47,20 @@ const validateCredentials = ({ adminId, secret }) => {
   if (!hasId) {
     return false;
   }
-  return timingSafeEqual(secret, config.adminPanelSecret);
+  if (config.adminPanelSecret && timingSafeEqual(secret, config.adminPanelSecret)) {
+    return true;
+  }
+
+  if (config.adminPanelSecretHash) {
+    try {
+      return verifyHashedSecret(secret, config.adminPanelSecretHash);
+    } catch (error) {
+      log.warn('Admin secret hash verification failed', { error: error.message });
+      return false;
+    }
+  }
+
+  return false;
 };
 
 const createSession = async ({ adminId, ip }) => {

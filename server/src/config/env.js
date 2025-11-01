@@ -1,3 +1,4 @@
+const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
 
@@ -11,6 +12,70 @@ const required = (value, name) => {
   return value;
 };
 
+const parsePositiveInteger = (value, defaultValue, name) => {
+  const base = value === undefined || value === null || String(value).trim() === ''
+    ? undefined
+    : Number(value);
+  if (base === undefined) {
+    return defaultValue;
+  }
+  if (!Number.isFinite(base) || base <= 0) {
+    throw new Error(`${name} must be a positive integer`);
+  }
+  return Math.floor(base);
+};
+
+const resolveSecret = (inlineValue, filePath, name) => {
+  if (filePath) {
+    try {
+      const absolutePath = path.isAbsolute(filePath)
+        ? filePath
+        : path.resolve(process.cwd(), filePath);
+      return fs.readFileSync(absolutePath, 'utf8').trim();
+    } catch (error) {
+      throw new Error(`Failed to read ${name} from file ${filePath}: ${error.message}`);
+    }
+  }
+  return inlineValue ? String(inlineValue).trim() : '';
+};
+
+const adminSecret = resolveSecret(
+  process.env.ADMIN_PANEL_SECRET,
+  process.env.ADMIN_PANEL_SECRET_FILE,
+  'ADMIN_PANEL_SECRET'
+);
+
+const adminSecretHash = process.env.ADMIN_PANEL_SECRET_HASH
+  ? String(process.env.ADMIN_PANEL_SECRET_HASH).trim()
+  : '';
+
+if (!adminSecret && !adminSecretHash) {
+  throw new Error('Missing admin secret. Set ADMIN_PANEL_SECRET, ADMIN_PANEL_SECRET_FILE, or ADMIN_PANEL_SECRET_HASH');
+}
+
+const allowedOriginsRaw = process.env.ALLOWED_ORIGINS
+  || (process.env.NODE_ENV === 'production' ? '' : 'http://localhost:3000,http://localhost:5173');
+
+const allowedOrigins = allowedOriginsRaw
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
+
+if (!allowedOrigins.length && process.env.NODE_ENV === 'production') {
+  throw new Error('ALLOWED_ORIGINS must be configured in production');
+}
+
+const verificationAllowedHosts = (process.env.VERIFICATION_ALLOWED_HOSTS || '')
+  .split(',')
+  .map(host => host.trim().toLowerCase())
+  .filter(Boolean);
+
+const requestLimitPerMinute = parsePositiveInteger(
+  process.env.REQUEST_LIMIT_PER_MINUTE,
+  120,
+  'REQUEST_LIMIT_PER_MINUTE'
+);
+
 module.exports = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT || 5050),
@@ -19,7 +84,8 @@ module.exports = {
     .split(',')
     .map(id => id.trim())
     .filter(Boolean),
-  adminPanelSecret: required(process.env.ADMIN_PANEL_SECRET, 'ADMIN_PANEL_SECRET'),
+  adminPanelSecret: adminSecret,
+  adminPanelSecretHash,
   databaseUrl: required(process.env.DATABASE_URL, 'DATABASE_URL'),
   redisUrl: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
   cryptomus: {
@@ -33,16 +99,14 @@ module.exports = {
     botToken: required(process.env.TELEGRAM_BOT_TOKEN, 'TELEGRAM_BOT_TOKEN')
   },
   security: {
-    requestLimitPerMinute: Number(process.env.REQUEST_LIMIT_PER_MINUTE || 120),
+    requestLimitPerMinute,
     ipWhitelist: (process.env.IP_WHITELIST || '')
       .split(',')
       .map(ip => ip.trim())
       .filter(Boolean),
-    allowedOrigins: (process.env.ALLOWED_ORIGINS || '')
-      .split(',')
-      .map(origin => origin.trim())
-      .filter(Boolean),
+    allowedOrigins,
     adminSessionTtlSeconds: Number(process.env.ADMIN_SESSION_TTL_SECONDS || 3600),
-    telegramInitMaxAgeSeconds: Number(process.env.TELEGRAM_INIT_MAX_AGE_SECONDS || 60)
+    telegramInitMaxAgeSeconds: Number(process.env.TELEGRAM_INIT_MAX_AGE_SECONDS || 60),
+    verificationAllowedHosts
   }
 };
