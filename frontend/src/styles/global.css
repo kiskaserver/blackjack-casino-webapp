@@ -60,6 +60,7 @@ body,
   height: 100%;
   margin: 0;
   padding: 0;
+  overflow: hidden;
 }
 
 html {
@@ -76,7 +77,6 @@ body {
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow-x: hidden;
 }
 
 /* ===== UTILITY CLASSES ===== */
@@ -124,14 +124,10 @@ body {
 .casino-app {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  width: 100vw;
-  overflow-x: hidden;
+  width: 100%;
+  height: 100%;
   position: relative;
-  padding-top: var(--tg-safe-inset-top);
-  padding-bottom: var(--tg-safe-inset-bottom);
-  padding-left: var(--tg-safe-inset-left);
-  padding-right: var(--tg-safe-inset-right);
+  overflow: hidden;
 }
 
 /* ===== HEADER ===== */
@@ -144,12 +140,12 @@ body {
   align-items: center;
   justify-content: space-between;
   gap: 1rem;
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 100;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
   flex-wrap: wrap;
-  min-height: 70px;
+  min-height: 60px;
+  flex-shrink: 0;
 }
 
 .casino-logo {
@@ -160,7 +156,7 @@ body {
 }
 
 .logo-text {
-  font-size: 1.1rem;
+  font-size: 1rem;
   font-weight: 800;
   color: var(--primary);
   text-shadow: 0 0 15px rgba(0, 212, 255, 0.5);
@@ -169,7 +165,7 @@ body {
 }
 
 .logo-subtext {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -180,7 +176,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 1rem;
+  gap: 0.75rem;
   flex: 1;
   flex-wrap: wrap;
   min-width: 0;
@@ -193,12 +189,12 @@ body {
   align-items: center;
   gap: 0.25rem;
   flex-shrink: 0;
-  min-width: 70px;
+  min-width: 65px;
 }
 
 .balance-label,
 .level-label {
-  font-size: 0.65rem;
+  font-size: 0.6rem;
   color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -207,7 +203,7 @@ body {
 
 .balance-amount,
 .level-value {
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 700;
   color: var(--success);
   text-shadow: 0 0 8px rgba(6, 255, 165, 0.4);
@@ -215,6 +211,7 @@ body {
   overflow: hidden;
   text-overflow: ellipsis;
   text-align: center;
+  max-width: 100%;
 }
 
 .controls-group {
@@ -224,8 +221,8 @@ body {
 }
 
 .control-btn {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   background: rgba(0, 212, 255, 0.1);
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -235,7 +232,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.1rem;
+  font-size: 1rem;
   flex-shrink: 0;
 }
 
@@ -257,12 +254,13 @@ body {
   backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border-color);
   padding: 0.5rem 1rem;
-  position: sticky;
-  top: 70px;
+  position: relative;
   z-index: 99;
   overflow-x: auto;
   scrollbar-width: none;
   -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
+  min-height: 48px;
 }
 
 .player-nav::-webkit-scrollbar {
@@ -272,12 +270,13 @@ body {
 .player-nav a {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 0.75rem;
+  justify-content: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.65rem;
   border-radius: var(--border-radius-sm);
   color: var(--text-muted);
   text-decoration: none;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 600;
   white-space: nowrap;
   transition: var(--transition-normal);
@@ -285,6 +284,7 @@ body {
   flex-shrink: 0;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  flex-direction: column;
 }
 
 .player-nav a:hover {
@@ -307,15 +307,16 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  padding: 1rem;
-  gap: 1rem;
+  padding: 0.75rem;
+  gap: 0.75rem;
   overflow-y: auto;
+  overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
 }
 
 /* ===== MESSAGES ===== */
 .message {
-  padding: 1rem;
+  padding: 0.75rem 1rem;
   border-radius: var(--border-radius-sm);
   font-weight: 600;
   text-align: center;
@@ -325,6 +326,7 @@ body {
   text-shadow: 0 0 10px rgba(6, 255, 165, 0.4);
   animation: pulse 2s infinite;
   word-wrap: break-word;
+  font-size: 0.9rem;
 }
 
 .message.error {
@@ -522,7 +524,8 @@ tr:hover td {
 /* ===== ADMIN LAYOUT ===== */
 .admin-container {
   display: flex;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   overflow: hidden;
 }
 
@@ -536,6 +539,7 @@ tr:hover td {
   padding: 1.5rem;
   overflow-y: auto;
   z-index: 50;
+  flex-shrink: 0;
 }
 
 .admin-logo {
@@ -585,12 +589,7 @@ tr:hover td {
   gap: 1.5rem;
 }
 
-/* ===== RESPONSIVE ===== */
 @media (max-width: 768px) {
-  .player-nav {
-    top: 60px;
-  }
-
   .admin-sidebar {
     width: 150px;
     padding: 1rem;
@@ -604,30 +603,26 @@ tr:hover td {
 @media (max-width: 480px) {
   .game-header {
     padding: 0.5rem;
-    min-height: 60px;
-  }
-
-  .casino-logo {
-    min-width: 0;
+    min-height: 55px;
   }
 
   .logo-text {
-    font-size: 0.95rem;
+    font-size: 0.85rem;
   }
 
   .player-stats {
-    gap: 0.75rem;
+    gap: 0.6rem;
   }
 
   .balance,
   .level {
-    min-width: 60px;
+    min-width: 55px;
   }
 
   .control-btn {
-    width: 36px;
-    height: 36px;
-    font-size: 1rem;
+    width: 34px;
+    height: 34px;
+    font-size: 0.9rem;
   }
 
   .modal-content {

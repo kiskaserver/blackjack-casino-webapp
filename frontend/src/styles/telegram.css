@@ -2,17 +2,17 @@
 
 /* Safe area handling for Telegram WebApp */
 @supports (padding: max(0px)) {
-  body {
-    padding-left: max(0.5rem, var(--tg-safe-inset-left));
-    padding-right: max(0.5rem, var(--tg-safe-inset-right));
+  .casino-app {
     padding-top: max(0px, var(--tg-safe-inset-top));
     padding-bottom: max(0px, var(--tg-safe-inset-bottom));
+    padding-left: max(0px, var(--tg-safe-inset-left));
+    padding-right: max(0px, var(--tg-safe-inset-right));
   }
 
   .game-controls {
-    padding-left: max(1rem, var(--tg-safe-inset-left));
-    padding-right: max(1rem, var(--tg-safe-inset-right));
-    padding-bottom: max(1rem, var(--tg-safe-inset-bottom));
+    padding-left: max(0.75rem, var(--tg-safe-inset-left));
+    padding-right: max(0.75rem, var(--tg-safe-inset-right));
+    padding-bottom: max(0.75rem, var(--tg-safe-inset-bottom));
   }
 }
 
@@ -25,8 +25,8 @@ html {
 }
 
 body {
-  width: 100vw;
-  height: 100vh;
+  width: 100%;
+  height: 100%;
   margin: 0;
   padding: 0;
   touch-action: manipulation;
@@ -64,7 +64,8 @@ input[type="radio"] {
 /* Smooth scrolling */
 .casino-app,
 .player-content,
-.game-table {
+.game-table,
+.cards-area {
   scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
   overscroll-behavior: contain;
@@ -141,22 +142,39 @@ textarea:focus-visible {
 /* Landscape orientation optimization */
 @media screen and (orientation: landscape) and (max-height: 500px) {
   .game-header {
-    min-height: 45px;
+    min-height: 50px;
     padding: 0.4rem 0.75rem;
   }
 
   .player-nav {
-    max-height: 40px;
-    top: 45px;
+    min-height: 42px;
+    padding: 0.4rem 0.75rem;
   }
 
   .game-table {
-    padding: 0.5rem;
+    padding: 0.4rem;
+    gap: 0.4rem;
+  }
+
+  .cards-area {
+    min-height: 80px;
   }
 
   .game-controls {
     padding: 0.5rem;
-    position: static;
+  }
+
+  .game-btn {
+    min-width: 65px;
+    height: 45px;
+  }
+
+  .btn-text {
+    font-size: 7px;
+  }
+
+  .btn-icon {
+    font-size: 14px;
   }
 }
 
@@ -167,29 +185,42 @@ textarea:focus-visible {
   }
 
   .logo-text {
-    font-size: 0.8rem;
+    font-size: 0.75rem;
   }
 
   .balance,
   .level {
-    min-width: 55px;
+    min-width: 50px;
   }
 
   .game-controls {
-    gap: 0.5rem;
+    gap: 0.45rem;
   }
 
   .game-btn {
-    min-width: 65px;
-    height: 48px;
+    min-width: 58px;
+    height: 46px;
   }
 
   .btn-icon {
-    font-size: 14px;
+    font-size: 13px;
   }
 
   .btn-text {
-    font-size: 7px;
+    font-size: 6px;
+  }
+
+  .card {
+    width: 46px;
+    height: 68px;
+  }
+
+  .card-value {
+    font-size: 10px;
+  }
+
+  .card-suit {
+    font-size: 12px;
   }
 }
 
