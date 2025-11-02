@@ -1,28 +1,12 @@
-const axios = require('axios');
 const crypto = require('crypto');
+const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const config = require('../config/env');
 const balanceService = require('./balanceService');
 const playerRepository = require('../repositories/playerRepository');
 const settingsService = require('./settingsService');
 const paymentRepository = require('../repositories/paymentRepository');
-
-const toBuffer = payload => {
-  if (Buffer.isBuffer(payload)) {
-    return payload;
-  }
-  if (typeof payload === 'string') {
-    return Buffer.from(payload, 'utf8');
-  }
-  return Buffer.from(JSON.stringify(payload));
-};
-
-const encodePayload = payload => toBuffer(payload).toString('base64');
-
-const cryptomusSign = payload => crypto
-  .createHash('md5')
-  .update(encodePayload(payload) + config.cryptomus.apiKey)
-  .digest('hex');
+const { buildHeaders, signPayload } = require('../utils/cryptomus');
 
 const createCryptomusInvoice = async ({ amount, currency = 'USDT', orderId, network = 'TRC20', telegramUser }) => {
   const userInfo = telegramUser || {};
@@ -42,10 +26,7 @@ const createCryptomusInvoice = async ({ amount, currency = 'USDT', orderId, netw
     subtract: 0
   };
 
-  const headers = {
-    merchant: config.cryptomus.merchantId,
-    sign: cryptomusSign(payload)
-  };
+  const headers = buildHeaders(payload);
 
   const { data } = await axios.post(config.cryptomus.paymentUrl, payload, { headers });
   return { invoice: data.result, playerId: player.id };
@@ -57,7 +38,7 @@ const verifyCryptomusWebhook = ({ body, headers, rawBody }) => {
     return false;
   }
   const payloadForSignature = rawBody?.length ? rawBody : body;
-  const expected = cryptomusSign(payloadForSignature);
+  const expected = signPayload(payloadForSignature);
   if (!signature || typeof signature !== 'string') {
     return false;
   }

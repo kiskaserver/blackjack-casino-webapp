@@ -1,30 +1,38 @@
-const antiFraudService = require('../src/services/antiFraudService');
+process.env.NODE_ENV = 'test';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://user:pass@localhost:5432/test';
+process.env.CRYPTOMUS_MERCHANT_ID = process.env.CRYPTOMUS_MERCHANT_ID || 'merchant-id';
+process.env.CRYPTOMUS_API_KEY = process.env.CRYPTOMUS_API_KEY || 'api-key';
+process.env.TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || 'telegram-token';
+process.env.ADMIN_PANEL_SECRET = process.env.ADMIN_PANEL_SECRET || 'admin-secret';
 
-const mockDb = {
+jest.mock('../src/config/database', () => ({
   query: jest.fn()
-};
+}));
 
-const mockSettingsService = {
+jest.mock('../src/services/settingsService', () => ({
   getSettings: jest.fn()
-};
+}));
 
-const mockRiskRepository = {
+jest.mock('../src/repositories/riskRepository', () => ({
   createEvent: jest.fn()
-};
+}));
 
-const mockHouseRepository = {
+jest.mock('../src/repositories/houseRepository', () => ({
   upsertOverride: jest.fn()
-};
+}));
 
-const mockPlayerRepository = {
+jest.mock('../src/repositories/playerRepository', () => ({
   updateStatus: jest.fn()
-};
+}));
 
-jest.mock('../src/config/database', () => mockDb);
-jest.mock('../src/services/settingsService', () => mockSettingsService);
-jest.mock('../src/repositories/riskRepository', () => mockRiskRepository);
-jest.mock('../src/repositories/houseRepository', () => mockHouseRepository);
-jest.mock('../src/repositories/playerRepository', () => mockPlayerRepository);
+const mockDb = require('../src/config/database');
+const mockSettingsService = require('../src/services/settingsService');
+const mockRiskRepository = require('../src/repositories/riskRepository');
+const mockHouseRepository = require('../src/repositories/houseRepository');
+const mockPlayerRepository = require('../src/repositories/playerRepository');
+
+const antiFraudService = require('../src/services/antiFraudService');
 
 describe('Anti-Fraud Service', () => {
   beforeEach(() => {

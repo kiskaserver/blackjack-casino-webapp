@@ -1,41 +1,56 @@
-const withdrawalService = require('../src/services/withdrawalService');
+jest.mock('../src/services/balanceService', () => ({
+  debitBalance: jest.fn(),
+  creditBalance: jest.fn()
+}));
 
-const mockBalanceService = {
-  debitBalance: jest.fn()
-};
-
-const mockPlayerRepository = {
+jest.mock('../src/repositories/playerRepository', () => ({
   getOrCreatePlayer: jest.fn()
-};
+}));
 
-const mockWithdrawalRepository = {
+jest.mock('../src/repositories/withdrawalRepository', () => ({
   createWithdrawal: jest.fn(),
   updateWithdrawalSchedule: jest.fn(),
   listWithdrawals: jest.fn(),
   updateWithdrawalStatus: jest.fn(),
   getWithdrawalById: jest.fn()
-};
+}));
 
-const mockBatchRepository = {
+jest.mock('../src/repositories/batchRepository', () => ({
   getScheduledBatches: jest.fn(),
   updateBatchStatus: jest.fn(),
   assignWithdrawalsToBatch: jest.fn(),
   getWithdrawalsInBatch: jest.fn()
-};
+}));
 
-const mockSettingsService = {
+jest.mock('../src/services/settingsService', () => ({
   getSettings: jest.fn()
-};
+}));
 
-jest.mock('../src/services/balanceService', () => mockBalanceService);
-jest.mock('../src/repositories/playerRepository', () => mockPlayerRepository);
-jest.mock('../src/repositories/withdrawalRepository', () => mockWithdrawalRepository);
-jest.mock('../src/repositories/batchRepository', () => mockBatchRepository);
-jest.mock('../src/services/settingsService', () => mockSettingsService);
+jest.mock('../src/services/cryptomusPayoutService', () => ({
+  createPayout: jest.fn(),
+  fetchPayoutStatus: jest.fn()
+}));
+
+const mockBalanceService = require('../src/services/balanceService');
+const mockPlayerRepository = require('../src/repositories/playerRepository');
+const mockWithdrawalRepository = require('../src/repositories/withdrawalRepository');
+const mockBatchRepository = require('../src/repositories/batchRepository');
+const mockSettingsService = require('../src/services/settingsService');
+const mockCryptomusPayoutService = require('../src/services/cryptomusPayoutService');
+
+const withdrawalService = require('../src/services/withdrawalService');
 
 describe('Withdrawal Service', () => {
   beforeEach(() => {
     jest.clearAllMocks();
+    mockCryptomusPayoutService.createPayout.mockResolvedValue({
+      uuid: 'payout-uuid',
+      status: 'processing'
+    });
+    mockCryptomusPayoutService.fetchPayoutStatus.mockResolvedValue({
+      status: 'paid',
+      txid: 'hash-123'
+    });
   });
 
   describe('requestWithdrawal', () => {

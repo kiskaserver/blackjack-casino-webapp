@@ -4,6 +4,7 @@ const playerRepository = require('../repositories/playerRepository');
 const withdrawalRepository = require('../repositories/withdrawalRepository');
 const batchRepository = require('../repositories/batchRepository');
 const settingsService = require('./settingsService');
+const cryptomusPayoutService = require('./cryptomusPayoutService');
 const { log } = require('../utils/logger');
 
 const supportedMethods = ['cryptomus', 'telegram_stars'];
@@ -252,29 +253,104 @@ const processCryptoBatch = async batchId => {
   }
 };
 
+const normalizePayoutStatus = status => (status || '').toLowerCase();
+
 const processCryptoGroup = async withdrawals => {
-  // Implement actual crypto processing logic here
-  // This is a placeholder that marks withdrawals as processed
   for (const withdrawal of withdrawals) {
-    await withdrawalRepository.updateWithdrawalStatus({
-      id: withdrawal.id,
-      status: 'processing',
-      metadata: { 
-        batchProcessedAt: new Date().toISOString(),
-        txHash: `mock_tx_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+    try {
+      const orderId = `withdrawal:${withdrawal.id}`;
+      const netAmount = Number(withdrawal.net_amount || withdrawal.amount);
+      if (!Number.isFinite(netAmount) || netAmount <= 0) {
+        throw new Error('Invalid net amount for payout request');
       }
-    });
-    
-    // Simulate processing delay
-    await new Promise(resolve => setTimeout(resolve, 100));
-    
-    await withdrawalRepository.updateWithdrawalStatus({
-      id: withdrawal.id,
-      status: 'paid',
-      metadata: { 
-        completedAt: new Date().toISOString()
+      const payload = {
+        amount: netAmount.toFixed(2),
+        currency: withdrawal.currency || 'USDT',
+        address: withdrawal.destination,
+        network: withdrawal.network || 'TRC20',
+        order_id: orderId,
+        subtract: 1
+      };
+
+      const payoutResult = await cryptomusPayoutService.createPayout(payload);
+      const providerReference = payoutResult.uuid || payoutResult.order_id || orderId;
+
+      await withdrawalRepository.updateWithdrawalStatus({
+        id: withdrawal.id,
+        status: 'processing',
+        metadata: {
+          provider: 'cryptomus',
+          providerReference,
+          requestPayload: payload,
+          providerResponse: payoutResult,
+          processingStartedAt: new Date().toISOString()
+        }
+      });
+
+      let statusResult = null;
+      try {
+        statusResult = await cryptomusPayoutService.fetchPayoutStatus({
+          uuid: payoutResult.uuid,
+          orderId
+        });
+      } catch (statusError) {
+        log.warn('Cryptomus payout status lookup failed', {
+          withdrawalId: withdrawal.id,
+          error: statusError.message
+        });
       }
-    });
+
+      if (!statusResult) {
+        continue;
+      }
+
+      const providerStatus = normalizePayoutStatus(statusResult.status || statusResult.state);
+
+      if (['paid', 'success', 'completed'].includes(providerStatus)) {
+        await withdrawalRepository.updateWithdrawalStatus({
+          id: withdrawal.id,
+          status: 'paid',
+          metadata: {
+            providerStatus: statusResult,
+            txHash: statusResult.txid || statusResult.hash || payoutResult.txid || null,
+            completedAt: new Date().toISOString()
+          }
+        });
+        continue;
+      }
+
+      if (['failed', 'canceled', 'rejected', 'expired'].includes(providerStatus)) {
+        throw new Error(`Cryptomus marked payout as ${providerStatus}`);
+      }
+
+      await withdrawalRepository.updateWithdrawalStatus({
+        id: withdrawal.id,
+        status: 'processing',
+        metadata: {
+          providerStatus: statusResult
+        }
+      });
+    } catch (error) {
+      log.error('Crypto withdrawal processing failed', { withdrawalId: withdrawal.id, error: error.message });
+
+      await withdrawalRepository.updateWithdrawalStatus({
+        id: withdrawal.id,
+        status: 'failed',
+        metadata: {
+          provider: 'cryptomus',
+          error: error.message,
+          failedAt: new Date().toISOString()
+        }
+      });
+
+      await balanceService.creditBalance({
+        playerId: withdrawal.player_id,
+        amount: Number(withdrawal.amount),
+        reason: 'withdraw_refund',
+        referenceId: `withdrawal-refund:${withdrawal.id}`,
+        walletType: 'real'
+      });
+    }
   }
 };
 
@@ -418,5 +494,8 @@ module.exports = {
   requestWithdrawal,
   listWithdrawals,
   updateWithdrawalStatus,
-  processBatchNow
+  processBatchNow,
+  processDailyBatch,
+  processWithdrawalJob,
+  enqueueUrgentReviewJob
 };

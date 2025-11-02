@@ -25,6 +25,17 @@ const parsePositiveInteger = (value, defaultValue, name) => {
   return Math.floor(base);
 };
 
+const parseBoolean = (value, defaultValue = false) => {
+  if (value === undefined || value === null) {
+    return defaultValue;
+  }
+  const normalized = String(value).trim().toLowerCase();
+  if (!normalized) {
+    return defaultValue;
+  }
+  return ['1', 'true', 'yes', 'on'].includes(normalized);
+};
+
 const resolveSecret = (inlineValue, filePath, name) => {
   if (filePath) {
     try {
@@ -76,6 +87,9 @@ const requestLimitPerMinute = parsePositiveInteger(
   'REQUEST_LIMIT_PER_MINUTE'
 );
 
+const ngrokHeaderName = process.env.NGROK_SKIP_HEADER || 'ngrok-skip-browser-warning';
+const ngrokQueryParam = process.env.NGROK_SKIP_QUERY || 'ngrok-skip-browser-warning';
+
 module.exports = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT || 5050),
@@ -85,14 +99,16 @@ module.exports = {
     .map(id => id.trim())
     .filter(Boolean),
   adminPanelSecret: adminSecret,
-  adminPanelSecretHash,
+  adminPanelSecretHash: adminSecretHash,
   databaseUrl: required(process.env.DATABASE_URL, 'DATABASE_URL'),
   redisUrl: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
   cryptomus: {
     merchantId: required(process.env.CRYPTOMUS_MERCHANT_ID, 'CRYPTOMUS_MERCHANT_ID'),
     apiKey: required(process.env.CRYPTOMUS_API_KEY, 'CRYPTOMUS_API_KEY'),
     paymentUrl: process.env.CRYPTOMUS_PAYMENT_URL || 'https://api.cryptomus.com/v1/payment',
-    paymentStatusUrl: process.env.CRYPTOMUS_STATUS_URL || 'https://api.cryptomus.com/v1/payment/info'
+    paymentStatusUrl: process.env.CRYPTOMUS_STATUS_URL || 'https://api.cryptomus.com/v1/payment/info',
+    payoutUrl: process.env.CRYPTOMUS_PAYOUT_URL || 'https://api.cryptomus.com/v1/payout',
+    payoutStatusUrl: process.env.CRYPTOMUS_PAYOUT_STATUS_URL || 'https://api.cryptomus.com/v1/payout/info'
   },
   telegramStars: {
     providerToken: process.env.TELEGRAM_PROVIDER_TOKEN || '',
@@ -108,5 +124,10 @@ module.exports = {
     adminSessionTtlSeconds: Number(process.env.ADMIN_SESSION_TTL_SECONDS || 3600),
     telegramInitMaxAgeSeconds: Number(process.env.TELEGRAM_INIT_MAX_AGE_SECONDS || 60),
     verificationAllowedHosts
+  },
+  ngrok: {
+    enabled: parseBoolean(process.env.NGROK_MODE ?? process.env.USE_NGROK_MODE, false),
+    headerName: ngrokHeaderName,
+    queryParam: ngrokQueryParam
   }
 };

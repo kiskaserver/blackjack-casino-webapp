@@ -96,7 +96,7 @@ const updateWithdrawalStatus = async ({ id, status, metadata }) => {
     `UPDATE withdrawals
      SET status = $2,
          metadata = COALESCE(metadata, '{}'::jsonb) || $3::jsonb,
-         processed_at = CASE WHEN $2 IN ('approved', 'rejected', 'paid') THEN NOW() ELSE processed_at END
+         processed_at = CASE WHEN $2 IN ('approved', 'rejected', 'paid', 'failed') THEN NOW() ELSE processed_at END
      WHERE id = $1
      RETURNING *
     `,

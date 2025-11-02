@@ -1,25 +1,28 @@
 const request = require('supertest');
 const express = require('express');
 const bodyParser = require('body-parser');
-const playerRoutes = require('../src/routes/playerRoutes');
 
-const mockPlayerRepository = {
+process.env.NODE_ENV = 'test';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret';
+process.env.DATABASE_URL = process.env.DATABASE_URL || 'postgresql://user:pass@localhost:5432/test';
+process.env.CRYPTOMUS_MERCHANT_ID = process.env.CRYPTOMUS_MERCHANT_ID || 'merchant-id';
+process.env.CRYPTOMUS_API_KEY = process.env.CRYPTOMUS_API_KEY || 'api-key';
+process.env.TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || 'telegram-token';
+process.env.ADMIN_PANEL_SECRET = process.env.ADMIN_PANEL_SECRET || 'admin-secret';
+
+jest.mock('../src/repositories/playerRepository', () => ({
   getOrCreatePlayer: jest.fn(),
   getPlayerStats: jest.fn()
-};
+}));
 
-const mockSettingsService = {
+jest.mock('../src/services/settingsService', () => ({
   getSettings: jest.fn()
-};
+}));
 
-const mockBalanceService = {
+jest.mock('../src/services/balanceService', () => ({
   creditBalance: jest.fn(),
   debitBalance: jest.fn()
-};
-
-jest.mock('../src/repositories/playerRepository', () => mockPlayerRepository);
-jest.mock('../src/services/settingsService', () => mockSettingsService);
-jest.mock('../src/services/balanceService', () => mockBalanceService);
+}));
 jest.mock('../src/middleware/verifyTelegram', () => ({
   verifyTelegram: (req, res, next) => {
     req.telegramUser = { id: 123456789, username: 'testuser' };
@@ -27,6 +30,12 @@ jest.mock('../src/middleware/verifyTelegram', () => ({
   }
 }));
 jest.mock('../src/middleware/rateLimiter', () => (req, res, next) => next());
+
+const mockPlayerRepository = require('../src/repositories/playerRepository');
+const mockSettingsService = require('../src/services/settingsService');
+const mockBalanceService = require('../src/services/balanceService');
+
+const playerRoutes = require('../src/routes/playerRoutes');
 
 describe('Player Routes', () => {
   let app;

@@ -49,6 +49,27 @@ app.use(bodyParser.json({
 }));
 app.use(loggerMiddleware);
 
+if (config.ngrok?.enabled) {
+  app.use((req, res, next) => {
+    if (config.ngrok.headerName) {
+      res.set(config.ngrok.headerName, 'true');
+    }
+    const headerName = (config.ngrok.headerName || '').toLowerCase();
+    const queryParam = config.ngrok.queryParam || 'ngrok-skip-browser-warning';
+    const hasHeader = headerName ? Object.prototype.hasOwnProperty.call(req.headers, headerName) : false;
+    const hasQuery = req.query && Object.prototype.hasOwnProperty.call(req.query, queryParam);
+
+  const isRedirectMethod = req.method === 'GET' || req.method === 'HEAD';
+  if (!hasHeader && !hasQuery && isRedirectMethod) {
+      const separator = req.originalUrl.includes('?') ? '&' : '?';
+      const location = `${req.originalUrl}${separator}${queryParam}=true`;
+      return res.redirect(302, location);
+    }
+
+    return next();
+  });
+}
+
 const adminStaticPath = path.resolve(__dirname, '..', '..', 'admin');
 app.use('/admin', express.static(adminStaticPath));
 
