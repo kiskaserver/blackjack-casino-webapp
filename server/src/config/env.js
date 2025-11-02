@@ -53,11 +53,14 @@ const resolveTrustProxy = defaultValue => {
     return defaultValue;
   }
   const normalized = rawString.toLowerCase();
-  if (['true', '1', 'yes', 'on'].includes(normalized)) {
+  if (['true', 'yes', 'on'].includes(normalized)) {
     return true;
   }
   if (['false', '0', 'no', 'off'].includes(normalized)) {
     return false;
+  }
+  if (/^\d+$/.test(rawString)) {
+    return Number(rawString);
   }
   const numeric = Number(rawString);
   if (Number.isFinite(numeric)) {

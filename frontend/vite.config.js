@@ -3,6 +3,10 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
+  const previewAllowedHosts = (env.VITE_PREVIEW_ALLOWED_HOSTS || '')
+    .split(',')
+    .map(host => host.trim())
+    .filter(Boolean);
   return {
     plugins: [react()],
     server: {
@@ -17,6 +21,11 @@ export default defineConfig(({ mode }) => {
     build: {
       outDir: 'dist',
       sourcemap: true
+    },
+    preview: {
+      host: env.VITE_PREVIEW_HOST || '0.0.0.0',
+      port: Number(env.VITE_PREVIEW_PORT || 4173),
+      allowedHosts: previewAllowedHosts.length ? previewAllowedHosts : undefined
     }
   };
 });
