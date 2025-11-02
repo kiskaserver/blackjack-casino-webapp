@@ -4,7 +4,31 @@ const dotenv = require('dotenv');
 const envFile = process.env.NODE_ENV === 'test' ? '.env.test' : '.env';
 dotenv.config({ path: path.resolve(__dirname, envFile) });
 
-const defaultConnection = process.env.DATABASE_URL || 'postgresql://localhost:5432/blackjack';
+const config = require('./src/config/env');
+
+const buildConnection = url => {
+  if (!url) {
+    return undefined;
+  }
+  try {
+    const parsed = new URL(url);
+    return {
+      host: parsed.hostname,
+      port: Number(parsed.port || 5432),
+      database: parsed.pathname.replace(/^\//, ''),
+      user: decodeURIComponent(parsed.username || ''),
+      password: decodeURIComponent(parsed.password || ''),
+      ssl: config.databaseSsl
+    };
+  } catch (_error) {
+    return {
+      connectionString: url,
+      ssl: config.databaseSsl
+    };
+  }
+};
+
+const defaultConnection = buildConnection(process.env.DATABASE_URL || 'postgresql://localhost:5432/blackjack');
 
 const baseConfig = {
   client: 'pg',
@@ -20,10 +44,12 @@ module.exports = {
   development: { ...baseConfig },
   production: {
     ...baseConfig,
-    connection: process.env.DATABASE_URL || defaultConnection
+    connection: buildConnection(process.env.DATABASE_URL) || defaultConnection
   },
   test: {
     ...baseConfig,
-    connection: process.env.TEST_DATABASE_URL || process.env.DATABASE_URL || defaultConnection
+    connection: buildConnection(process.env.TEST_DATABASE_URL)
+      || buildConnection(process.env.DATABASE_URL)
+      || defaultConnection
   }
 };

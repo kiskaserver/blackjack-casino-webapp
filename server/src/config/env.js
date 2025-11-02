@@ -2,8 +2,15 @@ const fs = require('fs');
 const path = require('path');
 const dotenv = require('dotenv');
 
-const envFile = process.env.NODE_ENV === 'test' ? '.env.test' : '.env';
-dotenv.config({ path: path.resolve(process.cwd(), envFile) });
+const defaultEnvPath = path.resolve(process.cwd(), '.env');
+const testEnvPath = path.resolve(process.cwd(), '.env.test');
+const selectedEnvPath = process.env.NODE_ENV === 'test' && fs.existsSync(testEnvPath)
+  ? testEnvPath
+  : defaultEnvPath;
+const loadedEnv = dotenv.config({ path: selectedEnvPath, override: true });
+if (loadedEnv.parsed?.NODE_ENV) {
+  process.env.NODE_ENV = loadedEnv.parsed.NODE_ENV;
+}
 
 const required = (value, name) => {
   if (!value) {
@@ -90,6 +97,56 @@ const requestLimitPerMinute = parsePositiveInteger(
 const ngrokHeaderName = process.env.NGROK_SKIP_HEADER || 'ngrok-skip-browser-warning';
 const ngrokQueryParam = process.env.NGROK_SKIP_QUERY || 'ngrok-skip-browser-warning';
 
+const readCertificate = () => {
+  const certPath = process.env.DATABASE_SSL_CERT_FILE;
+  if (certPath) {
+    try {
+      const absolutePath = path.isAbsolute(certPath)
+        ? certPath
+        : path.resolve(process.cwd(), certPath);
+      return fs.readFileSync(absolutePath, 'utf8').trim();
+    } catch (error) {
+      throw new Error(`Failed to read DATABASE_SSL_CERT_FILE: ${error.message}`);
+    }
+  }
+  const inline = process.env.DATABASE_SSL_CERT;
+  if (inline) {
+    return inline.replace(/\\n/g, '\n').trim();
+  }
+  return null;
+};
+
+const resolveDatabaseSsl = () => {
+  const mode = (process.env.DATABASE_SSL_MODE || '').trim().toLowerCase();
+  if (!mode) {
+    return undefined;
+  }
+  const ca = readCertificate();
+  if (['disable', 'off', 'false', '0'].includes(mode)) {
+    return false;
+  }
+  if (['no-verify', 'allow', 'prefer'].includes(mode)) {
+    const base = { rejectUnauthorized: false };
+    if (ca) {
+      base.ca = [ca];
+    }
+    return base;
+  }
+  if (['require', 'verify-full', 'strict', 'true', '1'].includes(mode)) {
+    const base = { rejectUnauthorized: true };
+    if (ca) {
+      base.ca = [ca];
+    }
+    return base;
+  }
+  return undefined;
+};
+
+const databaseSsl = resolveDatabaseSsl();
+
+const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
+const redisTls = parseBoolean(process.env.REDIS_TLS, redisUrl.startsWith('rediss://'));
+
 module.exports = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT || 5050),
@@ -101,7 +158,9 @@ module.exports = {
   adminPanelSecret: adminSecret,
   adminPanelSecretHash: adminSecretHash,
   databaseUrl: required(process.env.DATABASE_URL, 'DATABASE_URL'),
-  redisUrl: process.env.REDIS_URL || 'redis://127.0.0.1:6379',
+  databaseSsl,
+  redisUrl,
+  redisTls,
   cryptomus: {
     merchantId: required(process.env.CRYPTOMUS_MERCHANT_ID, 'CRYPTOMUS_MERCHANT_ID'),
     apiKey: required(process.env.CRYPTOMUS_API_KEY, 'CRYPTOMUS_API_KEY'),

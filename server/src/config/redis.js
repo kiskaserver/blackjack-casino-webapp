@@ -6,7 +6,8 @@ let singletonClient = null;
 const createClient = () => {
   const client = new Redis(config.redisUrl, {
     maxRetriesPerRequest: null,
-    enableReadyCheck: true
+    enableReadyCheck: true,
+    tls: config.redisTls ? {} : undefined
   });
 
   client.on('error', error => {
@@ -34,7 +35,8 @@ const closeRedisClient = async () => {
 
 const getBullConnection = () => ({
   connectionString: config.redisUrl,
-  maxRetriesPerRequest: null
+  maxRetriesPerRequest: null,
+  tls: config.redisTls ? {} : undefined
 });
 
 module.exports = {

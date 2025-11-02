@@ -4,7 +4,8 @@ const config = require('./env');
 const pool = new Pool({
   connectionString: config.databaseUrl,
   max: 10,
-  idleTimeoutMillis: 30_000
+  idleTimeoutMillis: 30_000,
+  ssl: config.databaseSsl
 });
 
 const query = async (text, params = []) => {
