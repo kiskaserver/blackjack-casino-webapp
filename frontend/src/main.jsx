@@ -6,7 +6,18 @@ import { TelegramProvider } from './providers/TelegramProvider.jsx';
 import { StatisticsProvider } from './providers/StatisticsProvider.jsx';
 import { AdminProvider } from './providers/AdminProvider.jsx';
 import { SettingsProvider } from './providers/SettingsProvider.jsx';
+import { injectSpeedInsights } from '@vercel/speed-insights/monitor';
+import { Analytics } from '@vercel/analytics/react';
 import './styles/global.css';
+
+const enableSpeedInsights =
+  import.meta.env.PROD && import.meta.env.VITE_ENABLE_SPEED_INSIGHTS !== 'false';
+const enableVercelAnalytics =
+  import.meta.env.PROD && import.meta.env.VITE_ENABLE_VERCEL_ANALYTICS !== 'false';
+
+if (enableSpeedInsights) {
+  injectSpeedInsights();
+}
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -15,7 +26,10 @@ ReactDOM.createRoot(document.getElementById('root')).render(
         <TelegramProvider>
           <StatisticsProvider>
             <AdminProvider>
-              <App />
+              <>
+                <App />
+                {enableVercelAnalytics && <Analytics />}
+              </>
             </AdminProvider>
           </StatisticsProvider>
         </TelegramProvider>
