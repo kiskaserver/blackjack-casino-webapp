@@ -51,6 +51,7 @@ const GamePage = () => {
   const [message, setMessage] = useState('🎮 Добро пожаловать в BlackJack Casino!');
   const [fairness, setFairness] = useState(null);
   const [fairnessError, setFairnessError] = useState('');
+  const [showFairness, setShowFairness] = useState(false);
 
   useEffect(() => {
     ensureUserGesture();
@@ -225,77 +226,46 @@ const GamePage = () => {
     <div className="game-table">
         <div className="win-effects" id="winEffects" />
         {(fairness || fairnessError) && (
-          <section
-            className="fairness-section"
-            style={{
-              display: 'flex',
-              gap: '0.75rem',
-              flexWrap: 'wrap',
-              marginBottom: '1rem'
-            }}
-          >
-            {fairness && (
-              <>
-                <div
-                  className="fairness-card"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    padding: '0.75rem 1rem',
-                    borderRadius: '0.75rem',
-                    minWidth: '160px'
-                  }}
-                >
-                  <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', opacity: 0.7 }}>RTP · вся история</span>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 600 }}>{formatPercent(fairness?.lifetime?.rtpPercent)}</div>
-                  <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Преимущество казино: {formatPercent(fairness?.lifetime?.houseEdgePercent)}</span>
+          <section className={`fairness-section ${showFairness ? 'expanded' : 'collapsed'}`}>
+            <button 
+              className="fairness-toggle"
+              onClick={() => setShowFairness(!showFairness)}
+              title={showFairness ? 'Свернуть' : 'Развернуть'}
+            >
+              <span className="fairness-toggle-icon">📊</span>
+              <span className="fairness-toggle-text">Честность игры (RTP)</span>
+              <span className="fairness-toggle-arrow">{showFairness ? '▼' : '▶'}</span>
+            </button>
+            {showFairness && fairness && (
+              <div className="fairness-content">
+                <div className="fairness-card">
+                  <span className="fairness-label">RTP · вся история</span>
+                  <div className="fairness-value">{formatPercent(fairness?.lifetime?.rtpPercent)}</div>
+                  <span className="fairness-note">Преимущество: {formatPercent(fairness?.lifetime?.houseEdgePercent)}</span>
                 </div>
-                <div
-                  className="fairness-card"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    padding: '0.75rem 1rem',
-                    borderRadius: '0.75rem',
-                    minWidth: '160px'
-                  }}
-                >
-                  <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', opacity: 0.7 }}>RTP · 24 часа</span>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 600 }}>{formatPercent(fairness?.last24h?.rtpPercent)}</div>
-                  <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Преимущество: {formatPercent(fairness?.last24h?.houseEdgePercent)}</span>
+                <div className="fairness-card">
+                  <span className="fairness-label">RTP · 24 часа</span>
+                  <div className="fairness-value">{formatPercent(fairness?.last24h?.rtpPercent)}</div>
+                  <span className="fairness-note">Преимущество: {formatPercent(fairness?.last24h?.houseEdgePercent)}</span>
                 </div>
-                <div
-                  className="fairness-card"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.04)',
-                    padding: '0.75rem 1rem',
-                    borderRadius: '0.75rem',
-                    minWidth: '160px'
-                  }}
-                >
-                  <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', opacity: 0.7 }}>
-                    RTP · последние {formatCount(fairness?.recent?.rounds || fairness?.recent?.sampleSize)}
+                <div className="fairness-card">
+                  <span className="fairness-label">
+                    RTP · недавние {formatCount(fairness?.recent?.rounds || fairness?.recent?.sampleSize)}
                   </span>
-                  <div style={{ fontSize: '1.25rem', fontWeight: 600 }}>{formatPercent(fairness?.recent?.rtpPercent)}</div>
-                  <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>Выборка: {formatCount(fairness?.recent?.sampleSize)}</span>
+                  <div className="fairness-value">{formatPercent(fairness?.recent?.rtpPercent)}</div>
+                  <span className="fairness-note">Выборка: {formatCount(fairness?.recent?.sampleSize)}</span>
                 </div>
                 {fairness?.settings?.transparency?.targetRtpPercent && (
-                  <div
-                    className="fairness-card"
-                    style={{
-                      background: 'rgba(255, 255, 255, 0.04)',
-                      padding: '0.75rem 1rem',
-                      borderRadius: '0.75rem',
-                      minWidth: '160px'
-                    }}
-                  >
-                    <span style={{ fontSize: '0.75rem', textTransform: 'uppercase', opacity: 0.7 }}>Целевой RTP</span>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 600 }}>{formatPercent(fairness.settings.transparency.targetRtpPercent)}</div>
-                    <span style={{ fontSize: '0.75rem', opacity: 0.7 }}>По правилам стола</span>
+                  <div className="fairness-card fairness-card-target">
+                    <span className="fairness-label">Целевой RTP</span>
+                    <div className="fairness-value">{formatPercent(fairness.settings.transparency.targetRtpPercent)}</div>
+                    <span className="fairness-note">По правилам</span>
                   </div>
                 )}
-              </>
+              </div>
             )}
             {fairnessError && (
-              <div style={{ color: '#f87171', fontSize: '0.85rem', alignSelf: 'center' }}>
+              <div className="fairness-error">
                 ⚠️ {fairnessError}
               </div>
             )}

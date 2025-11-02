@@ -62,29 +62,44 @@ const VerificationPage = () => {
   };
 
   return (
-    <div className="flex-col" style={{ gap: '1.5rem' }}>
+    <div className="flex-col verification-page">
       <div className="page-section">
         <h2 className="page-section-title">✅ Статус верификации</h2>
-        {loading && <p style={{ color: '#94a3b8' }}>⏳ Загрузка…</p>}
+        {loading && <p className="loading-text">⏳ Загрузка…</p>}
         {!loading && verification && (
-          <div className="flex-col" style={{ gap: '1rem' }}>
-            <div className="card" style={{ padding: '1rem' }}>
-              <p style={{ margin: 0, fontSize: '0.9rem' }}>
-                <strong style={{ color: '#60a5fa' }}>Статус аккаунта:</strong> <span style={{ color: verification.verification_status === 'verified' ? '#10b981' : '#f59e0b' }}>{verification.verification_status === 'verified' ? '✅ Верифицирован' : '⏳ Не верифицирован'}</span>
+          <div className="flex-col verification-status">
+            <div className="card">
+              <p className="verification-status-text">
+                <strong className="status-label">Статус аккаунта:</strong> 
+                <span className={`status-value ${verification.verification_status === 'verified' ? 'verified' : 'pending'}`}>
+                  {verification.verification_status === 'verified' ? '✅ Верифицирован' : '⏳ Не верифицирован'}
+                </span>
               </p>
             </div>
             {verification.request ? (
-              <div className="card">
-                <h3 style={{ margin: '0 0 1rem 0', color: '#60a5fa', fontSize: '1rem' }}>📋 Последний запрос</h3>
-                <div className="flex-col" style={{ gap: '0.75rem' }}>
-                  <div><strong style={{ color: '#94a3b8' }}>Статус:</strong> <span style={{ color: verification.request.status === 'approved' ? '#10b981' : verification.request.status === 'rejected' ? '#ef4444' : '#f59e0b' }}>{verification.request.status}</span></div>
-                  <div><strong style={{ color: '#94a3b8' }}>Документ:</strong> <span>{verification.request.document_type}</span></div>
-                  <div><strong style={{ color: '#94a3b8' }}>Комментарий:</strong> <span>{verification.request.note || verification.request.rejection_reason || '—'}</span></div>
-                  <div><strong style={{ color: '#94a3b8' }}>Обновлено:</strong> <span>{verification.request.reviewed_at || '—'}</span></div>
+              <div className="card verification-request">
+                <h3 className="request-title">📋 Последний запрос</h3>
+                <div className="flex-col request-details">
+                  <div className="request-row">
+                    <strong className="request-label">Статус:</strong> 
+                    <span className={`request-status ${verification.request.status}`}>{verification.request.status}</span>
+                  </div>
+                  <div className="request-row">
+                    <strong className="request-label">Документ:</strong> 
+                    <span className="request-value">{verification.request.document_type}</span>
+                  </div>
+                  <div className="request-row">
+                    <strong className="request-label">Комментарий:</strong> 
+                    <span className="request-value">{verification.request.note || verification.request.rejection_reason || '—'}</span>
+                  </div>
+                  <div className="request-row">
+                    <strong className="request-label">Обновлено:</strong> 
+                    <span className="request-value">{verification.request.reviewed_at || '—'}</span>
+                  </div>
                 </div>
               </div>
             ) : (
-              <p style={{ color: '#94a3b8', padding: '1rem', background: 'rgba(59, 130, 246, 0.05)', borderRadius: '8px', margin: 0 }}>ℹ️ Заявок на верификацию пока нет.</p>
+              <p className="no-requests">ℹ️ Заявок на верификацию пока нет.</p>
             )}
           </div>
         )}
@@ -92,8 +107,8 @@ const VerificationPage = () => {
 
       <div className="page-section">
         <h2 className="page-section-title">📤 Отправить документы</h2>
-        <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '1.5rem' }}>
-          ℹ️ Используйте только HTTPS ссылки с одобренных доменов. Telegram позволяет загружать файлы через <code style={{ background: 'rgba(59, 130, 246, 0.1)', padding: '2px 4px', borderRadius: '4px' }}>https://t.me/+…</code>
+        <p className="verification-hint">
+          ℹ️ Используйте только HTTPS ссылки с одобренных доменов. Telegram позволяет загружать файлы через <code>https://t.me/+…</code>
         </p>
         <form onSubmit={handleSubmit} className="form-group">
           <label className="form-label-group">
@@ -128,12 +143,12 @@ const VerificationPage = () => {
             <span className="form-label">Дополнительный документ</span>
             <input type="url" value={form.additionalDocumentUrl} onChange={event => handleChange('additionalDocumentUrl', event.target.value)} className="form-input" />
           </label>
-          <button type="submit" className="payment-btn" style={{ marginTop: '1rem' }}>
+          <button type="submit" className="payment-btn">
             📤 Отправить на проверку
           </button>
         </form>
-        {success && <div className="alert alert-success" style={{ marginTop: '1rem' }}>✅ {success}</div>}
-        {error && <div className="alert alert-error" style={{ marginTop: '1rem' }}>⚠️ {error}</div>}
+        {success && <div className="alert alert-success">✅ {success}</div>}
+        {error && <div className="alert alert-error">⚠️ {error}</div>}
       </div>
     </div>
   );

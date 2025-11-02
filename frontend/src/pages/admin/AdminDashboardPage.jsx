@@ -24,10 +24,10 @@ const formatPercent = value => {
 };
 
 const MetricCard = ({ title, value, hint }) => (
-  <div className="card" style={{ minWidth: 200 }}>
-    <h3 style={{ margin: 0 }}>{title}</h3>
-    <p style={{ fontSize: '2rem', margin: '0.25rem 0' }}>{value}</p>
-    {hint && <small style={{ opacity: 0.7 }}>{hint}</small>}
+  <div className="card metric-card">
+    <h3 className="metric-title">{title}</h3>
+    <p className="metric-value">{value}</p>
+    {hint && <small className="metric-hint">{hint}</small>}
   </div>
 );
 
@@ -102,7 +102,7 @@ const AdminDashboardPage = () => {
   }
 
   return (
-    <div className="flex-col" style={{ gap: '1.5rem' }}>
+    <div className="admin-dashboard">
       <section className="card-grid">
         <MetricCard title="Игроки" value={formatNumber(overview.players)} hint="Уникальные Telegram ID" />
         <MetricCard title="Раунды (реал)" value={formatNumber(overview.rounds)} hint="game_rounds с wallet=real" />
@@ -159,7 +159,7 @@ const AdminDashboardPage = () => {
             <tbody>
               {transactions.length === 0 && (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', opacity: 0.7 }}>Записей нет</td>
+                  <td colSpan={6} className="table-empty">Записей нет</td>
                 </tr>
               )}
               {transactions.map(tx => (
@@ -167,7 +167,7 @@ const AdminDashboardPage = () => {
                   <td>{tx.id}</td>
                   <td>{tx.telegram_id || '—'}</td>
                   <td>{tx.wallet_type}</td>
-                  <td style={{ color: Number(tx.amount) >= 0 ? '#34d399' : '#f87171' }}>{formatNumber(tx.amount)}</td>
+                  <td className={`table-amount ${Number(tx.amount) >= 0 ? 'positive' : 'negative'}`}>{formatNumber(tx.amount)}</td>
                   <td>{tx.reason}</td>
                   <td>{new Date(tx.created_at).toLocaleString()}</td>
                 </tr>
@@ -175,7 +175,7 @@ const AdminDashboardPage = () => {
             </tbody>
           </table>
         </div>
-        <div style={{ marginTop: '0.75rem', fontSize: '0.85rem', opacity: 0.7 }}>
+        <div className="table-summary">
           Итог по кошелькам: {Object.entries(txByWallet).map(([wallet, total]) => `${wallet}: ${formatNumber(total)}`).join(' · ')}
         </div>
       </section>
@@ -196,7 +196,7 @@ const AdminDashboardPage = () => {
             <tbody>
               {riskEvents.length === 0 && (
                 <tr>
-                  <td colSpan={5} style={{ textAlign: 'center', opacity: 0.7 }}>Активных событий нет</td>
+                  <td colSpan={5} className="table-empty">Активных событий нет</td>
                 </tr>
               )}
               {riskEvents.map(event => (

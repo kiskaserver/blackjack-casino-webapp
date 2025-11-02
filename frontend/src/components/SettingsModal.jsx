@@ -28,7 +28,7 @@ export default function SettingsModal({ open, onClose }) {
             
             {/* Sound Settings */}
             <div className="card">
-              <label className="flex-row settings-label">
+              <label className="settings-label">
                 <input 
                   type="checkbox" 
                   checked={settings.soundEnabled} 
@@ -39,7 +39,8 @@ export default function SettingsModal({ open, onClose }) {
 
               <div className="settings-control">
                 <label htmlFor="volumeRange" className="volume-label">
-                  Громкость: <span className="volume-value">{localVolume}%</span>
+                  <span>Громкость</span>
+                  <span className="volume-value">{localVolume}%</span>
                 </label>
                 <input
                   id="volumeRange"
@@ -55,7 +56,7 @@ export default function SettingsModal({ open, onClose }) {
                   className="modal-btn" 
                   onClick={() => { soundManager.play('bet'); }}
                   disabled={!settings.soundEnabled}
-                  style={{ marginTop: '0.75rem' }}
+                  style={{ marginTop: '6px', fontSize: '0.9rem' }}
                 >
                   🔊 Тест звука
                 </button>
@@ -64,7 +65,7 @@ export default function SettingsModal({ open, onClose }) {
 
             {/* Haptics Settings */}
             <div className="card">
-              <label className="flex-row settings-label">
+              <label className="settings-label">
                 <input 
                   type="checkbox" 
                   checked={settings.hapticsEnabled} 
@@ -77,14 +78,14 @@ export default function SettingsModal({ open, onClose }) {
                 className="modal-btn"
                 onClick={() => haptics.impact('medium')}
                 disabled={!settings.hapticsEnabled}
-                style={{ marginTop: '0.75rem' }}
+                style={{ marginTop: '6px', marginLeft: '14px', fontSize: '0.9rem' }}
               >
                 📳 Тест вибро
               </button>
             </div>
 
             {/* Info */}
-            <div className="card" style={{ background: 'rgba(6, 182, 212, 0.05)', borderColor: 'rgba(6, 182, 212, 0.2)' }}>
+            <div className="card settings-info-card">
               <p className="settings-info">
                 ℹ️ Эти настройки применяются ко всем звуковым эффектам и вибрациям в приложении.
               </p>
