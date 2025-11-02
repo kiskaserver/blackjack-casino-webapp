@@ -299,7 +299,7 @@ const GamePage = () => {
           {round.dealerCards.map((card, index) => (
             <div
               key={`${card.rank}-${card.suit}-${index}`}
-              className={`card ${card.hidden ? "face-down" : getCardColorClass(card.suit)} ${index === round.dealerCards.length - 1 ? "last-dealer-card" : ""}`}
+              className={`playing-card ${card.hidden ? "face-down" : getCardColorClass(card.suit)} ${index === round.dealerCards.length - 1 ? "last-dealer-card" : ""}`}
             >
               {!card.hidden && (
                 <>
@@ -324,7 +324,7 @@ const GamePage = () => {
         <div className="cards-area player-cards" id="playerCards">
           {round.playerCards.length === 0 && <span>Нажмите «Начать игру»</span>}
           {round.playerCards.map((card, index) => (
-            <div key={`${card.rank}-${card.suit}-${index}`} className={`card ${getCardColorClass(card.suit)}`}>
+            <div key={`${card.rank}-${card.suit}-${index}`} className={`playing-card ${getCardColorClass(card.suit)}`}>
               <div className="card-value">{card.rank}</div>
               <div className="card-suit">{card.suit}</div>
             </div>
