@@ -10,37 +10,46 @@
 }
 
 :root {
-  /* Color palette */
-  --primary: #3b82f6;
-  --primary-dark: #2563eb;
-  --primary-light: #60a5fa;
-  --success: #10b981;
-  --success-dark: #059669;
-  --warning: #f59e0b;
-  --warning-dark: #d97706;
-  --danger: #ef4444;
-  --danger-dark: #dc2626;
+  /* Premium Color Palette */
+  --primary: #00d4ff;
+  --primary-dark: #0099cc;
+  --primary-light: #33e0ff;
+  --secondary: #ff006e;
+  --success: #06ffa5;
+  --success-dark: #04cc84;
+  --warning: #ffd60a;
+  --warning-dark: #ccaa08;
+  --danger: #ff006e;
+  --danger-dark: #cc0056;
+  --accent: #a100f2;
 
-  /* Background colors */
-  --bg-primary: #0a1428;
-  --bg-secondary: #1e293b;
-  --bg-tertiary: #334155;
-  --bg-card: rgba(30, 41, 59, 0.9);
-  --bg-overlay: rgba(10, 20, 40, 0.95);
+  /* Background colors - Premium Dark Theme */
+  --bg-primary: #0a0e27;
+  --bg-secondary: #131829;
+  --bg-tertiary: #1a1f3a;
+  --bg-card: rgba(19, 24, 41, 0.8);
+  --bg-card-hover: rgba(26, 31, 58, 0.9);
+  --bg-overlay: rgba(10, 14, 39, 0.95);
+  --bg-glow: rgba(0, 212, 255, 0.1);
 
   /* Text colors */
   --text-primary: #ffffff;
   --text-secondary: #cbd5e1;
-  --text-muted: #94a3b8;
-  --text-accent: #60a5fa;
+  --text-muted: #8892aa;
+  --text-accent: #00d4ff;
 
-  /* Border and shadow */
-  --border-color: rgba(59, 130, 246, 0.3);
-  --border-radius: 12px;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  /* Border and shadow - Enhanced */
+  --border-color: rgba(0, 212, 255, 0.2);
+  --border-color-hover: rgba(0, 212, 255, 0.4);
+  --border-radius: 16px;
+  --border-radius-lg: 20px;
+  --border-radius-sm: 8px;
+  
+  --shadow-sm: 0 2px 4px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px 0 rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 32px 0 rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 48px 0 rgba(0, 0, 0, 0.6);
+  --shadow-glow: 0 0 20px rgba(0, 212, 255, 0.3);
 
   /* Telegram WebApp safe areas */
   --tg-safe-area-inset-top: env(safe-area-inset-top, 0px);
@@ -48,18 +57,13 @@
   --tg-safe-area-inset-left: env(safe-area-inset-left, 0px);
   --tg-safe-area-inset-right: env(safe-area-inset-right, 0px);
 
-  /* Responsive breakpoints */
-  --breakpoint-sm: 480px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 1024px;
-
   /* Fluid typography using clamp */
   --font-size-xs: clamp(0.75rem, 2vw, 0.875rem);
   --font-size-sm: clamp(0.875rem, 2.5vw, 1rem);
   --font-size-base: clamp(1rem, 3vw, 1.125rem);
-  --font-size-lg: clamp(1.125rem, 3.5vw, 1.25rem);
-  --font-size-xl: clamp(1.25rem, 4vw, 1.5rem);
-  --font-size-2xl: clamp(1.5rem, 5vw, 2rem);
+  --font-size-lg: clamp(1.125rem, 3.5vw, 1.3rem);
+  --font-size-xl: clamp(1.3rem, 4vw, 1.6rem);
+  --font-size-2xl: clamp(1.6rem, 5vw, 2rem);
 
   /* Fluid spacing */
   --space-1: clamp(0.25rem, 1vw, 0.5rem);
@@ -70,13 +74,13 @@
   --space-6: clamp(2rem, 6vw, 3rem);
 
   /* Card dimensions */
-  --card-width: clamp(50px, 15vw, 70px);
-  --card-height: clamp(70px, 20vw, 100px);
+  --card-width: clamp(50px, 15vw, 80px);
+  --card-height: clamp(70px, 20vw, 110px);
 
   /* Transitions */
-  --transition-fast: 150ms ease-in-out;
-  --transition-normal: 300ms ease-in-out;
-  --transition-slow: 500ms ease-in-out;
+  --transition-fast: 120ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-normal: 250ms cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 html {
@@ -87,11 +91,11 @@ html {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', sans-serif;
   font-size: var(--font-size-base);
   line-height: 1.6;
   color: var(--text-primary);
-  background: linear-gradient(135deg, var(--bg-primary) 0%, var(--bg-secondary) 50%, var(--bg-tertiary) 100%);
+  background: linear-gradient(135deg, #0a0e27 0%, #131829 40%, #1a1f3a 100%);
   background-attachment: fixed;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
@@ -101,6 +105,7 @@ body {
   padding-bottom: var(--tg-safe-area-inset-bottom);
   padding-left: var(--tg-safe-area-inset-left);
   padding-right: var(--tg-safe-area-inset-right);
+  letter-spacing: 0.3px;
 }
 
 html, body, #root {
