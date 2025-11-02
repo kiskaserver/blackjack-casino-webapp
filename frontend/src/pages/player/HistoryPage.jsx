@@ -51,6 +51,15 @@ const HistoryPage = () => {
   const rounds = history.rounds || [];
   const transactions = history.transactions || [];
 
+  const formatAmount = value => {
+    const numeric = Number(value ?? 0);
+    if (!Number.isFinite(numeric)) {
+      return '0.00';
+    }
+    const formatted = numeric.toFixed(2);
+    return numeric > 0 ? `+${formatted}` : formatted;
+  };
+
   return (
     <div className="history-container">
       {stats && (
@@ -178,15 +187,20 @@ const HistoryPage = () => {
                 <td colSpan={5} className="table-cell-empty">ℹ️ Транзакций пока нет</td>
               </tr>
             )}
-            {transactions.map(tx => (
-              <tr key={tx.id}>
-                <td>{tx.id}</td>
-                <td>{tx.wallet_type === 'real' ? '💎' : '🎮'} {tx.wallet_type}</td>
-                <td className={`table-cell-right ${Number(tx.amount) >= 0 ? 'table-cell-positive' : 'table-cell-negative'}`}>{Number(tx.amount >= 0 ? '+' : '')}{Number(tx.amount || 0).toFixed(2)}</td>
-                <td>{tx.reason}</td>
-                <td>{tx.created_at ? new Date(tx.created_at).toLocaleString('ru-RU') : '—'}</td>
-              </tr>
-            ))}
+            {transactions.map(tx => {
+              const amountValue = Number(tx.amount ?? 0);
+              const amountClass = amountValue > 0 ? 'table-cell-positive' : amountValue < 0 ? 'table-cell-negative' : '';
+
+              return (
+                <tr key={tx.id}>
+                  <td>{tx.id}</td>
+                  <td>{tx.wallet_type === 'real' ? '💎' : '🎮'} {tx.wallet_type}</td>
+                  <td className={`table-cell-right ${amountClass}`}>{formatAmount(amountValue)}</td>
+                  <td>{tx.reason}</td>
+                  <td>{tx.created_at ? new Date(tx.created_at).toLocaleString('ru-RU') : '—'}</td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
