@@ -1,3 +1,156 @@
+# Blackjack Casino – Backend API & Workers
+
+Express-based backend that powers gameplay, wallets, verification, risk automation, and the admin console for the Blackjack Casino Telegram WebApp. The service exposes REST APIs, manages PostgreSQL/Redis state, and executes BullMQ jobs for payouts and compliance checks.
+## 🧱 Stack
+
+- Node.js 18+, Express 5
+- PostgreSQL 14+ via `pg` and Knex migrations
+- Redis 6+ for caching, sessions, and BullMQ queues
+- BullMQ workers (`payoutQueue`, `riskQueue`)
+- Jest + Supertest for integration tests
+- PM2 (optional) for production orchestration
+
+## 📂 Project Structure
+```
+server/
+  package.json           # scripts & dependencies
+  index.js             # Express bootstrap (API + health checks)
+  worker.js            # BullMQ worker bootstrap
+  config/              # env, database, redis, migration helpers
+  middleware/          # verifyTelegram, adminAuth, rate limiting, etc.
+  routes/              # /api/player, /api/game, /api/payments, /api/admin
+  services/            # business logic (game, payments, withdrawals, verification, fairness)
+  repositories/        # PostgreSQL data access helpers
+  jobs/                # queue producers/constants
+  utils/               # logger, HTTP helpers, URL tools
+  migrations/            # Knex migrations
+  sql/schema.sql         # bootstrap DDL (optional alternative to migrations)
+  __tests__/             # Jest suites (player routes, withdrawals, anti-fraud)
+  jest.config.js
+  knexfile.js
+  ecosystem.config.js    # PM2 profile (optional)
+## 🔐 Environment Configuration
+
+Create `.env` (and optionally `.env.test`) by copying `.env.example`. Key parameters are validated in `src/config/env.js`.
+| Variable | Required | Description |
+| --- | --- | --- |
+| `NODE_ENV` | no | `development` (default), `production`, `test` |
+| `PORT` | no | API port (default `5050`) |
+| `DATABASE_URL` | yes | PostgreSQL connection string |
+| `DATABASE_SSL_MODE`, `DATABASE_SSL_CERT*` | when TLS needed | Controls SSL configuration for Postgres |
+| `REDIS_URL` | yes | Redis connection string for sessions & queues |
+| `REDIS_TLS` | no | Enable TLS when using `rediss://` |
+| `JWT_SECRET` | yes | Admin JWT signing secret |
+| `ADMIN_TELEGRAM_IDS` | yes | Allowed Telegram IDs for admin login |
+| `ADMIN_PANEL_SECRET` / `ADMIN_PANEL_SECRET_FILE` / `ADMIN_PANEL_SECRET_HASH` | one of | Shared secret (plain text, file path, or pre-hashed) |
+| `TELEGRAM_BOT_TOKEN` | yes | Bot token used for init data verification & Stars API calls |
+| `TELEGRAM_PROVIDER_TOKEN` | yes (Stars) | Provider token for Telegram Stars invoice API |
+| `ALLOWED_ORIGINS` | required in prod | CORS whitelist for frontend origins |
+| `VERIFICATION_ALLOWED_HOSTS` | recommended | Allowlist for externally hosted KYC assets |
+| `CRYPTOMUS_*` | when Cryptomus enabled | Merchant credentials + webhook URLs |
+| `REQUEST_LIMIT_PER_MINUTE` | no | Global rate limiter (default `120`) |
+| `TELEGRAM_INIT_MAX_AGE_SECONDS` | no | Max age for Telegram init data HMAC (default `60`) |
+| `TELEGRAM_INIT_REUSE_TTL_SECONDS` | no | Redis TTL for cached init data reuse (default `3600`) |
+
+Runtime-tunable gameplay and transparency controls (deck count, soft-17 rules, RTP targets, payout multipliers, commissions, anti-fraud options) are persisted in Postgres via `settingsService` and editable through the admin UI.
+## 🧑‍💻 Development Workflow
+
+```powershell
+cd server
+npm install
+
+# Database schema
+npm run migrate              # apply latest Knex migrations
+# or bootstrap manually
+# psql "$env:DATABASE_URL" -f sql/schema.sql
+
+# Start the API
+npm run dev                  # serves http://localhost:5050
+
+# Start workers (new terminal)
+npm run worker               # processes payout + risk queues
+# Run tests
+npm test
+```
+
+The API expects Redis and PostgreSQL to be available. During frontend development the Vite dev server proxies `/api` calls to `http://localhost:5050`.
+## 🛣️ API Surface (Condensed)
+
+### Player & Game Routes
+
+| Endpoint | Description |
+| --- | --- |
+| `GET /api/player/profile` | Player balances, demo settings, aggregated stats |
+| `GET /api/player/history` | Recent rounds + ledger transactions |
+| `POST /api/player/demo/reset` | Restore demo wallet |
+| `GET /api/player/verification` | Fetch latest KYC submission |
+| `POST /api/player/verification` | Submit new KYC request |
+| `POST /api/game/start` | Start a blackjack round |
+| `POST /api/game/hit` | Player takes a card |
+| `POST /api/game/double` | Player doubles down |
+| `POST /api/game/settle` | Dealer plays out hand & settles |
+| `GET /api/game/fairness` | Lifetime/rolling RTP & house edge metrics |
+| `POST /api/payments/cryptomus/invoice` | Create Cryptomus deposit invoice |
+| `POST /api/payments/telegram-stars/invoice` | Create Telegram Stars invoice |
+| `POST /api/payments/withdraw` | Submit withdrawal request |
+
+> Player routes require the `X-Telegram-Init-Data` header (raw `initData` string). Verification is performed with HMAC using the configured bot token and results are cached in Redis for session reuse.
+### Admin Routes
+
+| Endpoint | Description |
+| --- | --- |
+| `POST /api/admin/auth/login` / `logout` | JWT-based admin session management |
+| `GET /api/admin/stats/overview` | KPIs + fairness report |
+| `GET /api/admin/transactions/recent` | Latest ledger entries |
+| `GET /api/admin/players` / `search` | Player directory & search tooling |
+| `POST /api/admin/players/:telegramId/adjust-balance` | Balance adjustments |
+| `POST /api/admin/players/:telegramId/demo/reset` | Reset player demo wallet |
+| `GET /api/admin/players/:telegramId` | Player stats + risk events + settings |
+| `GET /api/admin/withdrawals` | Withdrawal queue overview |
+| `POST /api/admin/withdrawals/:id/status` | Approve / reject / mark processed |
+| `POST /api/admin/withdrawals/:id/urgent` | Enqueue urgent payout |
+| `GET /api/admin/withdrawal-batches` | Batch pipeline control |
+| `GET /api/admin/verifications` | Pending/processed KYC submissions |
+| `POST /api/admin/verifications/:id/(approve|reject|request-resubmission)` | KYC workflow |
+| `GET /api/admin/settings` / `PATCH /api/admin/settings` | Runtime configuration editor |
+| `GET /api/admin/risk-events` | Risk feed (velocity, win caps, anomalies) |
+
+Admin routes expect a Bearer token issued by `/api/admin/auth/login`. Tokens are signed with `JWT_SECRET`, stored in Redis with TTL, and bound to the client IP.
+## 🛠️ Workers & Queues
+
+- **`payoutQueue`** – batches withdrawals, supports urgent payouts, integrates with Cryptomus.
+- **`riskQueue`** – velocity checks, daily profit caps, and targeted anti-fraud sweeps.
+- Workers share configuration via `settingsService`, allowing runtime updates without restarts.
+
+Run `npm run worker` alongside the API in production (or configure PM2/Systemd using `ecosystem.config.js`).
+
+## 📈 Fairness & Transparency
+
+`fairnessService.getGameFairnessReport()` aggregates lifetime, trailing 24h, and rolling window RTP/house-edge metrics. The results power both the player-facing fairness cards and the admin dashboard. Metrics are calculated from *real* wallet rounds (`wallet_type = 'real'`, `status = 'finished'`, `settled_at IS NOT NULL`). Demo rounds are intentionally excluded.
+## 🧪 Testing
+
+- `npm test` – runs Jest suites serially (`--runInBand`).
+- Tests mock database/redis interactions where possible; integration suites assume a dedicated Postgres/Redis instance defined in `.env.test`.
+- `__tests__/antiFraudService.test.js` validates velocity/daily win cap logic, `playerRoutes.test.js` covers Telegram verification + gameplay, `withdrawalService.test.js` ensures payout flow correctness.
+## 📋 Deployment Notes
+
+- Execute `npm run migrate` during deploys (migrations are idempotent).
+- Keep API and worker processes running (PM2/systemd recommended).
+- Configure HTTPS termination (load balancer / reverse proxy) and ensure Telegram webhooks use TLS.
+- Monitor Redis/BullMQ queue depths to detect stalled payouts or risk sweeps.
+- Review `DEPLOYMENT.md` for bot setup, DNS, monitoring, and failover guidance.
+
+## 📎 Useful Commands
+
+```powershell
+npm run migrate            # apply schema changes
+npm run migrate:rollback   # rollback last batch
+npm run dev                # start API
+npm run worker             # start BullMQ worker
+npm test                   # run Jest suites
+```
+
+For environment-specific overrides or additional helpers (e.g., database seeding) extend `npm` scripts in `package.json` as needed.
 # Blackjack Casino – Backend
 
 Express/Node.js service that powers gameplay, wallets, verification, and admin workflows for the Blackjack Casino Telegram WebApp. Responsibilities include round resolution, balance ledger, payment integrations, risk checks, KYC, and operational tooling.
