@@ -34,7 +34,7 @@
   --blur-lg: blur(28px);
   --blur-md: blur(18px);
   --blur-sm: blur(10px);
-  --font-base: "Inter", "Segoe UI", "Roboto", sans-serif;
+  --font-base: "Inter", "Segoe UI", "Roboto", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
   --transition-fast: 160ms ease;
   --transition-slow: 280ms cubic-bezier(0.19, 1, 0.22, 1);
@@ -48,7 +48,8 @@ html,
 body {
   margin: 0;
   padding: 0;
-  min-height: 100%;
+  min-height: 100dvh; /* ✅ Telegram-safe */
+  height: 100%;
   background: radial-gradient(circle at 20% -10%, rgba(22, 112, 214, 0.45), transparent 58%),
     radial-gradient(circle at 90% 18%, rgba(0, 213, 255, 0.26), transparent 60%),
     linear-gradient(160deg, #020a1a 0%, #021232 65%, #031d45 100%);
@@ -57,12 +58,16 @@ body {
   font-size: 16px;
   line-height: 1.55;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
 }
 
 #root {
-  min-height: 100vh;
+  min-height: 100dvh; /* ✅ Safe for mobile */
+  height: 100%;
   position: relative;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch; /* ✅ Smooth scroll on iOS */
 }
 
 a {
@@ -85,6 +90,8 @@ textarea {
   font-size: 1rem;
   color: var(--text);
   background-color: transparent;
+  -webkit-appearance: none; /* ✅ iOS Safari fix */
+  -moz-appearance: none;
 }
 
 button {
@@ -117,6 +124,7 @@ textarea {
   padding: 0.55rem 0.75rem;
   background: rgba(6, 22, 46, 0.78);
   backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm); /* ✅ iOS Safari */
   transition: border var(--transition-fast), box-shadow var(--transition-fast);
 }
 
@@ -148,6 +156,7 @@ label {
   padding: 1.35rem;
   box-shadow: var(--shadow-soft);
   backdrop-filter: var(--blur-sm);
+  -webkit-backdrop-filter: var(--blur-sm);
 }
 
 .card.bg-card-dark {
@@ -161,10 +170,11 @@ label {
 }
 
 .login-container {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 1rem;
 }
 
 .login-card {
@@ -176,7 +186,7 @@ label {
 }
 
 .loading-screen {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -184,6 +194,7 @@ label {
   gap: 1.2rem;
   background: radial-gradient(circle at top, rgba(14, 103, 217, 0.28), transparent 60%), var(--bg);
   color: var(--text-muted);
+  padding: 1rem;
 }
 
 .loading-spinner {
@@ -526,6 +537,7 @@ button.primary:hover,
   width: 18px;
   height: 18px;
   accent-color: var(--accent);
+  -webkit-appearance: auto; /* ✅ Restore native checkbox on iOS */
 }
 
 .withdrawal-urgent-text {
@@ -535,7 +547,7 @@ button.primary:hover,
 /* Player layout */
 .casino-app {
   position: relative;
-  min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -545,12 +557,16 @@ button.primary:hover,
 
 #particles-js {
   position: absolute;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   pointer-events: none;
   background: radial-gradient(circle at 12% 22%, rgba(0, 177, 255, 0.18), transparent 58%),
     radial-gradient(circle at 80% 35%, rgba(12, 63, 255, 0.22), transparent 60%);
   filter: blur(48px);
   opacity: 0.85;
+  z-index: -1;
 }
 
 .game-header {
@@ -671,6 +687,7 @@ button.primary:hover,
   border: 1px solid rgba(0, 132, 255, 0.18);
   box-shadow: var(--shadow-soft);
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .player-nav a {
@@ -996,6 +1013,7 @@ button.primary:hover,
   gap: 0.75rem;
   padding: 1rem 1.25rem 0;
   background: linear-gradient(180deg, transparent, rgba(2, 10, 26, 0.95));
+  z-index: 10;
 }
 
 .action-buttons,
@@ -1055,14 +1073,19 @@ button.primary:hover,
 /* Modals */
 .modal {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(2, 8, 20, 0.7);
   backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
   display: none;
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
   z-index: 80;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal.open {
@@ -1071,7 +1094,7 @@ button.primary:hover,
 
 .modal-content {
   width: min(720px, 100%);
-  max-height: min(88vh, 820px);
+  max-height: min(88dvh, 820px); /* ✅ Telegram-safe */
   overflow-y: auto;
   border-radius: var(--radius-lg);
   background: linear-gradient(150deg, rgba(4, 28, 64, 0.96), rgba(2, 15, 40, 0.92));
@@ -1081,6 +1104,7 @@ button.primary:hover,
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+  -webkit-overflow-scrolling: touch;
 }
 
 .modal-header {
@@ -1444,6 +1468,7 @@ button.primary:hover,
   border-radius: var(--radius-lg);
   border: 1px solid rgba(0, 132, 255, 0.18);
   background: rgba(4, 19, 46, 0.78);
+  -webkit-overflow-scrolling: touch;
 }
 
 .table-heading {
@@ -1609,7 +1634,7 @@ tbody td {
 
 /* Admin layout */
 .admin-container {
-  min-height: 100vh;
+  min-height: 100dvh;
   display: grid;
   grid-template-columns: 260px 1fr;
   background: var(--bg-admin-main);
@@ -1619,7 +1644,7 @@ tbody td {
   position: sticky;
   top: 0;
   align-self: flex-start;
-  height: 100vh;
+  height: 100dvh;
   padding: 1.75rem 1.25rem;
   display: flex;
   flex-direction: column;
@@ -1816,6 +1841,7 @@ tbody td {
 details summary {
   cursor: pointer;
   color: var(--accent-strong);
+  outline: none;
 }
 
 details[open] summary {
@@ -1863,6 +1889,7 @@ a:focus-visible {
     flex-direction: row;
     align-items: flex-start;
     gap: 1.1rem;
+    padding: 1.25rem 1rem;
   }
 
   .admin-nav {
@@ -1922,11 +1949,6 @@ a:focus-visible {
 
   .admin-sidebar {
     flex-direction: column;
-    padding: 1.25rem 1rem;
-  }
-
-  .admin-nav {
-    width: 100%;
   }
 
   .admin-main table,
@@ -1947,13 +1969,14 @@ a:focus-visible {
   .player-nav a {
     min-width: 96px;
     padding: 0.65rem 0.75rem;
+    font-size: 0.9rem;
   }
 
   .cards-area {
     gap: 0.55rem;
   }
 
-  .card {
+  .playing-card {
     width: 58px;
     height: 78px;
   }
