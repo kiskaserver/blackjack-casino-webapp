@@ -28,19 +28,18 @@ export default function SettingsModal({ open, onClose }) {
             
             {/* Sound Settings */}
             <div className="card">
-              <label className="flex-row" style={{ alignItems: 'center', gap: '0.75rem', cursor: 'pointer', marginBottom: '1rem' }}>
+              <label className="flex-row settings-label">
                 <input 
                   type="checkbox" 
                   checked={settings.soundEnabled} 
                   onChange={e => setSoundEnabled(e.target.checked)}
-                  style={{ width: '20px', height: '20px', cursor: 'pointer' }}
                 />
-                <span style={{ fontSize: '1rem', fontWeight: '600' }}>🔊 Звук</span>
+                <span className="settings-label-text">🔊 Звук</span>
               </label>
 
-              <div>
-                <label htmlFor="volumeRange" style={{ display: 'block', marginBottom: '0.5rem', fontSize: '0.9rem', color: '#94a3b8', fontWeight: '600' }}>
-                  Громкость: <span style={{ color: '#fbbf24', fontWeight: '700' }}>{localVolume}%</span>
+              <div className="settings-control">
+                <label htmlFor="volumeRange" className="volume-label">
+                  Громкость: <span className="volume-value">{localVolume}%</span>
                 </label>
                 <input
                   id="volumeRange"
@@ -50,21 +49,13 @@ export default function SettingsModal({ open, onClose }) {
                   value={localVolume}
                   onChange={e => applyVolume(e.target.value)}
                   disabled={!settings.soundEnabled}
-                  style={{ 
-                    width: '100%', 
-                    height: '6px', 
-                    borderRadius: '3px',
-                    background: 'rgba(59, 130, 246, 0.2)',
-                    outline: 'none',
-                    opacity: settings.soundEnabled ? 1 : 0.5,
-                    cursor: settings.soundEnabled ? 'pointer' : 'not-allowed'
-                  }}
+                  className="volume-slider"
                 />
                 <button 
                   className="modal-btn" 
                   onClick={() => { soundManager.play('bet'); }}
                   disabled={!settings.soundEnabled}
-                  style={{ marginTop: '0.75rem', opacity: settings.soundEnabled ? 1 : 0.5, cursor: settings.soundEnabled ? 'pointer' : 'not-allowed' }}
+                  style={{ marginTop: '0.75rem' }}
                 >
                   🔊 Тест звука
                 </button>
@@ -73,21 +64,20 @@ export default function SettingsModal({ open, onClose }) {
 
             {/* Haptics Settings */}
             <div className="card">
-              <label className="flex-row" style={{ alignItems: 'center', gap: '0.75rem', cursor: 'pointer', marginBottom: '1rem' }}>
+              <label className="flex-row settings-label">
                 <input 
                   type="checkbox" 
                   checked={settings.hapticsEnabled} 
                   onChange={e => setHapticsEnabled(e.target.checked)}
-                  style={{ width: '20px', height: '20px', cursor: 'pointer' }}
                 />
-                <span style={{ fontSize: '1rem', fontWeight: '600' }}>📳 Тактильная отдача</span>
+                <span className="settings-label-text">📳 Тактильная отдача</span>
               </label>
 
               <button 
                 className="modal-btn"
                 onClick={() => haptics.impact('medium')}
                 disabled={!settings.hapticsEnabled}
-                style={{ opacity: settings.hapticsEnabled ? 1 : 0.5, cursor: settings.hapticsEnabled ? 'pointer' : 'not-allowed' }}
+                style={{ marginTop: '0.75rem' }}
               >
                 📳 Тест вибро
               </button>
@@ -95,7 +85,7 @@ export default function SettingsModal({ open, onClose }) {
 
             {/* Info */}
             <div className="card" style={{ background: 'rgba(6, 182, 212, 0.05)', borderColor: 'rgba(6, 182, 212, 0.2)' }}>
-              <p style={{ margin: 0, fontSize: '0.9rem', color: '#cbd5e1', lineHeight: '1.6' }}>
+              <p className="settings-info">
                 ℹ️ Эти настройки применяются ко всем звуковым эффектам и вибрациям в приложении.
               </p>
             </div>
