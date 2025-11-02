@@ -391,7 +391,7 @@ const AdminSettingsPage = () => {
         <h2>Правила стола</h2>
         <div className="flex-row flex-wrap gap-1">
           <label>
-            Количество колод
+            Ко��ичество колод
             <input
               type="number"
               min="1"

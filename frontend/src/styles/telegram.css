@@ -1,44 +1,44 @@
-/* ===== MODERN TELEGRAM WEBAPP OPTIMIZATIONS ===== */
+/* ===== TELEGRAM WEBAPP OPTIMIZATIONS ===== */
 
-/* ===== TELEGRAM SAFE AREA HANDLING ===== */
+/* ===== SAFE AREA HANDLING ===== */
 @supports (padding: max(0px)) {
   .casino-app {
-    padding-left: max(var(--space-2), var(--tg-safe-area-inset-left));
-    padding-right: max(var(--space-2), var(--tg-safe-area-inset-right));
+    padding-left: max(0.75rem, var(--tg-safe-area-inset-left));
+    padding-right: max(0.75rem, var(--tg-safe-area-inset-right));
     padding-top: max(0px, var(--tg-safe-area-inset-top));
     padding-bottom: max(0px, var(--tg-safe-area-inset-bottom));
   }
 
   .game-header {
-    padding-left: max(var(--space-3), var(--tg-safe-area-inset-left));
-    padding-right: max(var(--space-3), var(--tg-safe-area-inset-right));
-    padding-top: max(var(--space-2), var(--tg-safe-area-inset-top));
+    padding-left: max(1rem, var(--tg-safe-area-inset-left));
+    padding-right: max(1rem, var(--tg-safe-area-inset-right));
+    padding-top: max(0.75rem, var(--tg-safe-area-inset-top));
   }
 
   .player-nav {
-    padding-left: max(var(--space-3), var(--tg-safe-area-inset-left));
-    padding-right: max(var(--space-3), var(--tg-safe-area-inset-right));
+    padding-left: max(1rem, var(--tg-safe-area-inset-left));
+    padding-right: max(1rem, var(--tg-safe-area-inset-right));
   }
 
   .player-content {
-    padding-left: max(var(--space-3), var(--tg-safe-area-inset-left));
-    padding-right: max(var(--space-3), var(--tg-safe-area-inset-right));
+    padding-left: max(1rem, var(--tg-safe-area-inset-left));
+    padding-right: max(1rem, var(--tg-safe-area-inset-right));
   }
 
   .game-controls {
-    padding-left: max(var(--space-3), var(--tg-safe-area-inset-left));
-    padding-right: max(var(--space-3), var(--tg-safe-area-inset-right));
-    padding-bottom: max(var(--space-3), var(--tg-safe-area-inset-bottom));
+    padding-left: max(1rem, var(--tg-safe-area-inset-left));
+    padding-right: max(1rem, var(--tg-safe-area-inset-right));
+    padding-bottom: max(1rem, var(--tg-safe-area-inset-bottom));
   }
 
   .admin-sidebar {
-    padding-left: max(var(--space-4), var(--tg-safe-area-inset-left));
-    padding-top: max(var(--space-4), var(--tg-safe-area-inset-top));
+    padding-left: max(1.5rem, var(--tg-safe-area-inset-left));
+    padding-top: max(1.5rem, var(--tg-safe-area-inset-top));
   }
 
   .admin-main {
-    padding-left: max(var(--space-4), var(--tg-safe-area-inset-left));
-    padding-right: max(var(--space-4), var(--tg-safe-area-inset-right));
+    padding-left: max(1.5rem, var(--tg-safe-area-inset-left));
+    padding-right: max(1.5rem, var(--tg-safe-area-inset-right));
   }
 
   .modal {
@@ -49,67 +49,18 @@
   }
 }
 
-/* ===== TELEGRAM THEME SUPPORT ===== */
-.telegram-theme-dark {
-  --tg-theme-bg-color: #182333;
-  --tg-theme-text-color: #ffffff;
-  --tg-theme-hint-color: #999999;
-  --tg-theme-link-color: #2481cc;
-  --tg-theme-button-color: #2481cc;
-  --tg-theme-button-text-color: #ffffff;
-  --tg-theme-secondary-bg-color: #1e293b;
-}
-
-.telegram-theme-light {
-  --tg-theme-bg-color: #ffffff;
-  --tg-theme-text-color: #000000;
-  --tg-theme-hint-color: #999999;
-  --tg-theme-link-color: #2481cc;
-  --tg-theme-button-color: #2481cc;
-  --tg-theme-button-text-color: #ffffff;
-  --tg-theme-secondary-bg-color: #f8fafc;
-}
-
-/* Apply Telegram theme colors dynamically */
-body.telegram-themed {
-  background-color: var(--tg-theme-bg-color, var(--bg-primary));
-  color: var(--tg-theme-text-color, var(--text-primary));
-}
-
-/* ===== WEBAPP SPECIFIC ADJUSTMENTS ===== */
+/* ===== WEBAPP SPECIFIC ===== */
 .telegram-webapp {
-  /* Prevent zoom on input focus (iOS Safari) */
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
-
-  /* Better touch targets and interactions */
   touch-action: manipulation;
   -webkit-touch-callout: none;
-  -webkit-tap-highlight-color: rgba(59, 130, 246, 0.1);
-
-  /* Smooth scrolling for better UX */
+  -webkit-tap-highlight-color: rgba(0, 212, 255, 0.1);
   -webkit-overflow-scrolling: touch;
   scroll-behavior: smooth;
-
-  /* Prevent pull-to-refresh on iOS */
   overscroll-behavior-y: contain;
-
-  /* Better font rendering */
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-}
-
-/* ===== OPTIMIZED SCROLLING ===== */
-.casino-app,
-.player-content,
-.admin-main,
-.game-table,
-.table-wrapper,
-.verification-details,
-.page-section {
-  -webkit-overflow-scrolling: touch;
-  scroll-behavior: smooth;
-  overscroll-behavior: contain;
 }
 
 /* ===== TOUCH OPTIMIZATIONS ===== */
@@ -118,20 +69,16 @@ body.telegram-themed {
 .quick-bet,
 .admin-nav-link,
 .player-nav a,
-.payment-btn,
 .modal-btn,
-.verification-list-item,
-.section-list-item,
-.withdrawal-urgent-checkbox {
+.primary {
   touch-action: manipulation;
-  -webkit-tap-highlight-color: rgba(59, 130, 246, 0.1);
+  -webkit-tap-highlight-color: rgba(0, 212, 255, 0.1);
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
-  cursor: pointer;
 }
 
-/* Prevent text selection on interactive game elements */
+/* Prevent text selection on game elements */
 .cards-area,
 .game-table,
 .dealer-section,
@@ -144,151 +91,47 @@ body.telegram-themed {
   -webkit-touch-callout: none;
 }
 
-/* ===== MODAL OPTIMIZATIONS ===== */
-.modal {
-  padding: var(--tg-safe-area-inset-top) var(--tg-safe-area-inset-right) var(--tg-safe-area-inset-bottom) var(--tg-safe-area-inset-left);
+/* ===== SCROLLING ===== */
+.casino-app,
+.player-content,
+.admin-main,
+.game-table,
+.table-wrapper,
+.achievements-list {
+  -webkit-overflow-scrolling: touch;
+  scroll-behavior: smooth;
+  overscroll-behavior: contain;
 }
 
-.modal-content {
-  max-height: calc(90vh - var(--tg-safe-area-inset-top) - var(--tg-safe-area-inset-bottom));
-  margin: var(--space-2);
-  margin-top: max(var(--space-2), var(--tg-safe-area-inset-top));
-  margin-bottom: max(var(--space-2), var(--tg-safe-area-inset-bottom));
-}
-
-/* ===== VIEWPORT BREAKPOINTS FOR TELEGRAM ===== */
-
-/* Small Telegram WebApp windows */
-@media screen and (max-height: 600px) {
-  .game-header {
-    padding-top: var(--space-1);
-    padding-bottom: var(--space-1);
-    min-height: 60px;
-  }
-
-  .player-nav {
-    padding-top: var(--space-1);
-    padding-bottom: var(--space-1);
-  }
-
-  .game-controls {
-    padding-top: var(--space-1);
-    padding-bottom: var(--space-1);
-  }
-
-  .game-btn {
-    height: clamp(44px, 10vh, 52px);
-    min-width: clamp(80px, 20vw, 100px);
-  }
-
-  .start-btn {
-    height: clamp(48px, 12vh, 56px);
-    min-width: clamp(120px, 30vw, 150px);
-  }
-
-  .modal-content {
-    max-height: calc(95vh - var(--tg-safe-area-inset-top) - var(--tg-safe-area-inset-bottom));
+/* ===== INPUT FIXES ===== */
+@media screen and (max-width: 768px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  select,
+  textarea {
+    font-size: 16px !important;
   }
 }
 
-/* Narrow Telegram WebApp windows */
-@media screen and (max-width: 400px) {
-  .game-table {
-    padding: var(--space-2);
-  }
-
-  .cards-area {
-    padding: var(--space-1);
-    gap: var(--space-1);
-  }
-
-  .betting-section {
-    padding: var(--space-2);
-  }
-
-  .game-controls {
-    padding: var(--space-2);
-  }
-
-  .game-header {
-    padding: var(--space-1);
-    flex-direction: column;
-    gap: var(--space-2);
-  }
-
-  .player-stats {
-    gap: var(--space-2);
-  }
-
-  .balance, .level {
-    min-width: 45px;
-  }
-
-  .controls-group {
-    gap: var(--space-1);
-  }
-
-  .control-btn {
-    width: 36px;
-    height: 36px;
-  }
-
-  .player-nav {
-    padding: var(--space-1);
-    gap: var(--space-1);
-  }
-
-  .player-nav a {
-    padding: var(--space-1) var(--space-2);
-    font-size: var(--font-size-xs);
-  }
+input,
+textarea,
+.form-input,
+.form-textarea {
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
 }
 
-/* Very small screens (older devices) */
-@media screen and (max-width: 360px) {
-  .game-btn {
-    min-width: 70px;
-    height: 40px;
-    font-size: var(--font-size-xs);
-  }
-
-  .start-btn {
-    min-width: 100px;
-    height: 44px;
-  }
-
-  .btn-text {
-    font-size: var(--font-size-xs);
-  }
-
-  .btn-icon {
-    font-size: clamp(14px, 4vw, 16px);
-  }
-
-  .card {
-    width: clamp(40px, 12vw, 60px);
-    height: clamp(55px, 15vw, 85px);
-  }
-
-  .balance-amount, .level-value {
-    font-size: var(--font-size-xs);
-    max-width: 80px;
-  }
-}
-
-/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+/* ===== PERFORMANCE ===== */
 .casino-app {
-  will-change: transform;
-  contain: layout style paint;
-  transform: translateZ(0); /* Force hardware acceleration */
-}
-
-.card {
   will-change: transform;
   contain: layout style paint;
   transform: translateZ(0);
 }
 
+.card,
 .game-btn,
 .control-btn,
 .quick-bet {
@@ -297,23 +140,16 @@ body.telegram-themed {
   transform: translateZ(0);
 }
 
-.modal-content {
-  will-change: transform;
-  contain: layout style paint;
-}
-
-/* ===== FOCUS AND ACCESSIBILITY ===== */
+/* ===== ACCESSIBILITY ===== */
 .game-btn:focus-visible,
 .control-btn:focus-visible,
 .quick-bet:focus-visible,
 input:focus-visible,
 select:focus-visible,
-textarea:focus-visible,
-.admin-nav-link:focus-visible,
-.player-nav a:focus-visible {
-  outline: 2px solid var(--tg-theme-link-color, var(--primary));
+textarea:focus-visible {
+  outline: 2px solid #00d4ff;
   outline-offset: 2px;
-  border-radius: var(--border-radius);
+  border-radius: 8px;
 }
 
 /* ===== HIGH CONTRAST MODE ===== */
@@ -326,14 +162,8 @@ textarea:focus-visible,
   }
 
   .game-table,
-  .betting-section,
-  .page-section {
+  .betting-section {
     border-width: 2px;
-  }
-
-  .admin-nav-link,
-  .player-nav a {
-    border-width: 1px;
   }
 }
 
@@ -343,21 +173,13 @@ textarea:focus-visible,
   .game-btn,
   .control-btn,
   .quick-bet,
-  .modal-content,
-  .admin-nav-link,
-  .player-nav a {
+  .modal-content {
     animation: none;
     transition: none;
   }
 
-  .loading-spinner,
-  .loading-spinner::after {
-    animation: none;
-  }
-
   .win-effects,
-  .card-deal-animation,
-  .card-flip-animation {
+  .firework {
     display: none !important;
   }
 
@@ -368,71 +190,67 @@ textarea:focus-visible,
   }
 }
 
-/* ===== TELEGRAM WEBAPP SPECIFIC FIXES ===== */
-
-/* Fix for iOS Safari input zoom */
-@media screen and (max-width: 768px) {
-  input[type="text"],
-  input[type="email"],
-  input[type="password"],
-  input[type="number"],
-  select,
-  textarea {
-    font-size: 16px !important;
-  }
-}
-
-/* Fix for Android Chrome touch delay */
-* {
-  -webkit-touch-callout: none;
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-tap-highlight-color: rgba(59, 130, 246, 0.1);
-}
-
-/* Re-enable text selection for inputs */
-input,
-textarea,
-.form-input,
-.form-textarea {
-  -webkit-user-select: text;
-  user-select: text;
-  -webkit-touch-callout: default;
-}
-
-/* ===== ORIENTATION CHANGES ===== */
+/* ===== LANDSCAPE MODE ===== */
 @media screen and (orientation: landscape) and (max-height: 500px) {
   .game-header {
-    padding-top: var(--space-1);
-    padding-bottom: var(--space-1);
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
     min-height: 50px;
   }
 
   .player-nav {
-    display: none; /* Hide navigation in landscape on small screens */
+    display: none;
   }
 
   .game-controls {
-    padding: var(--space-1);
+    padding: 0.5rem;
     position: static;
     background: transparent;
     border: none;
   }
 
   .game-table {
-    padding: var(--space-1);
+    padding: 0.5rem;
   }
 }
 
-/* ===== DARK MODE PREFERENCE ===== */
+/* ===== DARK MODE ===== */
 @media (prefers-color-scheme: dark) {
   .telegram-webapp:not(.telegram-themed) {
     --bg-primary: #0a1428;
     --bg-secondary: #1e293b;
-    --bg-tertiary: #334155;
     --text-primary: #ffffff;
     --text-secondary: #cbd5e1;
-    --text-muted: #94a3b8;
+  }
+}
+
+/* ===== MOBILE OPTIMIZATIONS ===== */
+@media screen and (max-width: 400px) {
+  .game-table {
+    padding: 0.75rem;
+  }
+
+  .betting-section {
+    padding: 0.75rem;
+  }
+
+  .game-controls {
+    padding: 0.75rem;
+  }
+
+  .game-header {
+    padding: 0.5rem;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .player-stats {
+    gap: 0.75rem;
+  }
+
+  .control-btn {
+    width: 36px;
+    height: 36px;
   }
 }
 
@@ -448,59 +266,5 @@ textarea,
   .modal,
   .loading-screen {
     display: none !important;
-  }
-}
-
-/* ===== WEBAPP LAUNCH OPTIMIZATIONS ===== */
-/* Prevent flash of unstyled content */
-.telegram-webapp-loading {
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.telegram-webapp-loaded {
-  opacity: 1;
-}
-
-/* ===== BACK BUTTON HANDLING ===== */
-.telegram-back-button {
-  position: fixed;
-  top: max(var(--space-2), var(--tg-safe-area-inset-top));
-  left: max(var(--space-2), var(--tg-safe-area-inset-left));
-  z-index: 1000;
-  width: 44px;
-  height: 44px;
-  background: rgba(30, 41, 59, 0.9);
-  border: 1px solid var(--border-color);
-  border-radius: var(--border-radius);
-  color: var(--text-primary);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  backdrop-filter: blur(10px);
-  transition: var(--transition-normal);
-}
-
-.telegram-back-button:hover {
-  background: rgba(30, 41, 59, 0.95);
-  transform: scale(1.05);
-}
-
-/* ===== NOTCH AND DYNAMIC ISLAND SUPPORT ===== */
-@supports (padding: max(0px)) {
-  .telegram-webapp {
-    padding-top: max(0px, env(safe-area-inset-top));
-    padding-bottom: max(0px, env(safe-area-inset-bottom));
-    padding-left: max(0px, env(safe-area-inset-left));
-    padding-right: max(0px, env(safe-area-inset-right));
-  }
-
-  .game-header {
-    padding-top: max(var(--space-2), env(safe-area-inset-top));
-  }
-
-  .game-controls {
-    padding-bottom: max(var(--space-3), env(safe-area-inset-bottom));
   }
 }
