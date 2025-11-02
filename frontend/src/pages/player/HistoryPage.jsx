@@ -143,7 +143,7 @@ const HistoryPage = () => {
               <tr key={round.round_id}>
                 <td className="table-cell-emoji">{round.round_id}</td>
                 <td>{round.wallet_type === 'real' ? '💎' : '🎮'} {round.wallet_type}</td>
-                <td className="table-cell-right" style={{ fontWeight: '600' }}>{Number(round.final_bet || round.base_bet || 0).toFixed(2)}</td>
+                <td className="table-cell-right font-weight-600">{Number(round.final_bet || round.base_bet || 0).toFixed(2)}</td>
                 <td className={`table-cell-right ${Number(round.win_amount || 0) > 0 ? 'table-cell-positive' : 'table-cell-negative'}`}>{Number(round.win_amount || 0).toFixed(2)}</td>
                 <td>
                   {round.result === 'win' && '✅'}

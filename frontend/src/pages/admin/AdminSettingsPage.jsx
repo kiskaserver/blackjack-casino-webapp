@@ -235,7 +235,7 @@ const AdminSettingsPage = () => {
   const disabled = loading;
 
   return (
-    <div className="flex-col" style={{ gap: '1.5rem' }}>
+    <div className="flex-col gap-15">
       {message && <div className="alert success">{message}</div>}
       {error && <div className="alert error">{error}</div>}
 
@@ -244,8 +244,8 @@ const AdminSettingsPage = () => {
         {loading ? (
           <p>Загрузка…</p>
         ) : (
-          <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-            {verificationHosts.length === 0 && <li style={{ opacity: 0.7 }}>Список пуст. Укажите переменную окружения VERIFICATION_ALLOWED_HOSTS.</li>}
+          <ul className="list-none">
+            {verificationHosts.length === 0 && <li className="opacity-70">Список пуст. Укажите переменную окружения VERIFICATION_ALLOWED_HOSTS.</li>}
             {verificationHosts.map(host => (
               <li key={host}>{host}</li>
             ))}
@@ -255,7 +255,7 @@ const AdminSettingsPage = () => {
 
       <form className="card" onSubmit={handleSaveDemo}>
         <h2>Демо кошелёк</h2>
-        <div className="flex-row" style={{ gap: '1rem', flexWrap: 'wrap' }}>
+        <div className="flex-row flex-wrap gap-1">
           <label>
             Включено
             <select value={String(demo.enabled)} onChange={event => setDemo(prev => ({ ...prev, enabled: event.target.value === 'true' }))} disabled={disabled}>
@@ -279,14 +279,14 @@ const AdminSettingsPage = () => {
             </select>
           </label>
         </div>
-        <div className="flex-row" style={{ justifyContent: 'flex-end' }}>
+        <div className="flex-row justify-end">
           <button className="primary" type="submit" disabled={disabled}>Сохранить</button>
         </div>
       </form>
 
       <form className="card" onSubmit={handleSavePayouts}>
         <h2>Выплаты (основная игра)</h2>
-        <div className="flex-row" style={{ gap: '1rem', flexWrap: 'wrap' }}>
+        <div className="flex-row flex-wrap gap-1">
           <label>
             Блэкджек · множитель
             <input
@@ -321,14 +321,14 @@ const AdminSettingsPage = () => {
             />
           </label>
         </div>
-        <div className="flex-row" style={{ justifyContent: 'flex-end' }}>
+        <div className="flex-row justify-end">
           <button className="primary" type="submit" disabled={disabled}>Сохранить</button>
         </div>
       </form>
 
       <form className="card" onSubmit={handleSaveCrypto}>
         <h2>Выплаты (Cryptomus)</h2>
-        <div className="flex-row" style={{ gap: '1rem', flexWrap: 'wrap' }}>
+        <div className="flex-row flex-wrap gap-1">
           <label>
             Автоапрув до, 💎
             <input type="number" min="0" step="1" value={crypto.autoApprovalThreshold} onChange={event => setCrypto(prev => ({ ...prev, autoApprovalThreshold: event.target.value }))} disabled={disabled} />
@@ -357,14 +357,14 @@ const AdminSettingsPage = () => {
             <input type="number" min="0" max="23" value={crypto.batchHourUtc} onChange={event => setCrypto(prev => ({ ...prev, batchHourUtc: event.target.value }))} disabled={disabled} />
           </label>
         </div>
-        <div className="flex-row" style={{ justifyContent: 'flex-end' }}>
+        <div className="flex-row justify-end">
           <button className="primary" type="submit" disabled={disabled}>Сохранить</button>
         </div>
       </form>
 
       <form className="card" onSubmit={handleSaveCommission}>
         <h2>Комиссии на вывод</h2>
-        <div className="flex-row" style={{ gap: '1rem', flexWrap: 'wrap' }}>
+        <div className="flex-row flex-wrap gap-1">
           <label>
             Cryptomus · платформа
             <input type="number" min="0" step="0.001" value={commissionWithdraw.cryptomusPlatformPercent} onChange={event => setCommissionWithdraw(prev => ({ ...prev, cryptomusPlatformPercent: event.target.value }))} disabled={disabled} />
@@ -382,14 +382,14 @@ const AdminSettingsPage = () => {
             <input type="number" min="0" step="0.001" value={commissionWithdraw.telegramProviderPercent} onChange={event => setCommissionWithdraw(prev => ({ ...prev, telegramProviderPercent: event.target.value }))} disabled={disabled} />
           </label>
         </div>
-        <div className="flex-row" style={{ justifyContent: 'flex-end' }}>
+        <div className="flex-row justify-end">
           <button className="primary" type="submit" disabled={disabled}>Сохранить</button>
         </div>
       </form>
 
       <form className="card" onSubmit={handleSaveGameplay}>
         <h2>Правила стола</h2>
-        <div className="flex-row" style={{ gap: '1rem', flexWrap: 'wrap' }}>
+        <div className="flex-row flex-wrap gap-1">
           <label>
             Количество колод
             <input
@@ -414,14 +414,14 @@ const AdminSettingsPage = () => {
             </select>
           </label>
         </div>
-        <div className="flex-row" style={{ justifyContent: 'flex-end' }}>
+        <div className="flex-row justify-end">
           <button className="primary" type="submit" disabled={disabled}>Сохранить</button>
         </div>
       </form>
 
       <form className="card" onSubmit={handleSaveTransparency}>
         <h2>Прозрачность RTP</h2>
-        <div className="flex-row" style={{ gap: '1rem', flexWrap: 'wrap' }}>
+        <div className="flex-row flex-wrap gap-1">
           <label>
             Целевой RTP, %
             <input
@@ -446,7 +446,7 @@ const AdminSettingsPage = () => {
             />
           </label>
         </div>
-        <div className="flex-row" style={{ justifyContent: 'flex-end' }}>
+        <div className="flex-row justify-end">
           <button className="primary" type="submit" disabled={disabled}>Сохранить</button>
         </div>
       </form>

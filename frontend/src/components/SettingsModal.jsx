@@ -24,7 +24,7 @@ export default function SettingsModal({ open, onClose }) {
         </div>
 
         <div className="modal-body">
-          <div className="flex-col" style={{ gap: '1.5rem' }}>
+          <div className="flex-col gap-15">
             
             {/* Sound Settings */}
             <div className="card">
@@ -53,10 +53,9 @@ export default function SettingsModal({ open, onClose }) {
                   className="volume-slider"
                 />
                 <button 
-                  className="modal-btn" 
+                  className="modal-btn mt-05 text-09" 
                   onClick={() => { soundManager.play('bet'); }}
                   disabled={!settings.soundEnabled}
-                  style={{ marginTop: '6px', fontSize: '0.9rem' }}
                 >
                   🔊 Тест звука
                 </button>
@@ -75,10 +74,9 @@ export default function SettingsModal({ open, onClose }) {
               </label>
 
               <button 
-                className="modal-btn"
+                className="modal-btn mt-05 ml-14 text-09"
                 onClick={() => haptics.impact('medium')}
                 disabled={!settings.hapticsEnabled}
-                style={{ marginTop: '6px', marginLeft: '14px', fontSize: '0.9rem' }}
               >
                 📳 Тест вибро
               </button>

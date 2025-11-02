@@ -35,19 +35,19 @@ export const RequireTelegram = ({ children }) => {
   };
 
   return (
-    <div className="content" style={{ marginTop: '3rem' }}>
-      <div className="card" style={{ maxWidth: 720, margin: '0 auto' }}>
+    <div className="content mt-3">
+      <div className="card max-w-720 mx-auto">
         <h2>Требуется Telegram WebApp</h2>
         <p>
           Приложение должно запускаться внутри Telegram. Если вы тестируете локально, вставьте значение <code>initData</code>
           , полученное в <code>Telegram.WebApp.initData</code>.
         </p>
-        <details style={{ marginBottom: '1rem' }}>
+        <details className="mb-1">
           <summary>Отладка initData</summary>
           <p>
             <strong>window.Telegram.WebApp.initData:</strong>
           </p>
-          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+          <pre className="pre-wrap">
             {rawTelegramInitData || '(пусто)'}
           </pre>
         </details>
@@ -62,7 +62,7 @@ export const RequireTelegram = ({ children }) => {
             />
           </label>
           {error && <div className="alert error">{error}</div>}
-          <div className="flex-row" style={{ justifyContent: 'flex-end' }}>
+          <div className="flex-row justify-end">
             <button type="submit" className="primary">
               Использовать initData
             </button>

@@ -215,42 +215,35 @@ const AdminPlayersPage = () => {
   const riskEvents = detail?.riskEvents || [];
 
   return (
-    <div className="flex-col" style={{ gap: '1.5rem' }}>
+    <div className="flex-col gap-15">
       <section className="card">
-        <form onSubmit={handleSearch} className="flex-row" style={{ gap: '1rem', flexWrap: 'wrap' }}>
-          <label style={{ flex: '1 1 240px' }}>
+        <form onSubmit={handleSearch} className="flex-row flex-wrap gap-1">
+          <label className="flex-basis-240">
             Поиск по Telegram ID / username
             <input value={search} onChange={event => setSearch(event.target.value)} placeholder="12345 или @nickname" />
           </label>
           <button className="primary" type="submit" disabled={loading}>Найти</button>
           <button type="button" onClick={loadPlayers} disabled={loading}>Сбросить</button>
         </form>
-        {error && <div className="alert error" style={{ marginTop: '1rem' }}>{error}</div>}
-        {toast && <div className="alert success" style={{ marginTop: '1rem' }}>{toast}</div>}
+        {error && <div className="alert error mt-1">{error}</div>}
+        {toast && <div className="alert success mt-1">{toast}</div>}
       </section>
 
-      <div className="flex-row" style={{ gap: '1.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        <section className="card" style={{ flex: '1 1 340px', maxWidth: 420 }}>
+      <div className="flex-row flex-wrap align-start gap-15">
+        <section className="card flex-basis-340 max-w-420">
           <h2>Игроки ({players.length})</h2>
-          <div style={{ maxHeight: 520, overflowY: 'auto' }}>
+          <div className="max-h-520">
             {loading && <p>Загрузка…</p>}
-            {!loading && players.length === 0 && <p style={{ opacity: 0.7 }}>Нет игроков.</p>}
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {!loading && players.length === 0 && <p className="opacity-70">Нет игроков.</p>}
+            <ul className="list-none flex-col gap-05">
               {players.map(player => (
                 <li key={player.telegram_id || player.id}>
                   <button
                     onClick={() => loadDetail(player.telegram_id)}
-                    style={{
-                      width: '100%',
-                      background: selected === player.telegram_id ? 'rgba(59,130,246,0.25)' : 'rgba(15,23,42,0.6)',
-                      border: '1px solid rgba(59,130,246,0.35)',
-                      borderRadius: 8,
-                      padding: '0.6rem 0.8rem',
-                      textAlign: 'left'
-                    }}
+                    className={`btn-player-item ${selected === player.telegram_id ? 'selected' : ''}`}
                   >
                     <strong>{player.telegram_id}</strong>
-                    <div style={{ fontSize: '0.85rem', opacity: 0.8 }}>
+                    <div className="text-085 opacity-80">
                       @{player.username || '—'} · Баланс: {Number(player.balance || 0).toFixed(2)} · {player.status}
                     </div>
                   </button>
@@ -260,17 +253,17 @@ const AdminPlayersPage = () => {
           </div>
         </section>
 
-        <section className="card" style={{ flex: '2 1 480px' }}>
-          {!selected && <p style={{ opacity: 0.75 }}>Выберите игрока для просмотра подробностей.</p>}
+        <section className="card flex-basis-480">
+          {!selected && <p className="opacity-75">Выберите игрока для просмотра подробностей.</p>}
           {detailLoading && <p>Загрузка данных игрока…</p>}
           {detail && !detailLoading && (
-            <div className="flex-col" style={{ gap: '1.25rem' }}>
+            <div className="flex-col gap-125">
               <header>
-                <h2 style={{ marginBottom: '0.25rem' }}>{detail.player.telegram_id}</h2>
-                <div style={{ opacity: 0.75 }}>
+                <h2 className="mb-025">{detail.player.telegram_id}</h2>
+                <div className="opacity-75">
                   @{detail.player.username || '—'} · статус {detail.player.status} · верификация {detail.player.verification_status || 'unverified'}
                 </div>
-                <div style={{ marginTop: '0.75rem', display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
+                <div className="flex-row flex-wrap mt-075 gap-15">
                   <div><strong>Баланс:</strong> {Number(detail.player.balance || 0).toFixed(2)}</div>
                   <div><strong>Демо:</strong> {Number(detail.player.demo_balance || 0).toFixed(2)}</div>
                   <div><strong>Создан:</strong> {detail.player.created_at ? new Date(detail.player.created_at).toLocaleString() : '—'}</div>
@@ -278,12 +271,12 @@ const AdminPlayersPage = () => {
               </header>
 
               {stats && (
-                <div className="card" style={{ background: 'rgba(30,41,59,0.6)' }}>
+                <div className="card bg-card-dark">
                   <h3>Статистика</h3>
-                  <div className="flex-row" style={{ gap: '1.5rem', flexWrap: 'wrap' }}>
+                  <div className="flex-row flex-wrap gap-15">
                     <div>
                       <strong>Реал</strong>
-                      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                      <ul className="list-none">
                         <li>Игр: {stats.totalGames}</li>
                         <li>Побед: {stats.wins}</li>
                         <li>Поражений: {stats.losses}</li>
@@ -293,7 +286,7 @@ const AdminPlayersPage = () => {
                     </div>
                     <div>
                       <strong>Демо</strong>
-                      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+                      <ul className="list-none">
                         <li>Игр: {stats.wallets?.demo?.totalGames || 0}</li>
                         <li>Побед: {stats.wallets?.demo?.wins || 0}</li>
                         <li>Поражений: {stats.wallets?.demo?.losses || 0}</li>
@@ -304,9 +297,9 @@ const AdminPlayersPage = () => {
                 </div>
               )}
 
-              <form className="card" onSubmit={handleAdjustSubmit} style={{ background: 'rgba(30,41,59,0.6)' }}>
+              <form className="card bg-card-dark" onSubmit={handleAdjustSubmit}>
                 <h3>Корректировка баланса</h3>
-                <div className="flex-row" style={{ gap: '1rem', flexWrap: 'wrap' }}>
+                <div className="flex-row flex-wrap gap-1">
                   <label>
                     Сумма
                     <input type="number" step="0.01" value={adjustForm.amount} onChange={event => setAdjustForm(prev => ({ ...prev, amount: event.target.value }))} required />
@@ -318,19 +311,19 @@ const AdminPlayersPage = () => {
                       <option value="demo">Демо</option>
                     </select>
                   </label>
-                  <label style={{ flex: '1 1 200px' }}>
+                  <label className="flex-basis-200">
                     Причина (лог)
                     <input value={adjustForm.reason} onChange={event => setAdjustForm(prev => ({ ...prev, reason: event.target.value }))} placeholder="admin_manual_adjust" />
                   </label>
-                  <div className="flex-row" style={{ justifyContent: 'flex-end', width: '100%' }}>
+                  <div className="flex-row justify-end w-full">
                     <button className="primary" type="submit">Сохранить</button>
                   </div>
                 </div>
               </form>
 
-              <form className="card" onSubmit={handleSetBalance} style={{ background: 'rgba(30,41,59,0.6)' }}>
+              <form className="card bg-card-dark" onSubmit={handleSetBalance}>
                 <h3>Установить точный баланс</h3>
-                <div className="flex-row" style={{ gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                <div className="flex-row flex-wrap align-end gap-1">
                   <label>
                     Баланс
                     <input type="number" min="0" step="0.01" value={balanceForm.balance} onChange={event => setBalanceForm({ balance: event.target.value })} required />
@@ -339,9 +332,9 @@ const AdminPlayersPage = () => {
                 </div>
               </form>
 
-              <form className="card" onSubmit={handleUpdateStatus} style={{ background: 'rgba(30,41,59,0.6)' }}>
+              <form className="card bg-card-dark" onSubmit={handleUpdateStatus}>
                 <h3>Статус игрока</h3>
-                <div className="flex-row" style={{ gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                <div className="flex-row flex-wrap align-end gap-1">
                   <label>
                     Статус
                     <select value={statusForm} onChange={event => setStatusForm(event.target.value)}>
@@ -354,9 +347,9 @@ const AdminPlayersPage = () => {
                 </div>
               </form>
 
-              <form className="card" onSubmit={handleResetDemo} style={{ background: 'rgba(30,41,59,0.6)' }}>
+              <form className="card bg-card-dark" onSubmit={handleResetDemo}>
                 <h3>Сброс демо баланса</h3>
-                <div className="flex-row" style={{ gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                <div className="flex-row flex-wrap align-end gap-1">
                   <label>
                     Целевой баланс
                     <input type="number" min="0" step="1" value={demoResetTarget} onChange={event => setDemoResetTarget(event.target.value)} placeholder="оставьте пустым для дефолта" />
@@ -365,9 +358,9 @@ const AdminPlayersPage = () => {
                 </div>
               </form>
 
-              <form className="card" onSubmit={handleSaveDemoSettings} style={{ background: 'rgba(30,41,59,0.6)' }}>
+              <form className="card bg-card-dark" onSubmit={handleSaveDemoSettings}>
                 <h3>Индивидуальные настройки демо</h3>
-                <div className="flex-row" style={{ gap: '1rem', flexWrap: 'wrap' }}>
+                <div className="flex-row flex-wrap gap-1">
                   <label>
                     Включено
                     <select value={String(demoSettingsForm.enabled)} onChange={event => setDemoSettingsForm(prev => ({ ...prev, enabled: event.target.value === 'true' }))}>
@@ -384,13 +377,13 @@ const AdminPlayersPage = () => {
                     <input type="number" min="0" step="1" value={demoSettingsForm.topupThreshold} onChange={event => setDemoSettingsForm(prev => ({ ...prev, topupThreshold: event.target.value }))} placeholder="по умолчанию" />
                   </label>
                 </div>
-                <div className="flex-row" style={{ justifyContent: 'flex-end', gap: '0.75rem' }}>
+                <div className="flex-row justify-end gap-075">
                   <button type="button" onClick={handleClearDemoSettings}>Удалить кастомизацию</button>
                   <button className="primary" type="submit">Сохранить</button>
                 </div>
               </form>
 
-              <section className="card" style={{ background: 'rgba(30,41,59,0.6)' }}>
+              <section className="card bg-card-dark">
                 <h3>Риск-события ({riskEvents.length})</h3>
                 <div className="table-wrapper">
                   <table>
@@ -405,7 +398,7 @@ const AdminPlayersPage = () => {
                     <tbody>
                       {riskEvents.length === 0 && (
                         <tr>
-                          <td colSpan={4} style={{ textAlign: 'center', opacity: 0.7 }}>Активных событий нет</td>
+                          <td colSpan={4} className="table-cell-empty opacity-70">Активных событий нет</td>
                         </tr>
                       )}
                       {riskEvents.map(event => (

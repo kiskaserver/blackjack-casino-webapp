@@ -611,6 +611,154 @@
   flex-direction: row;
 }
 
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.justify-end {
+  justify-content: flex-end;
+}
+
+.justify-start {
+  justify-content: flex-start;
+}
+
+.align-start {
+  align-items: flex-start;
+}
+
+.align-end {
+  align-items: flex-end;
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+.flex-2 {
+  flex: 2;
+}
+
+/* Gap utilities */
+.gap-05 { gap: calc(var(--space-2) / 2); }
+.gap-075 { gap: calc(var(--space-3) * 0.75); }
+.gap-1 { gap: var(--space-3); }
+.gap-125 { gap: calc(var(--space-3) * 1.25); }
+.gap-15 { gap: var(--space-4); }
+
+/* Width utilities */
+.w-full { width: 100%; }
+.w-180 { width: 180px; }
+.max-w-420 { max-width: 420px; }
+.max-w-520 { max-width: 520px; }
+
+/* Flex basis utilities */
+.flex-basis-180 { flex: 1 1 180px; }
+.flex-basis-200 { flex: 1 1 200px; }
+.flex-basis-240 { flex: 1 1 240px; }
+.flex-basis-340 { flex: 1 1 340px; }
+.flex-basis-400 { flex: 1 1 400px; }
+.flex-basis-480 { flex: 2 1 480px; }
+.flex-basis-520 { flex: 2 1 520px; }
+
+/* Max height utilities */
+.max-h-520 { 
+  max-height: 520px; 
+  overflow-y: auto;
+}
+
+/* Opacity utilities */
+.opacity-70 { opacity: 0.7; }
+.opacity-75 { opacity: 0.75; }
+.opacity-80 { opacity: 0.8; }
+
+/* Font weight utilities */
+.font-weight-600 { font-weight: 600; }
+.font-weight-700 { font-weight: 700; }
+.font-weight-800 { font-weight: 800; }
+
+/* Margin utilities */
+.mb-025 { margin-bottom: calc(var(--space-1) / 2); }
+.mt-075 { margin-top: calc(var(--space-3) * 0.75); }
+.mt-1 { margin-top: var(--space-3); }
+
+/* List style reset */
+.list-none {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+/* Font size utilities */
+.text-085 { font-size: 0.85rem; }
+.text-09 { font-size: 0.9rem; }
+
+/* Background utilities */
+.bg-card-dark {
+  background: rgba(30, 41, 59, 0.6);
+}
+
+.bg-card-darker {
+  background: rgba(15, 23, 42, 0.6);
+}
+
+/* Login/Center container */
+.login-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+
+.login-card {
+  width: 100%;
+  max-width: 420px;
+}
+
+.max-w-720 {
+  max-width: 720px;
+}
+
+.mx-auto {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.mt-05 { margin-top: calc(var(--space-2) / 2); }
+.mt-3 { margin-top: var(--space-6); }
+.mb-1 { margin-bottom: var(--space-3); }
+.ml-14 { margin-left: 14px; }
+
+.pre-wrap {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Button selected state */
+.btn-selected {
+  background: rgba(96, 165, 250, 0.25) !important;
+}
+
+.btn-player-item {
+  width: 100%;
+  background: rgba(15, 23, 42, 0.6);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  border-radius: 8px;
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  transition: var(--transition-normal);
+  cursor: pointer;
+  color: var(--text-primary);
+}
+
+.btn-player-item:hover {
+  background: rgba(59, 130, 246, 0.15);
+}
+
+.btn-player-item.selected {
+  background: rgba(59, 130, 246, 0.25);
+}
+
 /* ===== COMMON CARD STYLES ===== */
 .card {
   background: var(--bg-card);

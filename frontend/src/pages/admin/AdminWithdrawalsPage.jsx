@@ -99,7 +99,7 @@ const AdminWithdrawalsPage = () => {
   };
 
   return (
-    <div className="flex-col" style={{ gap: '1.5rem' }}>
+    <div className="flex-col gap-15">
       <section className="card admin-controls">
         <label>
           Статус
@@ -156,7 +156,7 @@ const AdminWithdrawalsPage = () => {
                     <td>
                       <textarea
                         rows={2}
-                        style={{ width: 180 }}
+                        className="w-180"
                         value={notes[withdrawal.id] || ''}
                         onChange={event => setNotes(prev => ({ ...prev, [withdrawal.id]: event.target.value }))}
                       />

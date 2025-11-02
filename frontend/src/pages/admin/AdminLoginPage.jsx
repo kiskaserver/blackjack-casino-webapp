@@ -31,9 +31,9 @@ const AdminLoginPage = () => {
   };
 
   return (
-    <div className="content" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '100vh' }}>
-      <div className="card" style={{ width: '100%', maxWidth: 420 }}>
-        <h1 style={{ marginBottom: '1rem' }}>Вход в админку</h1>
+    <div className="content login-container">
+      <div className="card login-card">
+        <h1 className="mb-1">Вход в админку</h1>
         <form onSubmit={handleSubmit}>
           <label>
             adminId (Telegram ID)
@@ -48,7 +48,7 @@ const AdminLoginPage = () => {
             {loading ? 'Вход...' : 'Продолжить'}
           </button>
         </form>
-        <p style={{ marginTop: '1rem', fontSize: '0.85rem', opacity: 0.75 }}>
+        <p className="mt-1 text-085 opacity-75">
           Доступ разрешен только Telegram ID, перечисленным в переменной окружения <code>ADMIN_TELEGRAM_IDS</code>. Секрет храните вне Git.
         </p>
       </div>

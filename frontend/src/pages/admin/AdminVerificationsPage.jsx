@@ -105,7 +105,7 @@ const AdminVerificationsPage = () => {
   };
 
   return (
-    <div className="flex-col" style={{ gap: '1.5rem' }}>
+    <div className="flex-col gap-15">
       <section className="card admin-controls">
         <label>
           Статус
@@ -133,11 +133,7 @@ const AdminVerificationsPage = () => {
                 <li key={item.id}>
                   <button
                     onClick={() => selectVerification(item.id)}
-                    className="section-list-item"
-                    style={{
-                      width: '100%',
-                      background: selectedId === item.id ? 'rgba(96,165,250,0.25)' : undefined
-                    }}
+                    className={`section-list-item w-full ${selectedId === item.id ? 'btn-selected' : ''}`}
                   >
                     <strong>{item.id}</strong> · {item.status} · {item.document_type}
                     <div className="section-list-item-text">
@@ -153,17 +149,17 @@ const AdminVerificationsPage = () => {
         <section className="card section-wide">
           {!selected && <p className="section-empty-text">Выберите заявку, чтобы увидеть подробности.</p>}
           {selected && (
-            <div className="flex-col" style={{ gap: '1rem' }}>
+            <div className="flex-col gap-1">
               <header>
-                <h2 style={{ marginBottom: '0.25rem' }}>Заявка #{selected.id}</h2>
+                <h2 className="mb-025">Заявка #{selected.id}</h2>
                 <div className="admin-details-meta">
                   Игрок {selected.player?.telegram_id || selected.player_id} · статус {selected.status}
                 </div>
               </header>
 
-              <div className="card" style={{ background: 'rgba(30,41,59,0.6)' }}>
+              <div className="card bg-card-dark">
                 <h3>Документы</h3>
-                <ul className="section-list" style={{ gap: '0.5rem' }}>
+                <ul className="section-list gap-05">
                   <li>Тип: {selected.document_type}</li>
                   <li>Номер: {selected.document_number || '—'}</li>
                   <li>Страна: {selected.country || '—'}</li>
@@ -190,7 +186,7 @@ const AdminVerificationsPage = () => {
                 </ul>
               </div>
 
-              <div className="card" style={{ background: 'rgba(30,41,59,0.6)' }}>
+              <div className="card bg-card-dark">
                 <h3>История</h3>
                 <p>Отправлено: {selected.submitted_at ? new Date(selected.submitted_at).toLocaleString() : '—'}</p>
                 <p>Проверено: {selected.reviewed_at ? new Date(selected.reviewed_at).toLocaleString() : '—'}</p>
@@ -198,7 +194,7 @@ const AdminVerificationsPage = () => {
                 <p>Причина: {selected.rejection_reason || '—'}</p>
               </div>
 
-              <div className="card" style={{ background: 'rgba(30,41,59,0.6)' }}>
+              <div className="card bg-card-dark">
                 <h3>Действия</h3>
                 <label>
                   Примечание ревью
@@ -208,7 +204,7 @@ const AdminVerificationsPage = () => {
                   Причина / комментарий для игрока
                   <textarea rows={3} value={actionReason} onChange={event => setActionReason(event.target.value)} />
                 </label>
-                <div className="flex-row" style={{ gap: '0.75rem', flexWrap: 'wrap' }}>
+                <div className="flex-row flex-wrap gap-075">
                   <button className="primary" onClick={approve}>Одобрить</button>
                   <button onClick={requestResubmission}>Запросить повторную подачу</button>
                   <button className="danger" onClick={reject}>Отклонить</button>
