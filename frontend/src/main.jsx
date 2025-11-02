@@ -9,6 +9,7 @@ import { SettingsProvider } from "./providers/SettingsProvider.jsx"
 import { injectSpeedInsights } from "@vercel/speed-insights"
 import { Analytics } from "@vercel/analytics/react"
 import "./styles/global.css"
+import "./styles/casino.css"
 import "./styles/design.css"
 import "./styles/telegram.css"
 

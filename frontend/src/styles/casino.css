@@ -1,0 +1,769 @@
+/* ===== CASINO & GAME STYLES ===== */
+/* Player-facing game interface and betting system */
+
+/* Main casino app container */
+.casino-app {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(135deg, var(--surface-1) 0%, #0f2433 100%);
+  position: relative;
+  overflow: hidden;
+}
+
+/* Animated particles background */
+#particles-js {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  opacity: 0.05;
+}
+
+/* Header with logo and stats */
+.game-header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: linear-gradient(180deg, var(--surface-2) 0%, var(--surface-3) 100%);
+  border-bottom: 2px solid var(--border-color);
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.casino-logo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  text-align: center;
+}
+
+.logo-text {
+  font-size: 1.5rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--primary), var(--info));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.logo-subtext {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+/* Player stats display */
+.player-stats {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+  padding: var(--spacing-md);
+  background-color: rgba(31, 146, 208, 0.05);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+}
+
+.balance,
+.level {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--surface-2);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  text-align: center;
+  transition: all var(--transition-fast);
+}
+
+.balance:hover,
+.level:hover {
+  border-color: var(--primary);
+  background-color: var(--surface-3);
+}
+
+.balance-label,
+.level-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.balance-amount,
+.level-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+/* Control buttons group */
+.controls-group {
+  display: flex;
+  gap: var(--spacing-sm);
+  justify-content: center;
+  grid-column: 1 / -1;
+  flex-wrap: wrap;
+}
+
+.control-btn {
+  flex: 1;
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border-radius: var(--radius-md);
+  background-color: var(--surface-3);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  font-size: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.control-btn:not(:disabled):hover {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  transform: scale(1.05);
+}
+
+/* Navigation tabs */
+.player-nav {
+  display: flex;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-md);
+  background-color: var(--surface-2);
+  border-bottom: 1px solid var(--border-color);
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 10;
+}
+
+.player-nav a {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-md);
+  border: 2px solid transparent;
+  color: var(--text-secondary);
+  text-decoration: none;
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+  transition: all var(--transition-base);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.player-nav a:not(.active):hover {
+  color: var(--text-primary);
+  background-color: var(--surface-3);
+}
+
+.player-nav a.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  background-color: rgba(31, 146, 208, 0.08);
+}
+
+.nav-icon {
+  font-size: 1.25rem;
+  display: inline-block;
+}
+
+/* Main player content area */
+.player-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+}
+
+/* Game table layout */
+.game-table {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-lg);
+  overflow-y: auto;
+  padding: var(--spacing-md);
+  position: relative;
+}
+
+/* Win effects / fireworks */
+.win-effects {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 100;
+}
+
+.firework {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  pointer-events: none;
+  animation: fireworkBurst 1s ease-out forwards;
+}
+
+@keyframes fireworkBurst {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--tx), var(--ty)) scale(0);
+    opacity: 0;
+  }
+}
+
+/* Fairness section (expandable) */
+.fairness-section {
+  background-color: var(--surface-2);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--transition-base);
+}
+
+.fairness-section.collapsed {
+  margin-bottom: 0;
+}
+
+.fairness-toggle {
+  width: 100%;
+  padding: var(--spacing-md) var(--spacing-lg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-md);
+  background-color: transparent;
+  border: none;
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.fairness-toggle:not(:disabled):hover {
+  background-color: var(--surface-3);
+}
+
+.fairness-toggle-icon {
+  font-size: 1.25rem;
+}
+
+.fairness-toggle-text {
+  flex: 1;
+  text-align: left;
+}
+
+.fairness-toggle-arrow {
+  color: var(--text-secondary);
+  transition: transform var(--transition-fast);
+}
+
+.fairness-section.expanded .fairness-toggle-arrow {
+  transform: rotate(90deg);
+}
+
+.fairness-content {
+  padding: 0 var(--spacing-lg) var(--spacing-lg);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+}
+
+.fairness-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-md);
+  background-color: var(--surface-3);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+.fairness-card.fairness-card-target {
+  border-color: var(--success);
+  background-color: rgba(49, 162, 76, 0.05);
+}
+
+.fairness-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.fairness-value {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--primary);
+}
+
+.fairness-note {
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+}
+
+.fairness-error {
+  padding: var(--spacing-md);
+  background-color: rgba(255, 59, 48, 0.08);
+  color: var(--danger);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+}
+
+/* Dealer section */
+.dealer-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, var(--surface-2), var(--surface-3));
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-color);
+  text-align: center;
+}
+
+.dealer-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background-color: var(--surface-3);
+  border-radius: var(--radius-md);
+}
+
+.dealer-label,
+.player-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--text-secondary);
+}
+
+.dealer-score,
+.player-score {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  background: linear-gradient(135deg, var(--primary), var(--info));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Cards area */
+.cards-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  justify-content: center;
+  min-height: 120px;
+  padding: var(--spacing-lg);
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--border-color);
+}
+
+.cards-area > span {
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin: auto;
+}
+
+/* Card styling */
+.card {
+  position: relative;
+  width: 70px;
+  height: 100px;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px;
+  font-weight: 700;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: slideIn 0.3s ease-out;
+}
+
+.card.red {
+  color: #e74c3c;
+}
+
+.card.black {
+  color: #000;
+}
+
+.card.face-down {
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  color: transparent;
+}
+
+.card-value {
+  font-size: 1.25rem;
+}
+
+.card-suit {
+  font-size: 1rem;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(-20px) rotateY(-90deg);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0) rotateY(0);
+    opacity: 1;
+  }
+}
+
+/* Player section */
+.player-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, var(--surface-2), var(--surface-3));
+  border-radius: var(--radius-lg);
+  border: 2px solid var(--border-color);
+  text-align: center;
+}
+
+.player-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-md);
+  background-color: var(--surface-3);
+  border-radius: var(--radius-md);
+}
+
+/* Game messages */
+.game-messages {
+  display: flex;
+  justify-content: center;
+  padding: var(--spacing-md);
+  min-height: 3rem;
+}
+
+.game-messages .message {
+  margin: 0;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(31, 146, 208, 0.1), rgba(106, 178, 242, 0.1));
+  border: 2px solid var(--primary);
+  animation: slideDown 0.3s ease-out;
+}
+
+.game-messages .error-message {
+  border-color: var(--danger);
+  background: rgba(255, 59, 48, 0.1);
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-10px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Betting section */
+.betting-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  padding: var(--spacing-lg);
+  background: linear-gradient(135deg, var(--surface-2), var(--surface-3));
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--border-color);
+  transition: all var(--transition-base);
+}
+
+.betting-section.locked {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.bet-amount {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.bet-label {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: block;
+}
+
+.bet-controls {
+  display: flex;
+  gap: var(--spacing-sm);
+  align-items: center;
+  justify-content: center;
+}
+
+.bet-btn {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  background-color: var(--surface-3);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  flex-shrink: 0;
+}
+
+.bet-btn:not(:disabled):hover {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+  transform: scale(1.1);
+}
+
+.bet-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary);
+  min-width: 80px;
+  text-align: center;
+  background: linear-gradient(135deg, rgba(31, 146, 208, 0.1), rgba(106, 178, 242, 0.1));
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+}
+
+/* Wallet toggle */
+.wallet-toggle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.quick-bets {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-sm);
+}
+
+.quick-bet {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: var(--surface-3);
+  border: 2px solid var(--border-color);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  font-size: 0.875rem;
+}
+
+.quick-bet:not(:disabled):hover {
+  border-color: var(--primary);
+  background-color: rgba(31, 146, 208, 0.1);
+  color: var(--primary);
+}
+
+.quick-bet.active {
+  background-color: var(--primary);
+  border-color: var(--primary);
+  color: white;
+}
+
+/* Game controls */
+.game-controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+  flex-shrink: 0;
+  padding: var(--spacing-lg);
+  background-color: var(--surface-2);
+  border-top: 1px solid var(--border-color);
+}
+
+.action-buttons,
+.play-buttons {
+  display: flex;
+  gap: var(--spacing-md);
+  flex-wrap: wrap;
+  justify-content: center;
+  transition: all var(--transition-base);
+}
+
+.action-buttons.hide,
+.play-buttons.hide {
+  display: none;
+}
+
+.game-btn {
+  flex: 1;
+  min-width: 100px;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  border: none;
+  border-radius: var(--radius-md);
+  color: white;
+  font-weight: 700;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  box-shadow: 0 4px 12px rgba(31, 146, 208, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.game-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(31, 146, 208, 0.5);
+}
+
+.game-btn:not(:disabled):active {
+  transform: translateY(0);
+}
+
+.game-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.btn-icon {
+  font-size: 1.5rem;
+}
+
+.btn-text {
+  font-size: 0.875rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .player-nav {
+    padding: var(--spacing-sm);
+    gap: 0;
+  }
+  
+  .player-nav a {
+    padding: var(--spacing-xs) var(--spacing-sm);
+    font-size: 0.65rem;
+  }
+  
+  .nav-icon {
+    font-size: 1rem;
+  }
+  
+  .game-header {
+    padding: var(--spacing-md);
+    gap: var(--spacing-sm);
+  }
+  
+  .player-stats {
+    grid-template-columns: 1fr;
+    gap: var(--spacing-sm);
+  }
+  
+  .balance,
+  .level {
+    padding: var(--spacing-md);
+  }
+  
+  .card {
+    width: 60px;
+    height: 90px;
+  }
+  
+  .game-btn {
+    min-width: 80px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    font-size: 0.875rem;
+  }
+  
+  .betting-section {
+    padding: var(--spacing-md);
+  }
+  
+  .quick-bets {
+    grid-template-columns: repeat(4, 1fr);
+  }
+  
+  .quick-bet {
+    padding: var(--spacing-xs);
+    font-size: 0.75rem;
+  }
+}
+
+@media (min-width: 768px) {
+  .action-buttons,
+  .play-buttons {
+    gap: var(--spacing-lg);
+  }
+  
+  .game-btn {
+    min-width: 150px;
+  }
+  
+  .betting-section {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: var(--spacing-lg);
+  }
+  
+  .bet-amount {
+    flex: 1;
+  }
+  
+  .quick-bets {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
