@@ -1,0 +1,7 @@
+# Ignore frontend assets and local artifacts when deploying via Railway
+frontend/
+oldProject/
+**/node_modules/
+**/.DS_Store
+.git
+**/*.log

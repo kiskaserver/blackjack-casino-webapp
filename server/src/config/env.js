@@ -219,5 +219,6 @@ module.exports = {
     headerName: ngrokHeaderName,
     queryParam: ngrokQueryParam
   },
-  trustProxy
+  trustProxy,
+  serveFrontendBundle: parseBoolean(process.env.SERVE_FRONTEND_BUNDLE, false)
 };

@@ -73,7 +73,11 @@ app.use('/admin', express.static(adminStaticPath));
 
 const clientStaticPath = path.resolve(__dirname, '..', '..', 'frontend', 'dist');
 const clientIndexPath = path.join(clientStaticPath, 'index.html');
-const serveClientBundle = fs.existsSync(clientIndexPath);
+const serveClientBundle = config.serveFrontendBundle && fs.existsSync(clientIndexPath);
+
+if (config.serveFrontendBundle && !serveClientBundle) {
+  log.warn('Serve frontend bundle enabled but no build found', { clientIndexPath });
+}
 
 if (serveClientBundle) {
   app.use(express.static(clientStaticPath));

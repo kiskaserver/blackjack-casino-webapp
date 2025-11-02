@@ -1,0 +1,8 @@
+[build]
+builder = "NIXPACKS"
+buildCommand = "npm install --prefix server --omit=dev"
+
+[deploy]
+startCommand = "npm run start --prefix server"
+healthcheckPath = "/health"
+restartPolicyType = "ON_FAILURE"

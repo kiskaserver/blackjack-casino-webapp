@@ -47,6 +47,7 @@ Create `.env` (and optionally `.env.test`) by copying `.env.example`. Key parame
 | `TELEGRAM_PROVIDER_TOKEN` | yes (Stars) | Provider token for Telegram Stars invoice API |
 | `ALLOWED_ORIGINS` | required in prod | CORS whitelist for frontend origins |
 | `VERIFICATION_ALLOWED_HOSTS` | recommended | Allowlist for externally hosted KYC assets |
+| `SERVE_FRONTEND_BUNDLE` | no | Serve static bundle from `frontend/dist` when true (default `false`) |
 | `CRYPTOMUS_*` | when Cryptomus enabled | Merchant credentials + webhook URLs |
 | `REQUEST_LIMIT_PER_MINUTE` | no | Global rate limiter (default `120`) |
 | `TELEGRAM_INIT_MAX_AGE_SECONDS` | no | Max age for Telegram init data HMAC (default `60`) |
