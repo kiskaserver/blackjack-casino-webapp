@@ -4,14 +4,59 @@ const balanceService = require('./balanceService');
 const playerRepository = require('../repositories/playerRepository');
 const roundRepository = require('../repositories/roundRepository');
 const settingsService = require('./settingsService');
-const houseRepository = require('../repositories/houseRepository');
-const riskRepository = require('../repositories/riskRepository');
 
 const suits = ['♠', '♥', '♦', '♣'];
 const ranks = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
 const WALLET_TYPES = {
   REAL: 'real',
   DEMO: 'demo'
+};
+
+const MIN_DECKS = 1;
+const MAX_DECKS = 8;
+const DEFAULT_DECK_COUNT = 6;
+
+const clampDeckCount = value => {
+  const numeric = Number(value);
+  if (!Number.isFinite(numeric)) {
+    return DEFAULT_DECK_COUNT;
+  }
+  return Math.min(MAX_DECKS, Math.max(MIN_DECKS, Math.floor(numeric)));
+};
+
+const parseSeedConfig = rawSeed => {
+  const seedString = typeof rawSeed === 'string' ? rawSeed : String(rawSeed || '');
+  const separatorIndex = seedString.indexOf('|');
+  if (separatorIndex === -1) {
+    const fallback = seedString || 'legacy';
+    return {
+      deckCount: MIN_DECKS,
+      baseSeed: fallback,
+      hashSource: fallback
+    };
+  }
+
+  const deckCountRaw = seedString.slice(0, separatorIndex);
+  const baseSeed = seedString.slice(separatorIndex + 1) || 'default';
+  const deckCount = clampDeckCount(deckCountRaw);
+  return {
+    deckCount,
+    baseSeed,
+    hashSource: `${deckCount}|${baseSeed}`
+  };
+};
+
+const buildShoe = deckCount => {
+  const shoe = [];
+  const normalized = clampDeckCount(deckCount);
+  for (let deckIndex = 0; deckIndex < normalized; deckIndex += 1) {
+    for (const suit of suits) {
+      for (const rank of ranks) {
+        shoe.push({ suit, rank });
+      }
+    }
+  }
+  return shoe;
 };
 
 const normalizeWalletType = value => (value === WALLET_TYPES.DEMO ? WALLET_TYPES.DEMO : WALLET_TYPES.REAL);
@@ -43,17 +88,30 @@ const calculateScore = cards => {
   return score;
 };
 
+const isSoftHand = cards => {
+  let score = 0;
+  let aces = 0;
+  for (const card of cards) {
+    if (card.hidden) continue;
+    score += getCardValue(card.rank);
+    if (card.rank === 'A') {
+      aces += 1;
+    }
+  }
+  while (score > 21 && aces > 0) {
+    score -= 10;
+    aces -= 1;
+  }
+  return aces > 0;
+};
+
 const isBlackjack = cards => cards.length === 2 && calculateScore(cards) === 21;
 
 const buildDeck = seed => {
-  const deck = [];
-  for (const suit of suits) {
-    for (const rank of ranks) {
-      deck.push({ suit, rank });
-    }
-  }
+  const { deckCount, hashSource } = parseSeedConfig(seed);
+  const deck = buildShoe(deckCount);
 
-  let hash = crypto.createHash('sha512').update(seed).digest();
+  let hash = crypto.createHash('sha512').update(hashSource).digest();
   for (let i = deck.length - 1; i > 0; i--) {
     if (i % hash.length === 0) {
       hash = crypto.createHash('sha512').update(hash).digest();
@@ -104,34 +162,6 @@ const buildRoundPayload = ({ round, balances }) => {
   };
 };
 
-const applyHouseBias = async ({ playerId, result, settings }) => {
-  let biasMode = settings.house?.biasMode || 'fair';
-  let rigProbability = Number(settings.house?.rigProbability || 0);
-
-  const override = await houseRepository.getOverrideForPlayer(playerId);
-  if (override) {
-    biasMode = override.mode;
-    rigProbability = Number(override.rig_probability || 0);
-  }
-
-  if (biasMode === 'fair' || rigProbability <= 0) {
-    return { result, rigged: false };
-  }
-
-  const biasAgainst = biasMode === 'favor_house' ? ['win', 'blackjack'] : ['lose', 'bust'];
-  if (!biasAgainst.includes(result)) {
-    return { result, rigged: false };
-  }
-
-  const roll = crypto.randomInt(0, 10_000) / 10_000;
-  if (roll > rigProbability) {
-    return { result, rigged: false };
-  }
-
-  const adjusted = biasMode === 'favor_house' ? 'lose' : 'win';
-  return { result: adjusted, rigged: true };
-};
-
 const settleFinancials = async ({ round, playerId, result, settings, walletType }) => {
   const payouts = settings.payouts;
   const baseBet = Number(round.base_bet);
@@ -172,20 +202,30 @@ const revealDealerHoleCard = dealerCards => dealerCards.map((card, index) => (
   index === 1 ? { ...card, hidden: false } : { ...card, hidden: card.hidden }
 ));
 
-const dealerShouldHit = score => score < 17;
+const dealerShouldHit = (cards, gameplay) => {
+  const score = calculateScore(cards);
+  if (score < 17) {
+    return true;
+  }
+  if (score > 17) {
+    return false;
+  }
+  if (!gameplay?.dealerHitsSoft17) {
+    return false;
+  }
+  return isSoftHand(cards);
+};
 
-const runDealerPlay = (round, deck) => {
+const runDealerPlay = (round, deck, gameplay) => {
   const dealerCards = revealDealerHoleCard(round.dealer_cards);
   let nextIndex = round.next_index;
-  let dealerScore = calculateScore(dealerCards);
-
-  while (dealerShouldHit(dealerScore) && nextIndex < deck.length) {
+  while (dealerShouldHit(dealerCards, gameplay) && nextIndex < deck.length) {
     const nextCard = deck[nextIndex];
     dealerCards.push({ ...nextCard, hidden: false });
     nextIndex += 1;
-    dealerScore = calculateScore(dealerCards);
   }
 
+  const dealerScore = calculateScore(dealerCards);
   return { dealerCards, nextIndex, dealerScore };
 };
 
@@ -244,7 +284,12 @@ const startRound = async ({ telegramUser, betAmount, walletType }) => {
     throw new Error(mode === WALLET_TYPES.DEMO ? 'Недостаточно средств на демо-счете' : 'Недостаточно средств для ставки');
   }
 
-  const seed = crypto.randomBytes(32).toString('hex');
+  const settings = await settingsService.getSettings();
+  const gameplay = settings.gameplay || {};
+  const deckCount = clampDeckCount(gameplay.deckCount ?? DEFAULT_DECK_COUNT);
+
+  const randomSeed = crypto.randomBytes(32).toString('hex');
+  const seed = `${deckCount}|${randomSeed}`;
   const roundId = uuidv4();
   const deck = buildDeck(seed);
   const commit = crypto.createHash('sha256').update(seed).digest('hex');
@@ -367,12 +412,15 @@ const settleRound = async ({ roundId, telegramUser }) => {
     return buildRoundPayload({ round, balances: getPlayerBalances(player) });
   }
 
+  const settings = await settingsService.getSettings();
+  const gameplay = settings.gameplay || {};
+
   const deck = buildDeck(round.seed);
   const playerCards = round.player_cards;
   const playerScore = calculateScore(playerCards);
   const playerBlackjack = isBlackjack(playerCards);
 
-  const dealerPlay = runDealerPlay(round, deck);
+  const dealerPlay = runDealerPlay(round, deck, gameplay);
 
   await roundRepository.appendActionAndUpdateState({
     roundId,
@@ -383,25 +431,8 @@ const settleRound = async ({ roundId, telegramUser }) => {
   });
 
   const updatedRound = await roundRepository.getRoundById(roundId);
-  const dealerScore = calculateScore(dealerPlay.dealerCards);
-  let result = determineResult({ playerScore, dealerScore, playerBlackjack });
-
-  const settings = await settingsService.getSettings();
-  const { result: biasedResult, rigged } = await applyHouseBias({
-    playerId: player.id,
-    result,
-    settings
-  });
-  result = biasedResult;
-
-  if (rigged) {
-    await riskRepository.createEvent({
-      playerId: player.id,
-      eventType: 'house_bias_applied',
-      severity: 'low',
-      payload: { roundId, original: determineResult({ playerScore, dealerScore, playerBlackjack }), adjusted: result }
-    });
-  }
+  const dealerScore = dealerPlay.dealerScore;
+  const result = determineResult({ playerScore, dealerScore, playerBlackjack });
 
   const { winAmount, balances } = await settleFinancials({
     round: updatedRound,

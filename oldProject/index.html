@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>🎰 BlackJack Casino</title>
+    <link rel="stylesheet" href="css/style.css?v=2">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body>
+    <!-- Particle Background -->
+    <div id="particles-js"></div>
+    
+    <!-- Main Container -->
+    <div class="game-container">
+        <!-- Header -->
+        <header class="game-header">
+            <div class="casino-logo">
+                <span class="logo-text">🎰 1WIN BLACKJACK</span>
+                <span class="logo-subtext">CASINO</span>
+            </div>
+            <div class="player-stats">
+                <div class="balance">
+                    <span class="balance-label">БАЛАНС</span>
+                    <span class="balance-amount" id="playerBalance">1000</span>
+                    <span class="currency">💎</span>
+                </div>
+                <div class="level">
+                    <span class="level-label">УРОВЕНЬ</span>
+                    <span class="level-value" id="playerLevel">1</span>
+                </div>
+                <div class="controls-group">
+                    <button class="control-btn" id="shareToggle" onclick="shareGame()" title="Поделиться">
+                        📤
+                    </button>
+                    <button class="control-btn" id="statsToggle" onclick="showStats()" title="Статистика">
+                        📊
+                    </button>
+                    <button class="control-btn" id="soundToggle" onclick="toggleSound()" title="Включить/выключить звук">
+                        🔊
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- Game Table -->
+        <div class="game-table">
+            <!-- Dealer Section -->
+            <div class="dealer-section">
+                <div class="dealer-info">
+                    <span class="dealer-label">🎩 ДИЛЕР</span>
+                    <span class="dealer-score" id="dealerScore">0</span>
+                </div>
+                <div class="cards-area dealer-cards" id="dealerCards">
+                    <!-- Dealer cards will be added here -->
+                </div>
+            </div>
+
+                    <!-- Promo Banner -->
+        <div class="promo-banner">
+            <div class="promo-text">
+                <span class="promo-label">PROMO</span>
+                <span class="promo-offer">500% WIN</span>
+                <span class="promo-prize">: Laptop</span>
+            </div>
+        </div>
+
+        <!-- Game Messages -->
+        <div class="game-messages">
+            <div class="message" id="gameMessage">
+                🎮 Добро пожаловать в BlackJack Casino! 
+            </div>
+            <div class="win-effects" id="winEffects"></div>
+        </div>
+
+            <!-- Player Section -->
+            <div class="player-section">
+                <div class="player-info">
+                    <span class="player-label">👤 ВЫ</span>
+                    <span class="player-score" id="playerScore">0</span>
+                </div>
+                <div class="cards-area player-cards" id="playerCards">
+                    <!-- Player cards will be added here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Betting Section -->
+        <div class="betting-section" id="bettingSection">
+            <div class="bet-amount">
+                <span class="bet-label">СТАВКА</span>
+                <div class="bet-controls">
+                    <button class="bet-btn decrease" onclick="changeBet(-10)">-</button>
+                    <span class="bet-value" id="currentBet">50</span>
+                    <button class="bet-btn increase" onclick="changeBet(10)">+</button>
+                </div>
+                <span class="currency">💎</span>
+            </div>
+            
+            <div class="quick-bets">
+                <button class="quick-bet" onclick="setBet(25)">25</button>
+                <button class="quick-bet" onclick="setBet(50)">50</button>
+                <button class="quick-bet" onclick="setBet(100)">100</button>
+                <button class="quick-bet" onclick="setBet(250)">250</button>
+            </div>
+        </div>
+
+        <!-- Game Controls -->
+        <div class="game-controls">
+            <div class="action-buttons" id="actionButtons">
+                <div class="start-button-container">
+                    <button class="game-btn start-btn" onclick="startNewGame()" id="startBtn">
+                        <div class="btn-content">
+                            <span class="btn-icon">🎯</span>
+                            <span class="btn-text">НАЧАТЬ ИГРУ</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="play-buttons" id="playButtons" style="display: none;">
+                <div class="button-container">
+                    <button class="game-btn hit-btn" onclick="hit()" id="hitButton">
+                        <div class="btn-content">
+                            <span class="btn-icon">🎯</span>
+                            <span class="btn-text">ВЗЯТЬ</span>
+                        </div>
+                    </button>
+                </div>
+                <div class="button-container">
+                    <button class="game-btn stand-btn" onclick="stand()" id="standButton">
+                        <div class="btn-content">
+                            <span class="btn-icon">🛑</span>
+                            <span class="btn-text">СТОП</span>
+                        </div>
+                    </button>
+                </div>
+                <div class="button-container">
+                    <button class="game-btn double-btn" onclick="doubleDown()" id="doubleButton">
+                        <div class="btn-content">
+                            <span class="btn-icon">💰</span>
+                            <span class="btn-text">УДВОИТЬ</span>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Achievements Panel -->
+        <div class="achievements" id="achievements">
+            <!-- Achievements will be shown here -->
+        </div>
+    </div>
+
+    <!-- Victory Modal -->
+    <div class="modal" id="victoryModal">
+        <div class="modal-content victory">
+            <div class="victory-icon">🎉</div>
+            <div class="victory-text">ПОЗДРАВЛЯЕМ!</div>
+            <div class="victory-amount" id="victoryAmount">+100 💎</div>
+            <button class="modal-btn" onclick="closeModal()">ПРОДОЛЖИТЬ</button>
+        </div>
+    </div>
+
+    <!-- Statistics Modal -->
+    <div class="modal" id="statsModal">
+        <div class="modal-content stats">
+            <div class="modal-header">
+                <h3>📊 СТАТИСТИКА ИГРОКА</h3>
+                <button class="close-btn" onclick="closeStatsModal()">✕</button>
+            </div>
+            <div class="stats-content" id="statsContent">
+                <!-- Статистика будет загружена сюда -->
+            </div>
+            <div class="modal-footer">
+                <button class="modal-btn secondary" onclick="resetStats()">СБРОСИТЬ</button>
+                <button class="modal-btn" onclick="closeStatsModal()">ЗАКРЫТЬ</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts - правильный порядок загрузки -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
+    <script src="js/sounds.js"></script>
+    <script src="js/statistics.js"></script>
+    <script src="js/animations.js"></script>
+    <script src="js/particles.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/telegram.js"></script>
+    
+    <!-- Инициализация после загрузки всех скриптов -->
+    <script>
+        // Проверяем что все компоненты загружены
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎮 Инициализация игры...');
+            console.log('SoundManager:', typeof window.soundManager);
+            console.log('PlayerStats:', typeof window.playerStats);
+            console.log('AnimationController:', typeof window.AnimationController);
+            console.log('Game:', typeof window.game);
+            
+            // Небольшая задержка для полной инициализации
+            setTimeout(() => {
+                if (window.game) {
+                    console.log('✅ Игра готова!');
+                    window.game.showMessage('🎰 Добро пожаловать в BlackJack Casino!');
+                } else {
+                    console.error('❌ Ошибка инициализации игры');
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>

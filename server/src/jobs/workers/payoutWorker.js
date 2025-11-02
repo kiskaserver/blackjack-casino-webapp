@@ -1,4 +1,4 @@
-const { Worker, QueueScheduler } = require('bullmq');
+const { Worker, JobScheduler } = require('bullmq');
 const { getBullConnection } = require('../../config/redis');
 const { QUEUES, JOBS } = require('../constants');
 const withdrawalService = require('../../services/withdrawalService');
@@ -6,9 +6,9 @@ const { log } = require('../../utils/logger');
 
 const initPayoutWorker = async () => {
   const connection = getBullConnection();
-  const scheduler = new QueueScheduler(QUEUES.PAYOUT, { connection });
+  const scheduler = new JobScheduler(QUEUES.PAYOUT, { connection });
   await scheduler.waitUntilReady();
-  log.info('Payout queue scheduler ready');
+  log.info('Payout job scheduler ready');
 
   const worker = new Worker(QUEUES.PAYOUT, async job => {
     log.info('Processing payout job', { jobName: job.name, jobId: job.id });

@@ -47,14 +47,25 @@ const verifyTelegramWebAppData = (initDataRaw = '') => {
     return { isValid: false, reason: 'Invalid Telegram hash', data };
   }
 
+  const nowSeconds = Math.floor(Date.now() / 1000);
   const maxAgeSeconds = Math.max(30, Number(config.security?.telegramInitMaxAgeSeconds || 60));
   const authDate = Number(data.auth_date);
-  const nowSeconds = Math.floor(Date.now() / 1000);
-  if (!Number.isFinite(authDate) || nowSeconds - authDate > maxAgeSeconds) {
-    return { isValid: false, reason: 'Telegram payload expired', data };
+  if (!Number.isFinite(authDate)) {
+    return { isValid: false, reason: 'Telegram auth date missing', data };
   }
 
-  return { isValid: true, data };
+  const ageSeconds = nowSeconds - authDate;
+  const isExpired = ageSeconds > maxAgeSeconds;
+
+  return {
+    isValid: true,
+    data,
+    authDate,
+    ageSeconds,
+    maxAgeSeconds,
+    isExpired,
+    reason: isExpired ? 'Telegram payload expired' : undefined
+  };
 };
 
 const verifyTelegram = async (req, res, next) => {
@@ -64,7 +75,7 @@ const verifyTelegram = async (req, res, next) => {
   }
 
   try {
-    const { isValid, data, reason } = verifyTelegramWebAppData(initData);
+  const { isValid, data, reason, isExpired, authDate } = verifyTelegramWebAppData(initData);
     if (!isValid) {
       return res.status(401).json({ success: false, error: reason || 'Invalid Telegram signature' });
     }
@@ -80,19 +91,61 @@ const verifyTelegram = async (req, res, next) => {
       log.warn('Redis недоступен для проверки Telegram init data', { error: error.message });
     }
 
-    const cacheTtl = Math.max(30, Number(config.security?.telegramInitMaxAgeSeconds || 60));
-    if (redis) {
-      const dedupeKey = data.query_id || data.hash || data.user;
-      if (dedupeKey) {
-        const cacheKey = `${TELEGRAM_INIT_CACHE_PREFIX}${dedupeKey}`;
-        const stored = await redis.set(cacheKey, '1', 'EX', cacheTtl, 'NX');
-        if (stored !== 'OK') {
-          return res.status(401).json({ success: false, error: 'Telegram payload replay detected' });
-        }
+    const baseCacheTtl = Math.max(30, Number(config.security?.telegramInitMaxAgeSeconds || 60));
+    const reuseCacheTtl = Math.max(
+      baseCacheTtl,
+      Number(config.security?.telegramInitReuseTtlSeconds || 3600)
+    );
+
+    const dedupeKey = data.query_id || (data.hash ? `hash:${data.hash}` : null);
+
+    if (isExpired) {
+      if (!redis) {
+        return res.status(401).json({ success: false, error: reason || 'Telegram payload expired' });
+      }
+      if (!dedupeKey) {
+        return res.status(401).json({ success: false, error: reason || 'Telegram payload expired' });
+      }
+
+      const cacheKey = `${TELEGRAM_INIT_CACHE_PREFIX}${dedupeKey}`;
+      const cachedValue = await redis.get(cacheKey);
+      if (!cachedValue) {
+        return res.status(401).json({ success: false, error: reason || 'Telegram payload expired' });
+      }
+      // Refresh TTL to keep session alive once it was validated
+      try {
+        await redis.expire(cacheKey, reuseCacheTtl);
+      } catch (redisError) {
+        log.warn('Не удалось обновить TTL Telegram init данных', {
+          error: redisError.message,
+          cacheKey
+        });
       }
     }
 
-    req.telegramUser = JSON.parse(data.user);
+    try {
+      req.telegramUser = JSON.parse(data.user);
+    } catch (parseError) {
+      return res.status(401).json({ success: false, error: 'Telegram user payload invalid' });
+    }
+
+    if (redis && dedupeKey) {
+      const cacheKey = `${TELEGRAM_INIT_CACHE_PREFIX}${dedupeKey}`;
+      const cachePayload = JSON.stringify({
+        userId: req.telegramUser?.id ?? null,
+        authDate,
+        refreshedAt: Date.now()
+      });
+      try {
+        await redis.set(cacheKey, cachePayload, 'EX', reuseCacheTtl);
+      } catch (redisError) {
+        log.warn('Не удалось сохранить Telegram init данные в Redis', {
+          error: redisError.message,
+          cacheKey
+        });
+      }
+    }
+
     next();
   } catch (error) {
     log.warn('Failed to verify Telegram init data', { error: error.message });

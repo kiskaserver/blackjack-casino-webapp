@@ -4,7 +4,8 @@ frontend/node_modules/
 server/node_modules/
 frontend/package-lock.json
 server/package-lock.json
-certs/postgres-ca.pem
+certs/
+frontend/dist/
 
 # Environment
 .env

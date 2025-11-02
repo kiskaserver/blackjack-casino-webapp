@@ -13,28 +13,32 @@ export const AdminLayout = () => {
   const { session, logout } = useAdmin();
 
   return (
-    <div className="main-shell">
-      <aside className="sidebar">
+    <div className="admin-container">
+      <aside className="admin-sidebar">
         <div>
-          <h2>Админ-панель</h2>
+          <h2 className="admin-logo">🔧 Админ-панель</h2>
           {session?.adminId && (
-            <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', opacity: 0.7 }}>
-              Telegram ID: {session.adminId}
+            <p className="admin-logo-subtitle">
+              ID: {session.adminId}
             </p>
           )}
         </div>
-        <nav>
+        <nav className="admin-nav">
           {links.map(link => (
-            <NavLink key={link.to} to={link.to} className={({ isActive }) => (isActive ? 'active' : '')}>
+            <NavLink
+              key={link.to}
+              to={link.to}
+              className={({ isActive }) => `admin-nav-link ${isActive ? 'active' : ''}`}
+            >
               {link.label}
             </NavLink>
           ))}
         </nav>
-        <button className="danger" onClick={logout} style={{ marginTop: 'auto' }}>
-          Выйти
+        <button onClick={logout} className="admin-logout-btn">
+          🚪 Выйти
         </button>
       </aside>
-      <main className="content">
+      <main className="admin-main">
         <Outlet />
       </main>
     </div>

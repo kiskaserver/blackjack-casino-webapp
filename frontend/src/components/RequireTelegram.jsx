@@ -1,10 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTelegram } from '../providers/TelegramProvider.jsx';
 
 export const RequireTelegram = ({ children }) => {
   const { initData, setInitData } = useTelegram();
   const [manualValue, setManualValue] = useState('');
   const [error, setError] = useState('');
+  const [rawTelegramInitData, setRawTelegramInitData] = useState(() => {
+    if (typeof window === 'undefined') {
+      return '';
+    }
+    return window.Telegram?.WebApp?.initData || '';
+  });
+
+  useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+    const str = window.Telegram?.WebApp?.initData || '';
+    setRawTelegramInitData(str);
+  }, [initData]);
 
   if (initData) {
     return children;
@@ -28,6 +42,15 @@ export const RequireTelegram = ({ children }) => {
           Приложение должно запускаться внутри Telegram. Если вы тестируете локально, вставьте значение <code>initData</code>
           , полученное в <code>Telegram.WebApp.initData</code>.
         </p>
+        <details style={{ marginBottom: '1rem' }}>
+          <summary>Отладка initData</summary>
+          <p>
+            <strong>window.Telegram.WebApp.initData:</strong>
+          </p>
+          <pre style={{ whiteSpace: 'pre-wrap', wordBreak: 'break-word' }}>
+            {rawTelegramInitData || '(пусто)'}
+          </pre>
+        </details>
         <form onSubmit={handleSubmit}>
           <label>
             initData

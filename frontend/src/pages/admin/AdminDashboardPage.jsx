@@ -12,6 +12,17 @@ const formatNumber = value => {
   return num.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
 };
 
+const formatPercent = value => {
+  if (value === null || value === undefined) {
+    return '—';
+  }
+  const num = Number(value);
+  if (!Number.isFinite(num)) {
+    return '—';
+  }
+  return `${num.toFixed(2)}%`;
+};
+
 const MetricCard = ({ title, value, hint }) => (
   <div className="card" style={{ minWidth: 200 }}>
     <h3 style={{ margin: 0 }}>{title}</h3>
@@ -68,6 +79,10 @@ const AdminDashboardPage = () => {
 
   const txByWallet = useMemo(() => {
     return transactions.reduce((acc, tx) => {
+  const recentSampleLabel = overview?.fairness?.recent?.sampleSize
+    ? `RTP · последние ${overview.fairness.recent.sampleSize.toLocaleString('ru-RU')} рук`
+    : 'RTP · последние раунды';
+
       const key = tx.wallet_type || 'real';
       acc[key] = (acc[key] || 0) + Number(tx.amount || 0);
       return acc;
@@ -96,6 +111,35 @@ const AdminDashboardPage = () => {
         <MetricCard title="Выплаты" value={`${formatNumber(overview.total_paid)} 💎`} hint="Сумма win_amount (реал)" />
         <MetricCard title="Депозиты" value={`${formatNumber(overview.total_deposit)} 💎`} hint="transactions.deposit*" />
         <MetricCard title="Выводы" value={`${formatNumber(overview.total_withdraw)} 💎`} hint="transactions.withdraw*" />
+        {overview.fairness && (
+          <>
+            <MetricCard
+              title="RTP · вся история"
+              value={formatPercent(overview.fairness.lifetime?.rtpPercent)}
+              hint="Фактический возврат игрокам"
+            />
+            <MetricCard
+              title="House edge"
+              value={formatPercent(overview.fairness.lifetime?.houseEdgePercent)}
+              hint="Преимущество казино"
+            />
+            <MetricCard
+              title="RTP · 24 часа"
+              value={formatPercent(overview.fairness.last24h?.rtpPercent)}
+              hint="Последние 24 часа"
+            />
+            <MetricCard
+              title={recentSampleLabel}
+              value={formatPercent(overview.fairness.recent?.rtpPercent)}
+              hint={`Выборка: ${overview.fairness.recent?.sampleSize?.toLocaleString('ru-RU') || '—'}`}
+            />
+            <MetricCard
+              title="Целевой RTP"
+              value={formatPercent(overview.fairness.settings?.transparency?.targetRtpPercent)}
+              hint="Из настроек"
+            />
+          </>
+        )}
       </section>
 
       <section className="card">

@@ -3,7 +3,6 @@ const playerRepository = require('../repositories/playerRepository');
 const transactionRepository = require('../repositories/transactionRepository');
 const settingsService = require('./settingsService');
 const riskRepository = require('../repositories/riskRepository');
-const houseRepository = require('../repositories/houseRepository');
 const { getRedisClient } = require('../config/redis');
 const { log } = require('../utils/logger');
 
@@ -21,18 +20,6 @@ const redisThrottle = async (key, ttlSeconds) => {
   }
 };
 
-const applyHouseMitigation = async (playerId, settings) => {
-  const probability = Number(settings.antiFraud?.flaggedRigProbability || 0);
-  if (probability <= 0) {
-    return;
-  }
-  await houseRepository.upsertOverride({
-    playerId,
-    mode: 'favor_house',
-    rigProbability: probability
-  });
-};
-
 const analyzePlayer = async (playerId, stats, settings) => {
   if (!stats || !settings) return;
 
@@ -47,7 +34,6 @@ const analyzePlayer = async (playerId, stats, settings) => {
           severity: 'medium',
           payload: { winRate: Number(winRate.toFixed(4)), games: stats.totalGames }
         });
-        await applyHouseMitigation(playerId, settings);
       }
     }
   }
@@ -96,7 +82,6 @@ const runVelocityCheck = async (settingsOverride = null) => {
         activityCount
       }
     });
-    await applyHouseMitigation(playerId, settings);
     flagged.push(playerId);
   }
 
@@ -159,8 +144,6 @@ const runDailyWinCapCheck = async (settingsOverride = null) => {
         totalWon: Number(row.total_won || 0)
       }
     });
-
-    await applyHouseMitigation(playerId, settings);
     await playerRepository.updateStatus({ playerId, status: 'limited' });
     flagged.push(playerId);
   }

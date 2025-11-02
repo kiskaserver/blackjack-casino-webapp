@@ -3,6 +3,7 @@ const limiter = require('../middleware/rateLimiter');
 const { verifyTelegram } = require('../middleware/verifyTelegram');
 const { sendSuccess, sendError } = require('../utils/http');
 const gameService = require('../services/gameService');
+const fairnessService = require('../services/fairnessService');
 
 const router = express.Router();
 
@@ -59,6 +60,15 @@ router.post('/settle', limiter, verifyTelegram, async (req, res) => {
     sendSuccess(res, state);
   } catch (error) {
     sendError(res, error);
+  }
+});
+
+router.get('/fairness', limiter, verifyTelegram, async (_req, res) => {
+  try {
+    const report = await fairnessService.getGameFairnessReport();
+    sendSuccess(res, report);
+  } catch (error) {
+    sendError(res, error, 500);
   }
 });
 

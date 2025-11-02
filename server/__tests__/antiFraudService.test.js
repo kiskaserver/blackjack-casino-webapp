@@ -18,18 +18,12 @@ jest.mock('../src/repositories/riskRepository', () => ({
   createEvent: jest.fn()
 }));
 
-jest.mock('../src/repositories/houseRepository', () => ({
-  upsertOverride: jest.fn()
-}));
-
 jest.mock('../src/repositories/playerRepository', () => ({
   updateStatus: jest.fn()
 }));
 
 const mockDb = require('../src/config/database');
-const mockSettingsService = require('../src/services/settingsService');
 const mockRiskRepository = require('../src/repositories/riskRepository');
-const mockHouseRepository = require('../src/repositories/houseRepository');
 const mockPlayerRepository = require('../src/repositories/playerRepository');
 
 const antiFraudService = require('../src/services/antiFraudService');
@@ -48,8 +42,7 @@ describe('Anti-Fraud Service', () => {
             threshold: 10,
             windowMinutes: 5,
             cooldownMinutes: 60
-          },
-          flaggedRigProbability: 0.3
+          }
         }
       };
 
@@ -66,7 +59,6 @@ describe('Anti-Fraud Service', () => {
 
       expect(result.flaggedPlayers).toHaveLength(2);
       expect(mockRiskRepository.createEvent).toHaveBeenCalledTimes(2);
-      expect(mockHouseRepository.upsertOverride).toHaveBeenCalledTimes(2);
       
       expect(mockRiskRepository.createEvent).toHaveBeenCalledWith({
         playerId: 1,
@@ -103,8 +95,7 @@ describe('Anti-Fraud Service', () => {
             maxNetProfit: 1000,
             cooldownHours: 24,
             timezone: 'UTC'
-          },
-          flaggedRigProbability: 0.5
+          }
         }
       };
 
@@ -131,7 +122,6 @@ describe('Anti-Fraud Service', () => {
 
       expect(result.flaggedPlayers).toHaveLength(2);
       expect(mockRiskRepository.createEvent).toHaveBeenCalledTimes(2);
-      expect(mockHouseRepository.upsertOverride).toHaveBeenCalledTimes(2);
       expect(mockPlayerRepository.updateStatus).toHaveBeenCalledTimes(2);
       
       expect(mockRiskRepository.createEvent).toHaveBeenCalledWith({

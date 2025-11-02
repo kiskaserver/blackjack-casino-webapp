@@ -34,7 +34,7 @@ const closeRedisClient = async () => {
 };
 
 const getBullConnection = () => ({
-  connectionString: config.redisUrl,
+  url: config.redisUrl,
   maxRetriesPerRequest: null,
   tls: config.redisTls ? {} : undefined
 });

@@ -14,9 +14,13 @@ const defaultSettings = {
       cutoffHourUtc: 22
     }
   },
-  house: {
-    biasMode: 'fair', // fair | favor_house | favor_player
-    rigProbability: 0.0
+  gameplay: {
+    deckCount: 6,
+    dealerHitsSoft17: false
+  },
+  transparency: {
+    targetRtpPercent: 97.5,
+    reportWindowSize: 5000
   },
   commission: {
     deposit: {
@@ -43,7 +47,6 @@ const defaultSettings = {
       cooldownHours: 24,
       timezone: 'UTC'
     },
-    flaggedRigProbability: 0.5,
     sweepIntervalMinutes: 60
   },
   demo: {

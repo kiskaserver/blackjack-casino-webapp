@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useEffect, useMemo, useState } from 'react';
+import { retrieveLaunchParams } from '@twa-dev/sdk';
 
 const TelegramContext = createContext({
   initData: '',
@@ -7,6 +8,41 @@ const TelegramContext = createContext({
   setInitData: () => {},
   reloadWebApp: () => {}
 });
+
+const detectInitData = () => {
+  const hardcoded = import.meta.env.VITE_TELEGRAM_INIT_DATA;
+  if (hardcoded && typeof hardcoded === 'string' && hardcoded.trim()) {
+    return hardcoded.trim();
+  }
+
+  if (typeof window !== 'undefined') {
+    try {
+      const { initDataRaw } = retrieveLaunchParams();
+      if (initDataRaw && initDataRaw.trim()) {
+        return initDataRaw.trim();
+      }
+    } catch (error) {
+      console.warn('Failed to retrieve Telegram launch params', error);
+    }
+
+    const telegramInit = window.Telegram?.WebApp?.initData;
+    if (telegramInit && telegramInit.trim()) {
+      return telegramInit.trim();
+    }
+
+    const searchParams = new URLSearchParams(window.location.search || '');
+    const tgWebAppData = searchParams.get('tgWebAppData') || searchParams.get('tgWebAppDataRaw');
+    if (tgWebAppData && tgWebAppData.trim()) {
+      try {
+        return decodeURIComponent(tgWebAppData.trim());
+      } catch (_error) {
+        return tgWebAppData.trim();
+      }
+    }
+  }
+
+  return '';
+};
 
 const extractTelegramState = rawInitData => {
   if (!rawInitData) {
@@ -39,13 +75,7 @@ const extractTelegramState = rawInitData => {
 };
 
 export const TelegramProvider = ({ children }) => {
-  const [initData, setInitDataInternal] = useState(() => {
-    const hardcoded = import.meta.env.VITE_TELEGRAM_INIT_DATA;
-    if (hardcoded && typeof hardcoded === 'string') {
-      return hardcoded.trim();
-    }
-    return window.Telegram?.WebApp?.initData || '';
-  });
+  const [initData, setInitDataInternal] = useState(() => detectInitData());
   const [themeParams, setThemeParams] = useState(() => extractTelegramState(initData).themeParams);
   const [user, setUser] = useState(() => extractTelegramState(initData).user);
 
@@ -59,6 +89,9 @@ export const TelegramProvider = ({ children }) => {
   useEffect(() => {
     const webApp = window.Telegram?.WebApp;
     if (!webApp) {
+      if (!initData) {
+        setInitData(detectInitData());
+      }
       return;
     }
     try {
@@ -72,7 +105,12 @@ export const TelegramProvider = ({ children }) => {
     };
 
     webApp.onEvent?.('themeChanged', handleThemeChanged);
-    setInitData(webApp.initData || initData);
+    const resolvedInitData = webApp.initData || initData;
+    if (resolvedInitData) {
+      setInitData(resolvedInitData);
+    } else {
+      setInitData(detectInitData());
+    }
 
     return () => {
       webApp.offEvent?.('themeChanged', handleThemeChanged);

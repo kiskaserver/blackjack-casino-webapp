@@ -100,7 +100,7 @@ const AdminWithdrawalsPage = () => {
 
   return (
     <div className="flex-col" style={{ gap: '1.5rem' }}>
-      <section className="card" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+      <section className="card admin-controls">
         <label>
           Статус
           <select value={statusFilter} onChange={event => setStatusFilter(event.target.value)}>
@@ -113,8 +113,8 @@ const AdminWithdrawalsPage = () => {
         </label>
         <button onClick={forceBatch}>Создать батч немедленно</button>
         <button className="primary" onClick={loadData}>Обновить</button>
-        {message && <div className="alert success" style={{ marginLeft: 'auto' }}>{message}</div>}
-        {error && <div className="alert error" style={{ marginLeft: 'auto' }}>{error}</div>}
+        {message && <div className="alert alert-success">{message}</div>}
+        {error && <div className="alert alert-error">{error}</div>}
       </section>
 
       <section className="card">
@@ -140,7 +140,7 @@ const AdminWithdrawalsPage = () => {
               <tbody>
                 {withdrawals.length === 0 && (
                   <tr>
-                    <td colSpan={10} style={{ textAlign: 'center', opacity: 0.7 }}>Записей нет</td>
+                    <td colSpan={10} className="table-cell-empty">Записей нет</td>
                   </tr>
                 )}
                 {withdrawals.map(withdrawal => (
@@ -161,7 +161,7 @@ const AdminWithdrawalsPage = () => {
                         onChange={event => setNotes(prev => ({ ...prev, [withdrawal.id]: event.target.value }))}
                       />
                     </td>
-                    <td style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+                    <td className="table-cell-flex-col">
                       <button onClick={() => updateStatus(withdrawal.id, 'approved')}>Approve</button>
                       <button onClick={() => updateStatus(withdrawal.id, 'paid')}>Mark paid</button>
                       <button onClick={() => updateStatus(withdrawal.id, 'rejected')}>Reject</button>
@@ -193,7 +193,7 @@ const AdminWithdrawalsPage = () => {
             <tbody>
               {batches.length === 0 && (
                 <tr>
-                  <td colSpan={6} style={{ textAlign: 'center', opacity: 0.7 }}>Батчей нет</td>
+                  <td colSpan={6} className="table-cell-empty">Батчей нет</td>
                 </tr>
               )}
               {batches.map(batch => (

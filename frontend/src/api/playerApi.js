@@ -35,7 +35,7 @@ export const createPlayerApi = getInitData => {
 
   return {
     getProfile: () => request('/player/profile'),
-  getHistory: params => request('/player/history', { searchParams: params }),
+    getHistory: params => request('/player/history', { searchParams: params }),
     resetDemoBalance: payload => request('/player/demo/reset', { method: 'POST', body: payload }),
     getVerification: () => request('/player/verification'),
     submitVerification: payload => request('/player/verification', { method: 'POST', body: payload }),
@@ -43,6 +43,7 @@ export const createPlayerApi = getInitData => {
     hitRound: roundId => request('/game/hit', { method: 'POST', body: { roundId } }),
     doubleDown: roundId => request('/game/double', { method: 'POST', body: { roundId } }),
     settleRound: roundId => request('/game/settle', { method: 'POST', body: { roundId } }),
+  getFairness: () => request('/game/fairness'),
     createCryptomusInvoice: payload => request('/payments/cryptomus/invoice', { method: 'POST', body: payload }),
     createTelegramStarsInvoice: payload => request('/payments/telegram-stars/invoice', { method: 'POST', body: payload }),
     requestWithdrawal: payload => request('/payments/withdraw', { method: 'POST', body: payload })

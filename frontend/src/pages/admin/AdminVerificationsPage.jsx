@@ -106,7 +106,7 @@ const AdminVerificationsPage = () => {
 
   return (
     <div className="flex-col" style={{ gap: '1.5rem' }}>
-      <section className="card" style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+      <section className="card admin-controls">
         <label>
           Статус
           <select value={statusFilter} onChange={event => setStatusFilter(event.target.value)}>
@@ -118,32 +118,29 @@ const AdminVerificationsPage = () => {
           </select>
         </label>
         <button className="primary" onClick={loadList}>Обновить</button>
-        {message && <div className="alert success">{message}</div>}
-        {error && <div className="alert error">{error}</div>}
+        {message && <div className="alert alert-success">{message}</div>}
+        {error && <div className="alert alert-error">{error}</div>}
       </section>
 
-      <div className="flex-row" style={{ gap: '1.5rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-        <section className="card" style={{ flex: '1 1 360px', maxWidth: 420 }}>
+      <div className="section-flex">
+        <section className="card section-narrow">
           <h2>Запросы ({verifications.length})</h2>
           {loading && <p>Загрузка…</p>}
           {!loading && (
-            <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
-              {verifications.length === 0 && <li style={{ opacity: 0.7 }}>Нет запросов.</li>}
+            <ul className="section-list">
+              {verifications.length === 0 && <li className="section-list-item-empty">Нет запросов.</li>}
               {verifications.map(item => (
                 <li key={item.id}>
                   <button
                     onClick={() => selectVerification(item.id)}
+                    className="section-list-item"
                     style={{
                       width: '100%',
-                      background: selectedId === item.id ? 'rgba(96,165,250,0.25)' : 'rgba(15,23,42,0.6)',
-                      border: '1px solid rgba(96,165,250,0.35)',
-                      borderRadius: 8,
-                      padding: '0.6rem 0.8rem',
-                      textAlign: 'left'
+                      background: selectedId === item.id ? 'rgba(96,165,250,0.25)' : undefined
                     }}
                   >
                     <strong>{item.id}</strong> · {item.status} · {item.document_type}
-                    <div style={{ fontSize: '0.85rem', opacity: 0.8 }}>
+                    <div className="section-list-item-text">
                       Игрок: {item.player?.telegram_id || item.player_id} · Обновлено: {item.updated_at ? new Date(item.updated_at).toLocaleString() : '—'}
                     </div>
                   </button>
@@ -153,20 +150,20 @@ const AdminVerificationsPage = () => {
           )}
         </section>
 
-        <section className="card" style={{ flex: '2 1 480px' }}>
-          {!selected && <p style={{ opacity: 0.7 }}>Выберите заявку, чтобы увидеть подробности.</p>}
+        <section className="card section-wide">
+          {!selected && <p className="section-empty-text">Выберите заявку, чтобы увидеть подробности.</p>}
           {selected && (
             <div className="flex-col" style={{ gap: '1rem' }}>
               <header>
                 <h2 style={{ marginBottom: '0.25rem' }}>Заявка #{selected.id}</h2>
-                <div style={{ opacity: 0.75 }}>
+                <div className="admin-details-meta">
                   Игрок {selected.player?.telegram_id || selected.player_id} · статус {selected.status}
                 </div>
               </header>
 
               <div className="card" style={{ background: 'rgba(30,41,59,0.6)' }}>
                 <h3>Документы</h3>
-                <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <ul className="section-list" style={{ gap: '0.5rem' }}>
                   <li>Тип: {selected.document_type}</li>
                   <li>Номер: {selected.document_number || '—'}</li>
                   <li>Страна: {selected.country || '—'}</li>

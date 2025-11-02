@@ -7,12 +7,12 @@ const transactionRepository = require('../repositories/transactionRepository');
 const settingsService = require('../services/settingsService');
 const withdrawalService = require('../services/withdrawalService');
 const batchRepository = require('../repositories/batchRepository');
-const houseRepository = require('../repositories/houseRepository');
 const balanceService = require('../services/balanceService');
 const riskRepository = require('../repositories/riskRepository');
 const { validateCredentials, createSession, revokeSession } = require('../services/adminAuthService');
 const { generalLimiter, loginLimiter } = require('../middleware/adminRateLimiter');
 const verificationService = require('../services/verificationService');
+const fairnessService = require('../services/fairnessService');
 const config = require('../config/env');
 
 const router = express.Router();
@@ -130,8 +130,11 @@ router.get('/security/verification-hosts', async (_req, res) => {
 
 router.get('/stats/overview', async (_req, res) => {
   try {
-    const stats = await transactionRepository.getAggregatedStats();
-    sendSuccess(res, stats);
+    const [stats, fairness] = await Promise.all([
+      transactionRepository.getAggregatedStats(),
+      fairnessService.getGameFairnessReport()
+    ]);
+    sendSuccess(res, { ...stats, fairness });
   } catch (error) {
     sendError(res, error, 500);
   }
@@ -577,43 +580,6 @@ router.post('/withdrawals/:id/urgent', async (req, res) => {
     const { enqueueUrgentWithdrawal } = require('../jobs/payoutQueue');
     await enqueueUrgentWithdrawal(req.params.id);
     sendSuccess(res, { queued: true });
-  } catch (error) {
-    sendError(res, error, 400);
-  }
-});
-
-router.put('/house-overrides/:telegramId', async (req, res) => {
-  try {
-    const { mode, rigProbability } = req.body;
-    const allowedModes = ['fair', 'favor_house', 'favor_player'];
-    if (!allowedModes.includes(mode)) {
-      throw new Error('Invalid mode');
-    }
-    const player = await playerRepository.getOrCreatePlayer({
-      telegramId: req.params.telegramId,
-      username: null,
-      firstName: null,
-      lastName: null
-    });
-    await houseRepository.upsertOverride({
-      playerId: player.id,
-      mode,
-      rigProbability: Number(rigProbability || 0)
-    });
-    sendSuccess(res, { success: true });
-  } catch (error) {
-    sendError(res, error, 400);
-  }
-});
-
-router.delete('/house-overrides/:telegramId', async (req, res) => {
-  try {
-    const player = await playerRepository.findPlayerByTelegramId(req.params.telegramId);
-    if (!player) {
-      return sendError(res, new Error('Player not found'), 404);
-    }
-    await houseRepository.deleteOverride(player.id);
-    sendSuccess(res, { success: true });
   } catch (error) {
     sendError(res, error, 400);
   }

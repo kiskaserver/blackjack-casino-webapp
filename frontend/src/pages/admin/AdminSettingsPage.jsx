@@ -9,6 +9,7 @@ const AdminSettingsPage = () => {
   const [verificationHosts, setVerificationHosts] = useState([]);
 
   const [demo, setDemo] = useState({ enabled: true, defaultBalance: 10000, topUpThreshold: 500, allowPlayerOverrides: true });
+  const [payouts, setPayouts] = useState({ blackjackMultiplier: 1.5, winMultiplier: 1, pushReturn: 1 });
   const [crypto, setCrypto] = useState({
     autoApprovalThreshold: 200,
     manualReviewThreshold: 1000,
@@ -23,12 +24,27 @@ const AdminSettingsPage = () => {
     telegramPlatformPercent: 0.08,
     telegramProviderPercent: 0.35
   });
-  const [house, setHouse] = useState({ biasMode: 'fair', rigProbability: 0 });
+  const [gameplay, setGameplay] = useState({ deckCount: 6, dealerHitsSoft17: false });
+  const [transparency, setTransparency] = useState({ targetRtpPercent: 97.5, reportWindowSize: 5000 });
 
   const showMessage = text => {
     setMessage(text);
     window.setTimeout(() => setMessage(''), 4000);
   };
+
+  const buildPayoutsPayload = () => ({
+    blackjackMultiplier: Number(payouts.blackjackMultiplier),
+    winMultiplier: Number(payouts.winMultiplier),
+    pushReturn: Number(payouts.pushReturn),
+    crypto: {
+      autoApprovalThreshold: Number(crypto.autoApprovalThreshold),
+      manualReviewThreshold: Number(crypto.manualReviewThreshold),
+      urgentFeePercent: Number(crypto.urgentFeePercent),
+      allowUrgent: Boolean(crypto.allowUrgent),
+      batchHourUtc: Number(crypto.batchHourUtc),
+      cutoffHourUtc: Number(crypto.cutoffHourUtc)
+    }
+  });
 
   useEffect(() => {
     const load = async () => {
@@ -51,6 +67,13 @@ const AdminSettingsPage = () => {
             allowPlayerOverrides: settings.demo.allowPlayerOverrides
           });
         }
+        if (settings?.payouts) {
+          setPayouts({
+            blackjackMultiplier: settings.payouts.blackjackMultiplier ?? 1.5,
+            winMultiplier: settings.payouts.winMultiplier ?? 1,
+            pushReturn: settings.payouts.pushReturn ?? 1
+          });
+        }
         if (settings?.payouts?.crypto) {
           setCrypto({
             autoApprovalThreshold: settings.payouts.crypto.autoApprovalThreshold,
@@ -69,8 +92,17 @@ const AdminSettingsPage = () => {
             telegramProviderPercent: settings.commission.withdraw.telegram_stars.providerPercent
           });
         }
-        if (settings?.house) {
-          setHouse({ biasMode: settings.house.biasMode, rigProbability: settings.house.rigProbability });
+        if (settings?.gameplay) {
+          setGameplay({
+            deckCount: settings.gameplay.deckCount ?? 6,
+            dealerHitsSoft17: Boolean(settings.gameplay.dealerHitsSoft17)
+          });
+        }
+        if (settings?.transparency) {
+          setTransparency({
+            targetRtpPercent: settings.transparency.targetRtpPercent ?? 97.5,
+            reportWindowSize: settings.transparency.reportWindowSize ?? 5000
+          });
         }
       } catch (err) {
         setError(err.message || 'Не удалось загрузить настройки');
@@ -103,6 +135,22 @@ const AdminSettingsPage = () => {
     }
   };
 
+  const handleSavePayouts = async event => {
+    event.preventDefault();
+    if (!api) {
+      return;
+    }
+    try {
+      setError('');
+      await api.updateSettings({
+        payouts: buildPayoutsPayload()
+      });
+      showMessage('Параметры выплат сохранены');
+    } catch (err) {
+      setError(err.message || 'Не удалось сохранить параметры выплат');
+    }
+  };
+
   const handleSaveCrypto = async event => {
     event.preventDefault();
     if (!api) {
@@ -111,20 +159,11 @@ const AdminSettingsPage = () => {
     try {
       setError('');
       await api.updateSettings({
-        payouts: {
-          crypto: {
-            autoApprovalThreshold: Number(crypto.autoApprovalThreshold),
-            manualReviewThreshold: Number(crypto.manualReviewThreshold),
-            urgentFeePercent: Number(crypto.urgentFeePercent),
-            allowUrgent: Boolean(crypto.allowUrgent),
-            batchHourUtc: Number(crypto.batchHourUtc),
-            cutoffHourUtc: Number(crypto.cutoffHourUtc)
-          }
-        }
+        payouts: buildPayoutsPayload()
       });
-      showMessage('Настройки выплат сохранены');
+      showMessage('Настройки Cryptomus обновлены');
     } catch (err) {
-      setError(err.message || 'Не удалось сохранить настройки выплат');
+      setError(err.message || 'Не удалось сохранить настройки Cryptomus');
     }
   };
 
@@ -155,7 +194,7 @@ const AdminSettingsPage = () => {
     }
   };
 
-  const handleSaveHouse = async event => {
+  const handleSaveGameplay = async event => {
     event.preventDefault();
     if (!api) {
       return;
@@ -163,14 +202,33 @@ const AdminSettingsPage = () => {
     try {
       setError('');
       await api.updateSettings({
-        house: {
-          biasMode: house.biasMode,
-          rigProbability: Number(house.rigProbability)
+        gameplay: {
+          deckCount: Number(gameplay.deckCount),
+          dealerHitsSoft17: Boolean(gameplay.dealerHitsSoft17)
         }
       });
-      showMessage('Настройки bias обновлены');
+      showMessage('Правила стола сохранены');
     } catch (err) {
-      setError(err.message || 'Не удалось сохранить настройки bias');
+      setError(err.message || 'Не удалось сохранить правила стола');
+    }
+  };
+
+  const handleSaveTransparency = async event => {
+    event.preventDefault();
+    if (!api) {
+      return;
+    }
+    try {
+      setError('');
+      await api.updateSettings({
+        transparency: {
+          targetRtpPercent: Number(transparency.targetRtpPercent),
+          reportWindowSize: Number(transparency.reportWindowSize)
+        }
+      });
+      showMessage('Параметры прозрачности обновлены');
+    } catch (err) {
+      setError(err.message || 'Не удалось сохранить параметры прозрачности');
     }
   };
 
@@ -219,6 +277,48 @@ const AdminSettingsPage = () => {
               <option value="true">Да</option>
               <option value="false">Нет</option>
             </select>
+          </label>
+        </div>
+        <div className="flex-row" style={{ justifyContent: 'flex-end' }}>
+          <button className="primary" type="submit" disabled={disabled}>Сохранить</button>
+        </div>
+      </form>
+
+      <form className="card" onSubmit={handleSavePayouts}>
+        <h2>Выплаты (основная игра)</h2>
+        <div className="flex-row" style={{ gap: '1rem', flexWrap: 'wrap' }}>
+          <label>
+            Блэкджек · множитель
+            <input
+              type="number"
+              min="1"
+              step="0.1"
+              value={payouts.blackjackMultiplier}
+              onChange={event => setPayouts(prev => ({ ...prev, blackjackMultiplier: event.target.value }))}
+              disabled={disabled}
+            />
+          </label>
+          <label>
+            Победа · множитель
+            <input
+              type="number"
+              min="1"
+              step="0.1"
+              value={payouts.winMultiplier}
+              onChange={event => setPayouts(prev => ({ ...prev, winMultiplier: event.target.value }))}
+              disabled={disabled}
+            />
+          </label>
+          <label>
+            Возврат при ничье
+            <input
+              type="number"
+              min="0"
+              step="0.1"
+              value={payouts.pushReturn}
+              onChange={event => setPayouts(prev => ({ ...prev, pushReturn: event.target.value }))}
+              disabled={disabled}
+            />
           </label>
         </div>
         <div className="flex-row" style={{ justifyContent: 'flex-end' }}>
@@ -287,20 +387,63 @@ const AdminSettingsPage = () => {
         </div>
       </form>
 
-      <form className="card" onSubmit={handleSaveHouse}>
-        <h2>House overrides</h2>
+      <form className="card" onSubmit={handleSaveGameplay}>
+        <h2>Правила стола</h2>
         <div className="flex-row" style={{ gap: '1rem', flexWrap: 'wrap' }}>
           <label>
-            Режим
-            <select value={house.biasMode} onChange={event => setHouse(prev => ({ ...prev, biasMode: event.target.value }))} disabled={disabled}>
-              <option value="fair">fair</option>
-              <option value="favor_house">favor_house</option>
-              <option value="favor_player">favor_player</option>
-            </select>
+            Количество колод
+            <input
+              type="number"
+              min="1"
+              max="8"
+              step="1"
+              value={gameplay.deckCount}
+              onChange={event => setGameplay(prev => ({ ...prev, deckCount: event.target.value }))}
+              disabled={disabled}
+            />
           </label>
           <label>
-            Вероятность rig
-            <input type="number" min="0" max="1" step="0.01" value={house.rigProbability} onChange={event => setHouse(prev => ({ ...prev, rigProbability: event.target.value }))} disabled={disabled} />
+            Дилер берёт на soft 17
+            <select
+              value={String(gameplay.dealerHitsSoft17)}
+              onChange={event => setGameplay(prev => ({ ...prev, dealerHitsSoft17: event.target.value === 'true' }))}
+              disabled={disabled}
+            >
+              <option value="false">Нет</option>
+              <option value="true">Да</option>
+            </select>
+          </label>
+        </div>
+        <div className="flex-row" style={{ justifyContent: 'flex-end' }}>
+          <button className="primary" type="submit" disabled={disabled}>Сохранить</button>
+        </div>
+      </form>
+
+      <form className="card" onSubmit={handleSaveTransparency}>
+        <h2>Прозрачность RTP</h2>
+        <div className="flex-row" style={{ gap: '1rem', flexWrap: 'wrap' }}>
+          <label>
+            Целевой RTP, %
+            <input
+              type="number"
+              min="80"
+              max="100"
+              step="0.1"
+              value={transparency.targetRtpPercent}
+              onChange={event => setTransparency(prev => ({ ...prev, targetRtpPercent: event.target.value }))}
+              disabled={disabled}
+            />
+          </label>
+          <label>
+            Окно отчёта (раундов)
+            <input
+              type="number"
+              min="100"
+              step="100"
+              value={transparency.reportWindowSize}
+              onChange={event => setTransparency(prev => ({ ...prev, reportWindowSize: event.target.value }))}
+              disabled={disabled}
+            />
           </label>
         </div>
         <div className="flex-row" style={{ justifyContent: 'flex-end' }}>

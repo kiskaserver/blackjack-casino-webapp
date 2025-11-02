@@ -43,6 +43,29 @@ const parseBoolean = (value, defaultValue = false) => {
   return ['1', 'true', 'yes', 'on'].includes(normalized);
 };
 
+const resolveTrustProxy = defaultValue => {
+  const raw = process.env.TRUST_PROXY;
+  if (raw === undefined || raw === null) {
+    return defaultValue;
+  }
+  const rawString = String(raw).trim();
+  if (!rawString) {
+    return defaultValue;
+  }
+  const normalized = rawString.toLowerCase();
+  if (['true', '1', 'yes', 'on'].includes(normalized)) {
+    return true;
+  }
+  if (['false', '0', 'no', 'off'].includes(normalized)) {
+    return false;
+  }
+  const numeric = Number(rawString);
+  if (Number.isFinite(numeric)) {
+    return numeric;
+  }
+  return rawString;
+};
+
 const resolveSecret = (inlineValue, filePath, name) => {
   if (filePath) {
     try {
@@ -146,6 +169,8 @@ const databaseSsl = resolveDatabaseSsl();
 
 const redisUrl = process.env.REDIS_URL || 'redis://127.0.0.1:6379';
 const redisTls = parseBoolean(process.env.REDIS_TLS, redisUrl.startsWith('rediss://'));
+const defaultTrustProxy = parseBoolean(process.env.NGROK_MODE ?? process.env.USE_NGROK_MODE, false);
+const trustProxy = resolveTrustProxy(defaultTrustProxy);
 
 module.exports = {
   nodeEnv: process.env.NODE_ENV || 'development',
@@ -182,11 +207,17 @@ module.exports = {
     allowedOrigins,
     adminSessionTtlSeconds: Number(process.env.ADMIN_SESSION_TTL_SECONDS || 3600),
     telegramInitMaxAgeSeconds: Number(process.env.TELEGRAM_INIT_MAX_AGE_SECONDS || 60),
+    telegramInitReuseTtlSeconds: parsePositiveInteger(
+      process.env.TELEGRAM_INIT_REUSE_TTL_SECONDS,
+      3600,
+      'TELEGRAM_INIT_REUSE_TTL_SECONDS'
+    ),
     verificationAllowedHosts
   },
   ngrok: {
     enabled: parseBoolean(process.env.NGROK_MODE ?? process.env.USE_NGROK_MODE, false),
     headerName: ngrokHeaderName,
     queryParam: ngrokQueryParam
-  }
+  },
+  trustProxy
 };
