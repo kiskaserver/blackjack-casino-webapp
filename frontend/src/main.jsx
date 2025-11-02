@@ -6,7 +6,7 @@ import { TelegramProvider } from './providers/TelegramProvider.jsx';
 import { StatisticsProvider } from './providers/StatisticsProvider.jsx';
 import { AdminProvider } from './providers/AdminProvider.jsx';
 import { SettingsProvider } from './providers/SettingsProvider.jsx';
-import { injectSpeedInsights } from '@vercel/speed-insights/monitor';
+import { injectSpeedInsights } from '@vercel/speed-insights';
 import { Analytics } from '@vercel/analytics/react';
 import './styles/global.css';
 
