@@ -1,122 +1,85 @@
-# Blackjack Casino WebApp
+npm run migrate
+npm run worker   # BullMQ worker processing payout jobs
+# Blackjack Casino Platform
 
-Node.js/Express backend, static web client, and lightweight admin console for running a Blackjack game inside a Telegram Web App. The server owns all game decisions, manages balances, talks to Cryptomus and Telegram Stars, and exposes an authenticated admin API.
+Full-stack Telegram WebApp for multiplayer Blackjack with real balances, automated payments, KYC workflow, and an authenticated operations console. The project now ships with a modern React/Vite frontend (`frontend/`) and an Express/Node.js backend (`server/`) that share a single repository and deployment pipeline.
 
 ## Repository layout
 
-- `index.html`, `css/`, `js/` – player-facing Telegram Web App
-- `admin/` – static admin console that calls the authenticated API
-- `server/` – Express application, workers, migrations, tests
-- `DEPLOYMENT.md` – production hosting notes
-- `netlify.toml` – sample static hosting config for the web assets
+- `frontend/` – React 18 + Vite SPA (player UI + admin console)
+- `server/` – Express API, BullMQ workers, Knex migrations, Jest tests
+- `DEPLOYMENT.md` – production hosting, CI/CD, and infrastructure checklist
+- `README.md` – this document (global view)
+- `frontend/README.md` – frontend-specific documentation
+- `server/README.md` – backend-specific documentation
 
-## Features
+Legacy static assets (`index.html`, `admin/`, `css/`, `js/`) were removed in favour of the React build. Serve the compiled SPA from any CDN/static host and proxy `/api` requests to the Express backend.
 
-- Server-authoritative Blackjack rounds with provable deck shuffling
-- Balance ledger with transactional history in PostgreSQL
-- Withdrawals scheduling flow (batch or urgent) backed by BullMQ queues
-- Cryptomus invoice creation + webhook handler and Telegram Stars invoice links
-- Admin endpoints for player lookup, balance adjustments, withdrawals, verifications, and risk events
-- Security middleware: Telegram init-data verification, admin JWT with Redis session pinning, per-route rate limiting, strict CORS, verification document allowlist
+## Architecture overview
 
-## Requirements
+- **Transport:** Telegram WebApp + HTTPS REST API (`/api/player`, `/api/game`, `/api/payments`, `/api/admin`)
+- **Backend:** Node.js 18, Express, PostgreSQL, Redis, BullMQ workers (payout/risk queues)
+- **Frontend:** React Router (HashRouter for Telegram compatibility), context providers for Telegram init data and admin auth, reusable API clients with automatic header injection
+- **Security:** Telegram init data verification, admin JWT sessions persisted in Redis, per-route rate limiting, host allowlist for KYC document URLs, configurable anti-fraud throttles
 
-- Node.js 18+
-- PostgreSQL 14+
-- Redis 6+
-- Public HTTPS endpoint for production webhook callbacks
-
-## Configuration
-
-Create `server/.env` (or `.env.test` for tests). Key variables:
-
-| Variable | Required | Description |
-|---|---|---|
-| `NODE_ENV` | no | `development`, `test`, or `production` |
-| `PORT` | no | HTTP port for Express (default `5050`) |
-| `DATABASE_URL` | yes | PostgreSQL connection string |
-| `REDIS_URL` | no | Redis connection URL (`redis://127.0.0.1:6379` by default) |
-| `JWT_SECRET` | yes | Secret used to sign admin JWTs |
-| `ADMIN_TELEGRAM_IDS` | yes | Comma-separated Telegram IDs allowed to sign in to `/api/admin` |
-| `ADMIN_PANEL_SECRET` / `ADMIN_PANEL_SECRET_FILE` / `ADMIN_PANEL_SECRET_HASH` | one of | Plain secret, path to file with secret, or `scrypt:<salt_base64>:<hash_hex>` digest |
-| `ALLOWED_ORIGINS` | yes in prod | Comma-separated list of trusted origins for CORS (`https://admin.example.com`) |
-| `REQUEST_LIMIT_PER_MINUTE` | no | Global per-IP rate limit (default `120`) |
-| `VERIFICATION_ALLOWED_HOSTS` | yes in prod | Comma-separated host allowlist (`cdn.example.com,*.trusted-storage.net`) for KYC document URLs |
-| `CRYPTOMUS_MERCHANT_ID`, `CRYPTOMUS_API_KEY`, `CRYPTOMUS_PAYMENT_URL`, `CRYPTOMUS_STATUS_URL`, `CRYPTOMUS_WEBHOOK_URL` | depends | Credentials and endpoints for Cryptomus |
-| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_PROVIDER_TOKEN` | yes | Telegram bot credentials |
-| `ADMIN_SESSION_TTL_SECONDS` | no | Life time of admin sessions (default `3600`) |
-
-Other optional values are described inline in `server/src/config/env.js`.
-
-## Local development
+## Getting started
 
 ```powershell
-# install dependencies
+# clone repo, then in separate terminals start backend and frontend
+
+# backend
 cd server
 npm install
-
-# run database migrations (requires DATABASE_URL)
 npm run migrate
+npm run dev        # API on http://localhost:5050
 
-# start API & web workers
-npm run dev      # Express server on port 5050 (or PORT)
-npm run worker   # BullMQ worker processing payout jobs
-
-# run automated tests
-npm test
+# frontend
+cd ..\frontend
+npm install
+npm run dev        # Vite dev server on http://localhost:5173
 ```
 
-Serve the static web app in a separate terminal (any static server works):
+The frontend dev server proxies `/api` to `http://localhost:5050` by default (configurable via `VITE_API_PROXY_TARGET`). The SPA uses a hash-based router so it can be embedded in Telegram and served from static hosting without special rewrite rules.
 
-```powershell
-cd d:\blackjack-casino-webapp
-npx http-server -p 8080
-```
+For feature-by-feature breakdowns, testing strategy, and environment variables see:
 
-- Player WebApp: `http://localhost:8080`
-- Admin panel: `http://localhost:8080/admin` (communicates with the API on `http://localhost:5050`)
+- `frontend/README.md` – React structure, page inventory, dev/CI commands, Telegram testing tips
+- `server/README.md` – API surface, worker jobs, migrations, environment variable catalogue
 
-## Production checklist
+## Key capabilities
 
-- Issue real HTTPS certificates and expose the Express app behind a reverse proxy
-- Set `ALLOWED_ORIGINS` and `VERIFICATION_ALLOWED_HOSTS`; without them document uploads will be rejected
-- To test verification uploads before storage is ready, set `VERIFICATION_ALLOWED_HOSTS` to `localhost`-only values and use the Telegram file proxy; external hosts remain blocked until you add them explicitly
-- Provide either `ADMIN_PANEL_SECRET_HASH` (`scrypt` format) or mount the secret via file
-- Point `CRYPTOMUS_WEBHOOK_URL` to the publicly reachable `/api/payments/cryptomus/webhook`
-- Configure Redis persistence or managed Redis for session storage and queues
-- Schedule the payout worker (`npm run worker`) alongside the API process
-- Back up PostgreSQL regularly; migrations live in `server/migrations`
+- Server-authoritative Blackjack engine with commit/reveal deck handling and balance ledger
+- Cryptomus and Telegram Stars payments (invoices + withdrawal scheduling, urgent payouts)
+- Player portal: gameplay, wallet management, payment requests, verification/KYC, round & transaction history
+- Admin console: login, KPI dashboard, player management, risk feed, withdrawal operations, KYC review, platform settings (demo bankroll, payout policy, commissions, house bias)
+- Background workers for payout batching and risk scoring (BullMQ + Redis)
+- Comprehensive audit trail stored in PostgreSQL (`transactions`, `game_rounds`, `verification_requests`)
+
+## Tooling & scripts
+
+- `frontend`: `npm run dev`, `npm run build`, `npm run preview`
+- `server`: `npm run dev`, `npm run start`, `npm run worker`, `npm run migrate`, `npm test`
+- `.vscode/` tasks or PM2 config (`server/ecosystem.config.js`) can be used for multi-process orchestration in production
+
+## Deployment checklist
+
+- Configure backend environment (`server/.env`) with database, Redis, JWT secret, Telegram credentials, Cryptomus keys, and security allowlists (see `server/README.md`)
+- Build the frontend (`npm run build` in `frontend/`); upload `frontend/dist/` to your CDN/static host
+- Expose the Express API behind an HTTPS reverse proxy; ensure `/api` routes and webhook endpoints are reachable
+- Keep Redis highly available (sessions + job queues) and schedule the payout worker alongside the API
+- Monitor critical jobs (`riskQueue`, `payoutQueue`) and enable structured logging to your observability stack
 
 ## Testing
 
-```powershell
-cd server
-npm test -- --watch    # run Jest suite
-```
-
-Tests rely on `NODE_ENV=test` and the `.env.test` file if present. See `server/__tests__/` for examples covering anti-fraud service, player routes, and withdrawal flow.
-
-## Security notes
-
-- Player endpoints require raw `initData` from Telegram via the `X-Telegram-Init-Data` header; payloads outside the replay window are rejected and cached in Redis to prevent reuse
-- Admin tokens are IP-bound and stored in Redis; `POST /api/admin/auth/login` is rate limited (10 attempts / 15 min)
-- Verification document links are validated against `VERIFICATION_ALLOWED_HOSTS` on the server, and the admin UI reuses the same allowlist to block unsafe URLs
-- Error responses hide stack traces for 5xx codes and log details server-side only
-- Sensitive fields passed to the logger are masked automatically (`authorization`, `token`, `secret`, etc.)
-
-## Deployment helpers
-
-- `server/ecosystem.config.js` – PM2 example configuration
-- `server/knexfile.js` – Knex migration configuration (uses `DATABASE_URL`)
-- `DEPLOYMENT.md` – outlines static hosting for the web client and API deployment considerations
+- Frontend: rely on Vite preview/manual QA today (`npm run preview`); add Vitest/Cypress as needed
+- Backend: Jest suites under `server/__tests__/` (`npm test`, `npm test -- --watch`)
+- End-to-end: recommended to script Telegram WebApp scenarios with Bot API + Playwright (see `DEPLOYMENT.md` for hints)
 
 ## Contributing
 
-1. Fork and create a feature branch
-2. Run tests (`npm test`) before submitting changes
-3. Keep documentation and environment variable lists in sync with code
-4. Submit a pull request with a summary of behavior changes
+1. Create a feature branch
+2. Run `npm run lint` / `npm test` (backend) and `npm run build` (frontend) before opening a PR
+3. Update documentation when touching config, endpoints, or operational flows
+4. Include migrations & seed data when mutating the schema
 
----
-
-Play responsibly and have fun!
+See the dedicated READMEs for more detail on project conventions, coding standards, and debugging workflows.

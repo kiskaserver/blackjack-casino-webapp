@@ -83,10 +83,24 @@ const settleRound = async ({ roundId, result, winAmount, status = 'finished' }) 
   );
 };
 
+const listRecentRoundsForPlayer = async ({ playerId, limit = 25 }) => {
+  const res = await db.query(
+    `SELECT round_id, wallet_type, base_bet, final_bet, win_amount, result, status, created_at, settled_at
+     FROM game_rounds
+     WHERE player_id = $1
+     ORDER BY created_at DESC
+     LIMIT $2
+    `,
+    [playerId, limit]
+  );
+  return res.rows;
+};
+
 module.exports = {
   createRound,
   getRoundById,
   appendActionAndUpdateState,
   markDoubleDown,
-  settleRound
+  settleRound,
+  listRecentRoundsForPlayer
 };

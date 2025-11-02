@@ -7,6 +7,8 @@ const { sendSuccess, sendError } = require('../utils/http');
 const { log } = require('../utils/logger');
 const { isUrlAllowed } = require('../utils/url');
 const playerRepository = require('../repositories/playerRepository');
+const transactionRepository = require('../repositories/transactionRepository');
+const roundRepository = require('../repositories/roundRepository');
 const settingsService = require('../services/settingsService');
 const balanceService = require('../services/balanceService');
 const verificationService = require('../services/verificationService');
@@ -46,6 +48,14 @@ const sanitizeVerificationUrl = (value, { label, required }) => {
   } catch (_error) {
     throw new Error(`Недопустимая ссылка на ${label}`);
   }
+};
+
+const clampLimit = (rawValue, { fallback = 25, min = 1, max = 200 } = {}) => {
+  const parsed = Number(rawValue);
+  if (!Number.isFinite(parsed)) {
+    return fallback;
+  }
+  return Math.min(Math.max(parsed, min), max);
 };
 
 router.get('/profile', limiter, verifyTelegram, async (req, res) => {
@@ -197,10 +207,10 @@ router.post('/verification', limiter, verifyTelegram, async (req, res) => {
       documentType,
       documentNumber: documentNumber || null,
       country: country || null,
-  documentFrontUrl: sanitizedFrontUrl,
-  documentBackUrl: sanitizedBackUrl,
-  selfieUrl: sanitizedSelfieUrl,
-  additionalDocumentUrl: sanitizedAdditionalUrl,
+      documentFrontUrl: sanitizedFrontUrl,
+      documentBackUrl: sanitizedBackUrl,
+      selfieUrl: sanitizedSelfieUrl,
+      additionalDocumentUrl: sanitizedAdditionalUrl,
       metadata: typeof metadata === 'object' && metadata !== null ? metadata : {}
     });
 
@@ -220,6 +230,35 @@ router.post('/verification', limiter, verifyTelegram, async (req, res) => {
       return sendError(res, new Error('У вас уже есть запрос на рассмотрении'), 409);
     }
     sendError(res, error, 400);
+  }
+});
+
+router.get('/history', limiter, verifyTelegram, async (req, res) => {
+  try {
+    const roundLimit = clampLimit(req.query.rounds, { fallback: 25 });
+    const txLimit = clampLimit(req.query.transactions, { fallback: 50 });
+
+    const user = req.telegramUser;
+    const player = await playerRepository.getOrCreatePlayer({
+      telegramId: String(user.id),
+      username: user.username,
+      firstName: user.first_name,
+      lastName: user.last_name
+    });
+
+    const [stats, rounds, transactions] = await Promise.all([
+      playerRepository.getPlayerStats({ playerId: player.id }),
+      roundRepository.listRecentRoundsForPlayer({ playerId: player.id, limit: roundLimit }),
+      transactionRepository.getPlayerTransactions({ playerId: player.id, limit: txLimit })
+    ]);
+
+    sendSuccess(res, {
+      stats,
+      rounds,
+      transactions
+    });
+  } catch (error) {
+    sendError(res, error, 500);
   }
 });
 

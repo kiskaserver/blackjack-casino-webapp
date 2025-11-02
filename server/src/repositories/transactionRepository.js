@@ -13,6 +13,19 @@ const getRecentTransactions = async ({ limit = 100 }) => {
   return res.rows;
 };
 
+const getPlayerTransactions = async ({ playerId, limit = 100 }) => {
+  const res = await db.query(
+    `SELECT id, amount, reason, wallet_type, created_at
+     FROM transactions
+     WHERE player_id = $1
+     ORDER BY created_at DESC
+     LIMIT $2
+    `,
+    [playerId, limit]
+  );
+  return res.rows;
+};
+
 const getAggregatedStats = async () => {
   const res = await db.query(`
     SELECT
@@ -35,5 +48,6 @@ const getAggregatedStats = async () => {
 
 module.exports = {
   getRecentTransactions,
+  getPlayerTransactions,
   getAggregatedStats
 };
