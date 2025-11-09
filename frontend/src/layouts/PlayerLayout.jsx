@@ -160,16 +160,16 @@ export const PlayerLayout = () => {
                 end={link.end}
                 className={({ isActive }) =>
                   clsx(
-                    "flex min-w-16 flex-col items-center gap-0.5 rounded-lg border border-transparent px-2 py-1 text-[10px] font-semibold tracking-[0.08em] text-slate-300 transition-all duration-200 hover:bg-cyan-500/10 hover:text-white",
+                    "flex min-w-16 flex-col items-center gap-px rounded-lg border border-transparent px-2 py-1 text-[10px] font-semibold tracking-[0.08em] text-slate-300 transition-all duration-200 hover:bg-cyan-500/10 hover:text-white",
                     isActive &&
                       "border-cyan-400/40 bg-cyan-500/20 text-white shadow-[0_6px_16px_rgba(0,198,255,0.18)]",
                   )
                 }
               >
-                <span className="text-lg" aria-hidden>
+                <span className="text-lg leading-none" aria-hidden>
                   {link.icon}
                 </span>
-                <span>{link.label}</span>
+                <span className="leading-tight whitespace-nowrap">{link.label}</span>
               </NavLink>
             ))}
           </nav>
