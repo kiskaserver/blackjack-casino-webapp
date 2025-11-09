@@ -7,12 +7,8 @@ const config = {
   theme: {
     extend: {
       colors: {
-        night: '#040f26',
-        'night-secondary': 'rgba(6, 24, 48, 0.94)',
-        'night-elevated': 'rgba(8, 29, 62, 0.92)',
         accent: '#00c6ff',
         'accent-alt': '#0b4dff',
-        'accent-soft': 'rgba(0, 176, 255, 0.2)',
         success: '#28f1b9',
         danger: '#ff5f7a',
         warning: '#ffc857'

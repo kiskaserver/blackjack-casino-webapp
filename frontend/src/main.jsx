@@ -9,7 +9,6 @@ import { SettingsProvider } from "./providers/SettingsProvider.jsx"
 import { injectSpeedInsights } from "@vercel/speed-insights"
 import { Analytics } from "@vercel/analytics/react"
 import "./styles/tailwind.css"
-import "./styles/telegram.css"
 
 const enableSpeedInsights = import.meta.env.PROD && import.meta.env.VITE_ENABLE_SPEED_INSIGHTS !== "false"
 const enableVercelAnalytics = import.meta.env.PROD && import.meta.env.VITE_ENABLE_VERCEL_ANALYTICS !== "false"

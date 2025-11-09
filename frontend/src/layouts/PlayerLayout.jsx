@@ -5,6 +5,7 @@ import { createPlayerApi } from '../api/playerApi.js';
 import { useTelegram } from '../providers/TelegramProvider.jsx';
 import StatisticsModal from '../components/StatisticsModal.jsx';
 import SettingsModal from '../components/SettingsModal.jsx';
+import { AdminButton } from '../components/AdminButton.jsx';
 
 const playerLinks = [
   { to: '/', label: 'Игра', end: true, icon: '🃏' },
@@ -76,7 +77,7 @@ export const PlayerLayout = () => {
 
   return (
     <PlayerContext.Provider value={contextValue}>
-      <div className="relative min-h-dvh overflow-hidden bg-night text-slate-100">
+      <div className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-50">
         <div
           id="particles-js"
           className="pointer-events-none absolute inset-0 blur-3xl opacity-80"
@@ -86,8 +87,8 @@ export const PlayerLayout = () => {
           }}
         />
 
-        <div className="relative z-10 flex min-h-dvh flex-col gap-5 px-4 pb-16 pt-6 sm:px-6 lg:px-10 lg:pt-10">
-          <header className="relative overflow-hidden rounded-3xl border border-accent/25 bg-night-secondary p-6 shadow-glow-lg">
+        <div className="relative z-10 flex min-h-screen flex-col gap-5 px-4 pb-16 pt-6 sm:px-6 lg:px-10 lg:pt-10">
+          <header className="card">
             <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex flex-col gap-1 text-balance">
                 <span className="text-lg font-semibold uppercase tracking-[0.18em] text-white/90">🎰 BLACKJACK</span>
@@ -95,22 +96,23 @@ export const PlayerLayout = () => {
               </div>
 
               <div className="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:min-w-[580px] lg:grid-cols-4">
-                <div className="rounded-2xl border border-accent/25 bg-night-elevated p-4 shadow-glow-soft">
-                  <p className="text-xs font-medium uppercase tracking-[0.15em] text-slate-300">💎 Реальный</p>
-                  <p className="mt-1 text-2xl font-semibold text-accent">{formattedReal}</p>
+                <div className="balance-card balance-card-real">
+                  <p className="balance-label">💎 Реальный</p>
+                  <p className="mt-1 text-2xl font-semibold text-cyan-400">{formattedReal}</p>
                 </div>
-                <div className="rounded-2xl border border-accent/25 bg-night-elevated p-4 shadow-glow-soft">
-                  <p className="text-xs font-medium uppercase tracking-[0.15em] text-slate-300">🎮 Демо</p>
-                  <p className="mt-1 text-2xl font-semibold text-accent">{formattedDemo}</p>
+                <div className="balance-card balance-card-demo">
+                  <p className="balance-label">🎮 Демо</p>
+                  <p className="mt-1 text-2xl font-semibold text-yellow-400">{formattedDemo}</p>
                 </div>
-                <div className="rounded-2xl border border-accent/25 bg-night-elevated p-4 shadow-glow-soft">
-                  <p className="text-xs font-medium uppercase tracking-[0.15em] text-slate-300">Игрок</p>
+                <div className="balance-card">
+                  <p className="balance-label">Игрок</p>
                   <p className="mt-1 text-base font-semibold text-sky-200">{user?.username ? `@${user.username}` : user?.first_name || 'Guest'}</p>
                 </div>
-                <div className="flex items-center justify-end gap-2 rounded-2xl border border-accent/25 bg-night-elevated p-4">
+                <div className="flex items-center justify-end gap-2 balance-card">
+                  <AdminButton />
                   <button
                     type="button"
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-accent/25 bg-accent-soft text-lg text-accent transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="secondary h-11 w-11 rounded-xl p-0 text-lg"
                     onClick={loadProfile}
                     disabled={loadingProfile}
                     title="Обновить баланс"
@@ -119,7 +121,7 @@ export const PlayerLayout = () => {
                   </button>
                   <button
                     type="button"
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-accent/25 bg-accent-soft text-lg text-accent transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                    className="secondary h-11 w-11 rounded-xl p-0 text-lg"
                     onClick={() => setStatsOpen(true)}
                     title="Статистика"
                   >
@@ -127,7 +129,7 @@ export const PlayerLayout = () => {
                   </button>
                   <button
                     type="button"
-                    className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-accent/25 bg-accent-soft text-lg text-accent transition hover:-translate-y-0.5 hover:border-accent hover:bg-accent/25 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/60"
+                    className="secondary h-11 w-11 rounded-xl p-0 text-lg"
                     onClick={() => setSettingsOpen(true)}
                     title="Настройки"
                   >
@@ -136,11 +138,9 @@ export const PlayerLayout = () => {
                 </div>
               </div>
             </div>
-
-            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(0,209,255,0.35),transparent_60%),linear-gradient(140deg,transparent_50%,rgba(7,129,255,0.25))] opacity-90" />
           </header>
 
-          <nav className="flex snap-x items-stretch gap-2 overflow-x-auto rounded-3xl border border-accent/20 bg-night-secondary p-1 shadow-glow-soft backdrop-blur">
+          <nav className="flex snap-x items-stretch gap-2 overflow-x-auto rounded-3xl border border-cyan-500/20 bg-slate-900/90 p-1 backdrop-blur">
             {playerLinks.map(link => (
               <NavLink
                 key={link.to}
@@ -148,10 +148,9 @@ export const PlayerLayout = () => {
                 end={link.end}
                 className={({ isActive }) =>
                   clsx(
-                    'group flex min-w-[110px] flex-1 snap-center flex-col items-center gap-1 rounded-2xl px-4 py-3 text-sm font-semibold transition',
-                    'text-slate-300 hover:-translate-y-0.5 hover:bg-accent-soft hover:text-slate-50',
+                    'nav-link group flex min-w-[110px] flex-1 snap-center flex-col items-center gap-1 rounded-2xl px-4 py-3 text-sm font-semibold',
                     {
-                      'bg-[linear-gradient(120deg,#00b0ff,#0d59ff_60%,#00efff)] text-white shadow-glow-lg': isActive
+                      'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg': isActive
                     }
                   )
                 }
@@ -162,9 +161,9 @@ export const PlayerLayout = () => {
             ))}
           </nav>
 
-          <main className="flex flex-1 flex-col gap-4 rounded-3xl border border-accent/20 bg-night-secondary p-6 shadow-glow-soft backdrop-blur">
+          <main className="card flex flex-1 flex-col gap-4 p-6">
             {profileError && (
-              <div className="flex items-center gap-2 rounded-2xl border border-danger/35 bg-danger/15 px-4 py-3 text-sm font-medium text-danger">
+              <div className="message error flex items-center gap-2">
                 <span aria-hidden>⚠️</span>
                 <span>{profileError}</span>
               </div>
