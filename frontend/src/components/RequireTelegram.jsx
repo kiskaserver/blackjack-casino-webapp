@@ -37,7 +37,7 @@ export const RequireTelegram = ({ children }) => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen flex items-center justify-center p-4 bg-linear-to-br from-slate-950 via-slate-900 to-slate-950">
       <div className="card w-full max-w-2xl">
         <h2 className="text-2xl font-bold text-white mb-4">🚀 Требуется Telegram WebApp</h2>
         <p className="text-slate-300 mb-4">
@@ -52,7 +52,7 @@ export const RequireTelegram = ({ children }) => {
           </summary>
           <div className="mt-3 p-3 bg-slate-800/30 rounded-lg">
             <p className="text-xs font-mono text-slate-400 mb-2">window.Telegram.WebApp.initData:</p>
-            <pre className="text-xs bg-slate-900/50 p-3 rounded overflow-x-auto text-slate-300 break-words whitespace-pre-wrap">
+            <pre className="text-xs bg-slate-900/50 p-3 rounded overflow-x-auto text-slate-300 wrap-break-word whitespace-pre-wrap">
               {rawTelegramInitData || "(пусто)"}
             </pre>
           </div>

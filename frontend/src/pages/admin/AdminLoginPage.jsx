@@ -33,7 +33,7 @@ const AdminLoginPage = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="min-h-screen flex items-center justify-center px-4 py-8 bg-linear-to-br from-slate-950 via-slate-900 to-slate-950">
       <div className="card w-full max-w-md">
         <h1 className="text-2xl font-bold text-white mb-1">🔐 Вход в админку</h1>
         <p className="text-sm text-slate-400 mb-6">Администраторы только</p>
