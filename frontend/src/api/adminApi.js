@@ -63,6 +63,12 @@ export const createAdminApi = getToken => {
     forceBatch: () => request('/withdrawal-batches/force', { method: 'POST' }),
     updateWithdrawalStatus: (id, payload) => request(`/withdrawals/${id}/status`, { method: 'POST', body: payload }),
     enqueueUrgentWithdrawal: id => request(`/withdrawals/${id}/urgent`, { method: 'POST' }),
-    listRiskEvents: params => request('/risk-events', { searchParams: params })
+    listRiskEvents: params => request('/risk-events', { searchParams: params }),
+    listAutoMessages: () => request('/auto-messages'),
+    createAutoMessage: payload => request('/auto-messages', { method: 'POST', body: payload }),
+    updateAutoMessage: (id, payload) => request(`/auto-messages/${id}`, { method: 'PUT', body: payload }),
+    deleteAutoMessage: id => request(`/auto-messages/${id}`, { method: 'DELETE' }),
+    triggerAutoMessage: id => request(`/auto-messages/${id}/trigger`, { method: 'POST' }),
+    testAutoMessage: (id, payload) => request(`/auto-messages/${id}/test`, { method: 'POST', body: payload })
   };
 };

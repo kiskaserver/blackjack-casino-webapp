@@ -1,10 +1,29 @@
 const db = require('../config/database');
 
+const baseSelect = `
+  SELECT
+    id,
+    telegram_id,
+    username,
+    first_name,
+    last_name,
+    balance,
+    demo_balance,
+    level,
+    status,
+    verification_status,
+    trusted,
+    last_seen_at,
+    last_game_at,
+    created_at,
+    updated_at
+  FROM players
+`;
+
 const findPlayerByTelegramId = async (telegramId, client = null) => {
   const runner = client || db;
   const result = await runner.query(
-  `SELECT id, telegram_id, username, first_name, last_name, balance, demo_balance, level, status, verification_status, trusted, created_at
-     FROM players
+    `${baseSelect}
      WHERE telegram_id = $1
     `,
     [telegramId]
@@ -15,8 +34,7 @@ const findPlayerByTelegramId = async (telegramId, client = null) => {
 const getPlayerById = async (playerId, client = null) => {
   const runner = client || db;
   const res = await runner.query(
-  `SELECT id, telegram_id, username, first_name, last_name, balance, demo_balance, level, status, verification_status, trusted, created_at
-     FROM players
+    `${baseSelect}
      WHERE id = $1
     `,
     [playerId]
@@ -27,18 +45,58 @@ const getPlayerById = async (playerId, client = null) => {
 const getOrCreatePlayer = async ({ telegramId, username, firstName, lastName }) => {
   const existing = await findPlayerByTelegramId(telegramId);
   if (existing) {
-    return existing;
+    const updated = await db.query(
+      `UPDATE players
+       SET username = COALESCE($2, username),
+           first_name = COALESCE($3, first_name),
+           last_name = COALESCE($4, last_name),
+           last_seen_at = NOW(),
+           updated_at = NOW()
+       WHERE id = $1
+       RETURNING id, telegram_id, username, first_name, last_name, balance, demo_balance, level, status, verification_status, trusted, last_seen_at, last_game_at, created_at, updated_at
+      `,
+      [existing.id, username, firstName, lastName]
+    );
+    return updated.rows[0] || existing;
   }
 
   const inserted = await db.query(
-  `INSERT INTO players (telegram_id, username, first_name, last_name)
-   VALUES ($1, $2, $3, $4)
-   RETURNING id, telegram_id, username, first_name, last_name, balance, demo_balance, level, status, verification_status, trusted, created_at
+    `INSERT INTO players (telegram_id, username, first_name, last_name, last_seen_at)
+     VALUES ($1, $2, $3, $4, NOW())
+     RETURNING id, telegram_id, username, first_name, last_name, balance, demo_balance, level, status, verification_status, trusted, last_seen_at, last_game_at, created_at, updated_at
     `,
     [telegramId, username, firstName, lastName]
   );
 
   return inserted.rows[0];
+};
+
+const touchLastSeen = async ({ playerId, timestamp = new Date() }, client = null) => {
+  const runner = client || db;
+  const res = await runner.query(
+    `UPDATE players
+     SET last_seen_at = GREATEST(COALESCE(last_seen_at, to_timestamp(0)), $2::timestamptz),
+         updated_at = NOW()
+     WHERE id = $1
+     RETURNING last_seen_at
+    `,
+    [playerId, timestamp]
+  );
+  return res.rows[0] ? res.rows[0].last_seen_at : null;
+};
+
+const touchLastGame = async ({ playerId, timestamp = new Date() }, client = null) => {
+  const runner = client || db;
+  const res = await runner.query(
+    `UPDATE players
+     SET last_game_at = GREATEST(COALESCE(last_game_at, to_timestamp(0)), $2::timestamptz),
+         updated_at = NOW()
+     WHERE id = $1
+     RETURNING last_game_at
+    `,
+    [playerId, timestamp]
+  );
+  return res.rows[0] ? res.rows[0].last_game_at : null;
 };
 
 const updateBalance = async ({ playerId, amount, reason, referenceId, walletType = 'real' }) => {
@@ -148,8 +206,7 @@ const getPlayerStats = async ({ playerId }) => {
 
 const listPlayers = async ({ limit = 50, offset = 0 }) => {
   const res = await db.query(
-  `SELECT id, telegram_id, username, first_name, last_name, balance, demo_balance, level, status, verification_status, created_at, updated_at
-     FROM players
+  `${baseSelect}
      ORDER BY created_at DESC
      LIMIT $1 OFFSET $2
     `,
@@ -161,8 +218,7 @@ const listPlayers = async ({ limit = 50, offset = 0 }) => {
 const searchPlayers = async ({ query, limit = 50 }) => {
   const q = `%${query}%`;
   const res = await db.query(
-  `SELECT id, telegram_id, username, first_name, last_name, balance, demo_balance, level, status, verification_status, created_at, updated_at
-     FROM players
+  `${baseSelect}
      WHERE telegram_id ILIKE $1 OR username ILIKE $1
      ORDER BY created_at DESC
      LIMIT $2
@@ -202,5 +258,7 @@ module.exports = {
   listPlayers,
   updateStatus,
   searchPlayers,
-  updateVerificationStatus
+  updateVerificationStatus,
+  touchLastSeen,
+  touchLastGame
 };

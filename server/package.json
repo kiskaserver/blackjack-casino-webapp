@@ -29,7 +29,8 @@
     "pg": "^8.16.0",
     "pg-format": "^1.0.4",
     "uuid": "^10.0.0",
-    "bullmq": "^5.58.5"
+    "bullmq": "^5.58.5",
+    "sanitize-html": "^2.13.0"
   },
   "devDependencies": {
     "cross-env": "^7.0.3",

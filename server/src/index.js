@@ -13,6 +13,7 @@ const playerRoutes = require('./routes/playerRoutes');
 const { runMigrations } = require('./config/migrations');
 const { ensureRiskSchedules } = require('./jobs/riskQueue');
 const { ensurePayoutSchedules } = require('./jobs/payoutQueue');
+const { ensureNotificationSchedules } = require('./jobs/notificationQueue');
 
 const app = express();
 
@@ -111,7 +112,8 @@ const bootstrap = async () => {
     await runMigrations();
     await Promise.all([
       ensureRiskSchedules(),
-      ensurePayoutSchedules()
+      ensurePayoutSchedules(),
+      ensureNotificationSchedules()
     ]);
 
     app.listen(config.port, () => {

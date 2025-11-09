@@ -318,6 +318,8 @@ const startRound = async ({ telegramUser, betAmount, walletType }) => {
     walletType: mode
   });
 
+  await playerRepository.touchLastGame({ playerId: player.id });
+
   const round = await roundRepository.getRoundById(roundId);
   return buildRoundPayload({
     round,

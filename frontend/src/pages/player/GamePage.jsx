@@ -22,14 +22,6 @@ const resultMessages = {
   push: "🤝 Ничья — ставка возвращена. ",
 }
 
-const formatCurrency = (value) => {
-  const numeric = Number(value ?? 0)
-  if (!Number.isFinite(numeric)) {
-    return "0.00"
-  }
-  return numeric.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-}
-
 const createDefaultRound = () => ({
   roundId: null,
   status: "idle",
@@ -344,7 +336,31 @@ const GamePage = () => {
       </section>
 
       <section className={`card ${isRoundActive ? "opacity-75" : ""}`} id="bettingSection">
-        <div className="space-y-3">
+        <div className="space-y-4">
+          <div>
+            <span className="text-sm font-semibold uppercase tracking-wider text-slate-300 block mb-2">Кошелёк</span>
+            <div className="wallet-toggle-group">
+              {[
+                { id: "real", icon: "💎", label: "Реальный" },
+                { id: "demo", icon: "🎮", label: "Демо" },
+              ].map((option) => (
+                <button
+                  key={option.id}
+                  type="button"
+                  className={clsx("wallet-toggle", walletType === option.id && "is-active")}
+                  onClick={() => setWalletType(option.id)}
+                  disabled={loading || isRoundActive}
+                  aria-pressed={walletType === option.id}
+                >
+                  <span className="wallet-toggle-icon" aria-hidden>
+                    {option.icon}
+                  </span>
+                  <span className="wallet-toggle-label">{option.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold uppercase tracking-wider text-slate-300">Ставка</span>
@@ -368,47 +384,18 @@ const GamePage = () => {
                 </button>
               </div>
             </div>
-            <div>
-              <span className="text-sm font-semibold uppercase tracking-wider text-slate-300 block mb-2">Кошелёк</span>
-              <div className="wallet-toggle-group">
-                {[
-                  { id: "real", icon: "💎", label: "Реальный" },
-                  { id: "demo", icon: "🎮", label: "Демо" },
-                ].map((option) => {
-                  const balanceValue =
-                    contextBalances?.[option.id] ?? round?.balances?.[option.id] ?? 0
-                  return (
-                    <button
-                      key={option.id}
-                      type="button"
-                      className={clsx("wallet-toggle", walletType === option.id && "is-active")}
-                      onClick={() => setWalletType(option.id)}
-                      disabled={loading || isRoundActive}
-                      aria-pressed={walletType === option.id}
-                    >
-                      <span className="wallet-toggle-label">
-                        <span aria-hidden>{option.icon}</span>
-                        {option.label}
-                      </span>
-                      <span className="wallet-toggle-balance">₽ {formatCurrency(balanceValue)}</span>
-                    </button>
-                  )
-                })}
-              </div>
+            <div className="grid grid-cols-4 gap-2">
+              {[25, 50, 100, 250].map((value) => (
+                <button
+                  key={value}
+                  className="secondary"
+                  onClick={() => setBetAmount(value)}
+                  disabled={loading || isRoundActive}
+                >
+                  {value}
+                </button>
+              ))}
             </div>
-          </div>
-
-          <div className="grid grid-cols-4 gap-2">
-            {[25, 50, 100, 250].map((value) => (
-              <button
-                key={value}
-                className="secondary"
-                onClick={() => setBetAmount(value)}
-                disabled={loading || isRoundActive}
-              >
-                {value}
-              </button>
-            ))}
           </div>
         </div>
       </section>
@@ -460,11 +447,7 @@ const GamePage = () => {
         </div>
       </section>
 
-      {error && (
-        <div className="game-messages">
-          <div className="message error">{error}</div>
-        </div>
-      )}
+      {error && <div className="message error">⚠️ {error}</div>}
     </div>
   )
 }

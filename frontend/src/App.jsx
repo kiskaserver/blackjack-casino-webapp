@@ -15,6 +15,7 @@ import AdminPlayersPage from "./pages/admin/AdminPlayersPage.jsx"
 import AdminWithdrawalsPage from "./pages/admin/AdminWithdrawalsPage.jsx"
 import AdminVerificationsPage from "./pages/admin/AdminVerificationsPage.jsx"
 import AdminSettingsPage from "./pages/admin/AdminSettingsPage.jsx"
+import AdminAutoMessagesPage from "./pages/admin/AdminAutoMessagesPage.jsx"
 
 const App = () => {
   useTelegramTheme()
@@ -48,6 +49,7 @@ const App = () => {
         <Route index element={<Navigate to="dashboard" replace />} />
         <Route path="dashboard" element={<AdminDashboardPage />} />
         <Route path="players" element={<AdminPlayersPage />} />
+  <Route path="messages" element={<AdminAutoMessagesPage />} />
         <Route path="withdrawals" element={<AdminWithdrawalsPage />} />
         <Route path="verifications" element={<AdminVerificationsPage />} />
         <Route path="settings" element={<AdminSettingsPage />} />

@@ -14,6 +14,7 @@ const { generalLimiter, loginLimiter } = require('../middleware/adminRateLimiter
 const verificationService = require('../services/verificationService');
 const fairnessService = require('../services/fairnessService');
 const config = require('../config/env');
+const autoMessageService = require('../services/autoMessageService');
 
 const router = express.Router();
 
@@ -595,6 +596,74 @@ router.get('/risk-events', async (req, res) => {
     sendSuccess(res, events);
   } catch (error) {
     sendError(res, error, 500);
+  }
+});
+
+router.get('/auto-messages', async (_req, res) => {
+  try {
+    const templates = await autoMessageService.listTemplates();
+    sendSuccess(res, templates);
+  } catch (error) {
+    sendError(res, error, 500);
+  }
+});
+
+router.post('/auto-messages', async (req, res) => {
+  try {
+    const template = await autoMessageService.createTemplate({
+      payload: req.body || {},
+      adminId: req.admin?.id || null
+    });
+    sendSuccess(res, template, 201);
+  } catch (error) {
+    sendError(res, error, 400);
+  }
+});
+
+router.put('/auto-messages/:id', async (req, res) => {
+  try {
+    const template = await autoMessageService.updateTemplate({
+      id: req.params.id,
+      payload: req.body || {},
+      adminId: req.admin?.id || null
+    });
+    sendSuccess(res, template);
+  } catch (error) {
+    sendError(res, error, 400);
+  }
+});
+
+router.delete('/auto-messages/:id', async (req, res) => {
+  try {
+    await autoMessageService.deleteTemplate(req.params.id);
+    sendSuccess(res, { deleted: true });
+  } catch (error) {
+    sendError(res, error, 400);
+  }
+});
+
+router.post('/auto-messages/:id/trigger', async (req, res) => {
+  try {
+    const result = await autoMessageService.triggerTemplate(req.params.id);
+    sendSuccess(res, {
+      queued: result.result?.queued || 0,
+      template: result.template
+    });
+  } catch (error) {
+    sendError(res, error, 400);
+  }
+});
+
+router.post('/auto-messages/:id/test', async (req, res) => {
+  try {
+    const { telegramId } = req.body || {};
+    const result = await autoMessageService.sendTestMessage({
+      templateId: req.params.id,
+      telegramId
+    });
+    sendSuccess(res, result);
+  } catch (error) {
+    sendError(res, error, 400);
   }
 });
 

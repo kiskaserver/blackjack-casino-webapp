@@ -6,6 +6,7 @@ import { useAdmin } from "../providers/AdminProvider.jsx"
 const links = [
   { to: "/admin/dashboard", label: "Обзор" },
   { to: "/admin/players", label: "Игроки" },
+  { to: "/admin/messages", label: "Сообщения" },
   { to: "/admin/withdrawals", label: "Выводы" },
   { to: "/admin/verifications", label: "KYC" },
   { to: "/admin/settings", label: "Настройки" },
@@ -15,7 +16,7 @@ export const AdminLayout = () => {
   const { session, logout } = useAdmin()
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
+    <div className="flex min-h-screen bg-linear-to-br from-slate-950 via-slate-900 to-slate-950">
       <aside className="w-64 bg-slate-900/80 border-r border-cyan-500/10 flex flex-col backdrop-blur-sm">
         <div className="p-6 border-b border-slate-800/50">
           <h2 className="text-xl font-bold text-white mb-2">🔧 Админ-панель</h2>
