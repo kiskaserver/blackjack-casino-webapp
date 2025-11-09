@@ -1,112 +1,121 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
-import clsx from 'clsx';
-import { createPlayerApi } from '../api/playerApi.js';
-import { useTelegram } from '../providers/TelegramProvider.jsx';
-import StatisticsModal from '../components/StatisticsModal.jsx';
-import SettingsModal from '../components/SettingsModal.jsx';
-import { AdminButton } from '../components/AdminButton.jsx';
+"use client"
+
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react"
+import { NavLink, Outlet } from "react-router-dom"
+import clsx from "clsx"
+import { createPlayerApi } from "../api/playerApi.js"
+import { useTelegram } from "../providers/TelegramProvider.jsx"
+import StatisticsModal from "../components/StatisticsModal.jsx"
+import SettingsModal from "../components/SettingsModal.jsx"
+import { AdminButton } from "../components/AdminButton.jsx"
 
 const playerLinks = [
-  { to: '/', label: 'Игра', end: true, icon: '🃏' },
-  { to: '/profile', label: 'Профиль', icon: '👤' },
-  { to: '/payments', label: 'Финансы', icon: '💳' },
-  { to: '/verification', label: 'Верификация', icon: '✅' },
-  { to: '/history', label: 'История', icon: '📜' }
-];
+  { to: "/", label: "Игра", end: true, icon: "🃏" },
+  { to: "/profile", label: "Профиль", icon: "👤" },
+  { to: "/payments", label: "Финансы", icon: "💳" },
+  { to: "/verification", label: "Верификация", icon: "✅" },
+  { to: "/history", label: "История", icon: "📜" },
+]
 
-const defaultBalances = { real: 0, demo: 0 };
+const defaultBalances = { real: 0, demo: 0 }
 
 const PlayerContext = createContext({
   profile: null,
   balances: defaultBalances,
   updateBalances: () => {},
-  refreshProfile: () => Promise.resolve()
-});
+  refreshProfile: () => Promise.resolve(),
+})
 
-export const usePlayerContext = () => useContext(PlayerContext);
+export const usePlayerContext = () => useContext(PlayerContext)
 
 export const PlayerLayout = () => {
-  const { user, initData } = useTelegram();
-  const api = useMemo(() => createPlayerApi(() => initData), [initData]);
-  const [profile, setProfile] = useState(null);
-  const [balances, setBalances] = useState(defaultBalances);
-  const [loadingProfile, setLoadingProfile] = useState(false);
-  const [profileError, setProfileError] = useState('');
-  const [statsOpen, setStatsOpen] = useState(false);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  const { user, initData } = useTelegram()
+  const api = useMemo(() => createPlayerApi(() => initData), [initData])
+  const [profile, setProfile] = useState(null)
+  const [balances, setBalances] = useState(defaultBalances)
+  const [loadingProfile, setLoadingProfile] = useState(false)
+  const [profileError, setProfileError] = useState("")
+  const [statsOpen, setStatsOpen] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
 
   const loadProfile = useCallback(async () => {
     try {
-      setProfileError('');
-      setLoadingProfile(true);
-      const data = await api.getProfile();
-      setProfile(data);
+      setProfileError("")
+      setLoadingProfile(true)
+      const data = await api.getProfile()
+      setProfile(data)
       setBalances({
         real: Number(data.player?.balance || 0),
-        demo: Number(data.player?.demo_balance || 0)
-      });
+        demo: Number(data.player?.demo_balance || 0),
+      })
     } catch (error) {
-      setProfileError(error.message || 'Не удалось загрузить данные игрока');
+      setProfileError(error.message || "Не удалось загрузить данные игрока")
     } finally {
-      setLoadingProfile(false);
+      setLoadingProfile(false)
     }
-  }, [api]);
+  }, [api])
 
   useEffect(() => {
-    loadProfile();
-  }, [loadProfile]);
+    loadProfile()
+  }, [loadProfile])
 
-  const updateBalances = useCallback(nextBalances => {
-    if (!nextBalances) return;
-    setBalances(prev => ({
+  const updateBalances = useCallback((nextBalances) => {
+    if (!nextBalances) return
+    setBalances((prev) => ({
       real: Number(nextBalances.real ?? prev.real ?? 0),
-      demo: Number(nextBalances.demo ?? prev.demo ?? 0)
-    }));
-  }, []);
+      demo: Number(nextBalances.demo ?? prev.demo ?? 0),
+    }))
+  }, [])
 
-  const contextValue = useMemo(() => ({
-    profile,
-    balances,
-    updateBalances,
-    refreshProfile: loadProfile
-  }), [profile, balances, updateBalances, loadProfile]);
+  const contextValue = useMemo(
+    () => ({
+      profile,
+      balances,
+      updateBalances,
+      refreshProfile: loadProfile,
+    }),
+    [profile, balances, updateBalances, loadProfile],
+  )
 
-  const formattedReal = balances.real.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const formattedDemo = balances.demo.toLocaleString('ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const formattedReal = balances.real.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const formattedDemo = balances.demo.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   return (
     <PlayerContext.Provider value={contextValue}>
-      <div className="relative min-h-screen overflow-hidden bg-slate-950 text-slate-50">
+      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50">
+        {/* Animated background particles */}
         <div
-          id="particles-js"
-          className="pointer-events-none absolute inset-0 blur-3xl opacity-80"
+          className="pointer-events-none absolute inset-0 blur-3xl opacity-40"
           style={{
             background:
-              'radial-gradient(circle at 12% 22%, rgba(0, 177, 255, 0.18), transparent 58%), radial-gradient(circle at 80% 35%, rgba(12, 63, 255, 0.22), transparent 60%)'
+              "radial-gradient(circle at 12% 22%, rgba(0, 177, 255, 0.15), transparent 58%), radial-gradient(circle at 80% 35%, rgba(12, 63, 255, 0.15), transparent 60%)",
           }}
         />
 
-        <div className="relative z-10 flex min-h-screen flex-col gap-5 px-4 pb-16 pt-6 sm:px-6 lg:px-10 lg:pt-10">
+        <div className="relative z-10 flex min-h-screen flex-col gap-5 px-3 pb-20 pt-4 sm:px-6 md:px-8 lg:px-10 lg:pb-24 lg:pt-6">
+          {/* Header */}
           <header className="card">
-            <div className="relative z-10 flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-              <div className="flex flex-col gap-1 text-balance">
-                <span className="text-lg font-semibold uppercase tracking-[0.18em] text-white/90">🎰 BLACKJACK</span>
-                <span className="text-xs uppercase tracking-[0.35em] text-slate-300">casino mini app</span>
+            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div className="flex flex-col gap-1">
+                <h1 className="text-lg font-bold uppercase tracking-wider text-white/95">🎰 Blackjack</h1>
+                <p className="text-xs uppercase tracking-widest text-slate-400">casino mini app</p>
               </div>
 
-              <div className="grid w-full gap-3 sm:grid-cols-2 lg:w-auto lg:min-w-[580px] lg:grid-cols-4">
+              {/* Balance Cards Grid */}
+              <div className="grid w-full gap-2 sm:grid-cols-2 lg:w-auto lg:min-w-full lg:grid-cols-4">
                 <div className="balance-card balance-card-real">
                   <p className="balance-label">💎 Реальный</p>
-                  <p className="mt-1 text-2xl font-semibold text-cyan-400">{formattedReal}</p>
+                  <p className="mt-1 text-xl font-bold sm:text-2xl text-cyan-400">{formattedReal}</p>
                 </div>
                 <div className="balance-card balance-card-demo">
                   <p className="balance-label">🎮 Демо</p>
-                  <p className="mt-1 text-2xl font-semibold text-yellow-400">{formattedDemo}</p>
+                  <p className="mt-1 text-xl font-bold sm:text-2xl text-yellow-400">{formattedDemo}</p>
                 </div>
                 <div className="balance-card">
                   <p className="balance-label">Игрок</p>
-                  <p className="mt-1 text-base font-semibold text-sky-200">{user?.username ? `@${user.username}` : user?.first_name || 'Guest'}</p>
+                  <p className="mt-1 text-sm font-semibold sm:text-base text-sky-200">
+                    {user?.username ? `@${user.username}` : user?.first_name || "Гость"}
+                  </p>
                 </div>
                 <div className="flex items-center justify-end gap-2 balance-card">
                   <AdminButton />
@@ -117,7 +126,7 @@ export const PlayerLayout = () => {
                     disabled={loadingProfile}
                     title="Обновить баланс"
                   >
-                    {loadingProfile ? '⏳' : '🔄'}
+                    {loadingProfile ? "⏳" : "🔄"}
                   </button>
                   <button
                     type="button"
@@ -140,28 +149,32 @@ export const PlayerLayout = () => {
             </div>
           </header>
 
-          <nav className="flex snap-x items-stretch gap-2 overflow-x-auto rounded-3xl border border-cyan-500/20 bg-slate-900/90 p-1 backdrop-blur">
-            {playerLinks.map(link => (
+          {/* Navigation */}
+          <nav className="flex snap-x items-stretch gap-2 overflow-x-auto rounded-2xl border border-cyan-500/20 bg-slate-900/80 p-1 backdrop-blur-sm">
+            {playerLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 end={link.end}
                 className={({ isActive }) =>
                   clsx(
-                    'nav-link group flex min-w-[110px] flex-1 snap-center flex-col items-center gap-1 rounded-2xl px-4 py-3 text-sm font-semibold',
+                    "nav-link group flex min-w-max flex-col items-center gap-1 rounded-xl px-3 py-2 text-xs sm:text-sm font-semibold transition-all duration-200",
                     {
-                      'bg-gradient-to-r from-cyan-500 to-blue-600 text-white shadow-lg': isActive
-                    }
+                      active: isActive,
+                    },
                   )
                 }
               >
-                <span className="text-xl" aria-hidden>{link.icon}</span>
+                <span className="text-lg sm:text-xl" aria-hidden>
+                  {link.icon}
+                </span>
                 <span>{link.label}</span>
               </NavLink>
             ))}
           </nav>
 
-          <main className="card flex flex-1 flex-col gap-4 p-6">
+          {/* Main Content */}
+          <main className="card flex flex-1 flex-col gap-4 p-4 sm:p-6">
             {profileError && (
               <div className="message error flex items-center gap-2">
                 <span aria-hidden>⚠️</span>
@@ -171,10 +184,11 @@ export const PlayerLayout = () => {
             <Outlet />
           </main>
 
+          {/* Modals */}
           <StatisticsModal open={statsOpen} onClose={() => setStatsOpen(false)} />
           <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
         </div>
       </div>
     </PlayerContext.Provider>
-  );
-};
+  )
+}

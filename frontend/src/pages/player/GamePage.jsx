@@ -54,7 +54,7 @@ const GamePage = () => {
   const [fairness, setFairness] = useState(null)
   const [fairnessError, setFairnessError] = useState("")
   const [showFairness, setShowFairness] = useState(false)
-  const winEffectsRef = useRef(null) // Declare winEffectsRef here
+  const winEffectsRef = useRef(null)
 
   useEffect(() => {
     ensureUserGesture()
@@ -116,7 +116,6 @@ const GamePage = () => {
       const suffix = win ? `Выигрыш: ${win.toFixed(2)}.` : ""
       setMessage(`${base}${suffix}`.trim())
 
-      // Sounds + haptics on final result
       const result = payload.result
       if (result === "blackjack") {
         soundManager.play("win")
@@ -132,11 +131,9 @@ const GamePage = () => {
         if (settings.hapticsEnabled) haptics.notify("error")
       }
 
-      // Update local statistics
       const usedBet = Number(payload.finalBet || payload.baseBet || betAmount || 0)
       updateAfterRound({ result: payload.result, betAmount: usedBet, winAmount: Number(payload.winAmount || 0) })
 
-      // Win effects (fireworks/confetti) on big wins
       const winAmount = Number(payload.winAmount || 0)
       const bigWin = payload.result === "blackjack" || (payload.result === "win" && winAmount >= usedBet * 2)
       if (bigWin) {
@@ -244,7 +241,7 @@ const GamePage = () => {
       <div className="fixed inset-0 pointer-events-none z-50" ref={winEffectsRef} />
 
       {(fairness || fairnessError) && (
-        <section className={`fairness-section ${showFairness ? "expanded" : "collapsed"}`}>
+        <section className="fairness-section">
           <button
             className="fairness-toggle"
             onClick={() => setShowFairness(!showFairness)}
@@ -289,7 +286,7 @@ const GamePage = () => {
           {fairnessError && <div className="message error mt-2">⚠️ {fairnessError}</div>}
         </section>
       )}
-      
+
       <section className="card">
         <div className="flex items-center justify-between mb-4">
           <span className="text-lg font-semibold">🎩 ДИЛЕР</span>
@@ -300,7 +297,7 @@ const GamePage = () => {
           {round.dealerCards.map((card, index) => (
             <div
               key={`${card.rank}-${card.suit}-${index}`}
-              className={`${card.hidden ? "card-back" : "card"} ${card.hidden ? "" : getCardColorClass(card.suit)}`}
+              className={`card ${card.hidden ? "card-back" : getCardColorClass(card.suit)}`}
             >
               {!card.hidden && (
                 <>
@@ -314,7 +311,9 @@ const GamePage = () => {
       </section>
 
       <div className="text-center">
-        <div className={`game-message ${message.includes('🎉') ? 'success' : message.includes('😔') || message.includes('💥') ? 'error' : ''}`}>
+        <div
+          className={`game-message ${message.includes("🎉") ? "success" : message.includes("😔") || message.includes("💥") ? "error" : ""}`}
+        >
           {message}
         </div>
       </div>
@@ -339,7 +338,7 @@ const GamePage = () => {
         <div className="space-y-4">
           <div>
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-semibold uppercase tracking-wider text-slate-300">СТАВКА</span>
+              <span className="text-sm font-semibold uppercase tracking-wider text-slate-300">Ставка</span>
               <div className="flex items-center gap-2">
                 <button
                   className="secondary h-8 w-8 rounded-lg p-0 text-lg"
@@ -361,7 +360,7 @@ const GamePage = () => {
               </div>
             </div>
             <div>
-              <span className="text-sm font-semibold uppercase tracking-wider text-slate-300 block mb-2">КОШЕЛЁК</span>
+              <span className="text-sm font-semibold uppercase tracking-wider text-slate-300 block mb-2">Кошелёк</span>
               <div className="flex gap-2">
                 <button
                   className={`nav-link ${walletType === "real" ? "active" : ""}`}
@@ -408,48 +407,46 @@ const GamePage = () => {
           >
             <div className="flex items-center justify-center gap-2">
               <span>🎯</span>
-              <span>НАЧАТЬ ИГРУ</span>
+              <span>Начать игру</span>
             </div>
           </button>
         </div>
 
-        <div className={`action-buttons ${isRoundActive ? "" : "hidden"}`} id="playButtons">
-          <button 
-            className="primary" 
-            onClick={makeRoundAction("hit")} 
-            disabled={!isRoundActive || loading}
-          >
+        <div className={`action-buttons flex flex-col gap-3 ${isRoundActive ? "" : "hidden"}`} id="playButtons">
+          <button className="primary" onClick={makeRoundAction("hit")} disabled={!isRoundActive || loading}>
             <div className="flex items-center justify-center gap-2">
               <span>🎯</span>
-              <span>ВЗЯТЬ</span>
+              <span>Взять</span>
             </div>
           </button>
-          <button
-            className="secondary"
-            onClick={makeRoundAction("settle")}
-            disabled={!isRoundActive || loading}
-          >
-            <div className="flex items-center justify-center gap-2">
-              <span>🛑</span>
-              <span>СТОП</span>
-            </div>
-          </button>
-          <button
-            className="secondary"
-            onClick={makeRoundAction("double")}
-            disabled={!isRoundActive || loading || round.doubleDown}
-          >
-            <div className="flex items-center justify-center gap-2">
-              <span>💰</span>
-              <span>УДВОИТЬ</span>
-            </div>
-          </button>
+          <div className="flex gap-3">
+            <button
+              className="secondary flex-1"
+              onClick={makeRoundAction("settle")}
+              disabled={!isRoundActive || loading}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <span>🛑</span>
+                <span>Стоп</span>
+              </div>
+            </button>
+            <button
+              className="secondary flex-1"
+              onClick={makeRoundAction("double")}
+              disabled={!isRoundActive || loading || round.doubleDown}
+            >
+              <div className="flex items-center justify-center gap-2">
+                <span>💰</span>
+                <span>Удвоить</span>
+              </div>
+            </button>
+          </div>
         </div>
       </section>
 
       {error && (
         <div className="game-messages">
-          <div className="message error-message">{error}</div>
+          <div className="message error">{error}</div>
         </div>
       )}
     </div>
