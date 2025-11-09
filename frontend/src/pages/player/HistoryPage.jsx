@@ -18,6 +18,9 @@ const HistoryPage = () => {
   const [transactionPageSize, setTransactionPageSize] = useState(pageSizeOptions[0]);
 
   useEffect(() => {
+    if (!initData) {
+      return;
+    }
     let cancelled = false;
 
     const load = async () => {
@@ -43,7 +46,7 @@ const HistoryPage = () => {
     return () => {
       cancelled = true;
     };
-  }, [api]);
+  }, [api, initData]);
 
   useEffect(() => {
     setRoundPage(1);

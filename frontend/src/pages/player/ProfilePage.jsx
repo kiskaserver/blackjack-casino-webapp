@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { createPlayerApi } from "../../api/playerApi.js"
 import { useTelegram } from "../../providers/TelegramProvider.jsx"
@@ -13,7 +13,10 @@ const ProfilePage = () => {
   const [error, setError] = useState("")
   const [demoTarget, setDemoTarget] = useState("")
 
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
+    if (!initData) {
+      return
+    }
     setError("")
     setLoading(true)
     try {
@@ -24,11 +27,11 @@ const ProfilePage = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [api, initData])
 
   useEffect(() => {
     loadProfile()
-  }, [])
+  }, [loadProfile])
 
   const handleResetDemo = async (event) => {
     event.preventDefault()
@@ -112,7 +115,7 @@ const ProfilePage = () => {
             <span className={`status-badge ${verificationBadge.tone}`}>
               {verificationBadge.icon} {verificationBadge.text}
             </span>
-            <Link to="/player/verification" className="ghost-button">
+            <Link to="/verification" className="ghost-button">
               <span role="img" aria-hidden="true">
                 🛡️
               </span>

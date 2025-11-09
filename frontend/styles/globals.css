@@ -356,6 +356,126 @@ button {
   color: #e0f2fe;
 }
 
+.header-balance-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+
+.header-balance-pill {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.4rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 198, 255, 0.25);
+  background: rgba(12, 24, 44, 0.7);
+  color: #cbd5f5;
+  font-size: 0.68rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.header-balance-pill.real {
+  border-color: rgba(34, 211, 238, 0.35);
+  background: rgba(8, 145, 178, 0.22);
+  color: #22d3ee;
+}
+
+.header-balance-pill.demo {
+  border-color: rgba(250, 204, 21, 0.35);
+  background: rgba(120, 53, 15, 0.22);
+  color: #facc15;
+}
+
+.header-balance-pill .pill-label {
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+.header-balance-pill .pill-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.header-player-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 198, 255, 0.22);
+  background: rgba(12, 24, 44, 0.65);
+  color: #e2e8f0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.header-action-button {
+  height: 2.5rem;
+  width: 2.5rem;
+  padding: 0;
+  border-radius: 0.85rem;
+  font-size: 1.05rem;
+}
+
+.wallet-card-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem;
+}
+
+.wallet-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.wallet-card-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: #94a3b8;
+}
+
+.wallet-card-subtitle {
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+.wallet-toggle-group.compact {
+  gap: 0.4rem;
+}
+
+.wallet-card-compact .wallet-toggle {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.78rem;
+}
+
+.wallet-card-compact .wallet-toggle-label {
+  font-size: 0.8rem;
+}
+
+.betting-card {
+  padding: 1rem 1.1rem;
+}
+
 .status-badge {
   display: inline-flex;
   align-items: center;

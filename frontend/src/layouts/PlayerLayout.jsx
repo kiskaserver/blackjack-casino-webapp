@@ -101,56 +101,58 @@ export const PlayerLayout = () => {
                 <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">casino mini app</p>
               </div>
 
-              {/* Balance Cards Grid */}
-              <div className="grid w-full gap-2 sm:grid-cols-2 lg:w-auto lg:min-w-full lg:grid-cols-4">
-                <div className="balance-card balance-card-real">
-                  <p className="balance-label">💎 Реальный</p>
-                  <p className="mt-1 text-xl font-bold sm:text-2xl text-cyan-400">{formattedReal}</p>
+              <div className="flex w-full flex-col gap-2 lg:w-auto lg:items-end">
+                <div className="header-balance-row">
+                  <div className="header-balance-pill real" aria-label="Реальный счёт">
+                    <span aria-hidden>💎</span>
+                    <span className="pill-label">Реальный</span>
+                    <span className="pill-value">{formattedReal}</span>
+                  </div>
+                  <div className="header-balance-pill demo" aria-label="Демо счёт">
+                    <span aria-hidden>🎮</span>
+                    <span className="pill-label">Демо</span>
+                    <span className="pill-value">{formattedDemo}</span>
+                  </div>
                 </div>
-                <div className="balance-card balance-card-demo">
-                  <p className="balance-label">🎮 Демо</p>
-                  <p className="mt-1 text-xl font-bold sm:text-2xl text-yellow-400">{formattedDemo}</p>
-                </div>
-                <div className="balance-card">
-                  <p className="balance-label">Игрок</p>
-                  <p className="mt-1 text-sm font-semibold sm:text-base text-sky-200">
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                  <span className="header-player-chip">
                     {user?.username ? `@${user.username}` : user?.first_name || "Гость"}
-                  </p>
-                </div>
-                <div className="balance-card balance-card-toolbar">
-                  <AdminButton />
-                  <button
-                    type="button"
-                    className="secondary h-11 w-11 rounded-xl p-0 text-lg"
-                    onClick={loadProfile}
-                    disabled={loadingProfile}
-                    title="Обновить баланс"
-                  >
-                    {loadingProfile ? "⏳" : "🔄"}
-                  </button>
-                  <button
-                    type="button"
-                    className="secondary h-11 w-11 rounded-xl p-0 text-lg"
-                    onClick={() => setStatsOpen(true)}
-                    title="Статистика"
-                  >
-                    📊
-                  </button>
-                  <button
-                    type="button"
-                    className="secondary h-11 w-11 rounded-xl p-0 text-lg"
-                    onClick={() => setSettingsOpen(true)}
-                    title="Настройки"
-                  >
-                    ⚙️
-                  </button>
+                  </span>
+                  <div className="header-actions">
+                    <AdminButton />
+                    <button
+                      type="button"
+                      className="secondary header-action-button"
+                      onClick={loadProfile}
+                      disabled={loadingProfile}
+                      title="Обновить баланс"
+                    >
+                      {loadingProfile ? "⏳" : "🔄"}
+                    </button>
+                    <button
+                      type="button"
+                      className="secondary header-action-button"
+                      onClick={() => setStatsOpen(true)}
+                      title="Статистика"
+                    >
+                      📊
+                    </button>
+                    <button
+                      type="button"
+                      className="secondary header-action-button"
+                      onClick={() => setSettingsOpen(true)}
+                      title="Настройки"
+                    >
+                      ⚙️
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           </header>
 
           {/* Navigation */}
-          <nav className="flex snap-x items-stretch gap-1.5 overflow-x-auto rounded-2xl border border-cyan-500/15 bg-slate-950/70 p-1 backdrop-blur-sm">
+          <nav className="flex snap-x items-stretch gap-1 overflow-x-auto rounded-2xl border border-cyan-500/15 bg-slate-950/70 p-0.5 backdrop-blur-sm">
             {playerLinks.map((link) => (
               <NavLink
                 key={link.to}
@@ -158,7 +160,7 @@ export const PlayerLayout = () => {
                 end={link.end}
                 className={({ isActive }) =>
                   clsx(
-                    "flex min-w-[72px] flex-col items-center gap-0.5 rounded-lg border border-transparent px-2.5 py-1.5 text-[11px] font-semibold text-slate-300 transition-all duration-200 hover:bg-cyan-500/10 hover:text-white",
+                    "flex min-w-16 flex-col items-center gap-0.5 rounded-lg border border-transparent px-2 py-1 text-[10px] font-semibold tracking-[0.08em] text-slate-300 transition-all duration-200 hover:bg-cyan-500/10 hover:text-white",
                     isActive &&
                       "border-cyan-400/40 bg-cyan-500/20 text-white shadow-[0_6px_16px_rgba(0,198,255,0.18)]",
                   )
@@ -173,7 +175,7 @@ export const PlayerLayout = () => {
           </nav>
 
           {/* Main Content */}
-          <main className="card flex flex-1 flex-col gap-4 p-4 sm:p-6">
+          <main className="card flex flex-1 flex-col gap-4 p-4 sm:p-5">
             {profileError && (
               <div className="message error flex items-center gap-2">
                 <span aria-hidden>⚠️</span>

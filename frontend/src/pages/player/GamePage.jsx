@@ -335,67 +335,73 @@ const GamePage = () => {
         </div>
       </section>
 
-      <section className={`card ${isRoundActive ? "opacity-75" : ""}`} id="bettingSection">
-        <div className="space-y-4">
-          <div>
-            <span className="text-sm font-semibold uppercase tracking-wider text-slate-300 block mb-2">Кошелёк</span>
-            <div className="wallet-toggle-group">
-              {[
-                { id: "real", icon: "💎", label: "Реальный" },
-                { id: "demo", icon: "🎮", label: "Демо" },
-              ].map((option) => (
-                <button
-                  key={option.id}
-                  type="button"
-                  className={clsx("wallet-toggle", walletType === option.id && "is-active")}
-                  onClick={() => setWalletType(option.id)}
-                  disabled={loading || isRoundActive}
-                  aria-pressed={walletType === option.id}
-                >
-                  <span className="wallet-toggle-icon" aria-hidden>
-                    {option.icon}
-                  </span>
-                  <span className="wallet-toggle-label">{option.label}</span>
-                </button>
-              ))}
+      <section className="card wallet-card-compact" aria-labelledby="walletSelectorHeading">
+        <div className="wallet-card-header">
+          <span id="walletSelectorHeading" className="wallet-card-title">
+            Кошелёк
+          </span>
+          <span className="wallet-card-subtitle">Выберите баланс перед ставкой</span>
+        </div>
+        <div className="wallet-toggle-group compact" role="group" aria-label="Переключатель кошельков">
+          {[
+            { id: "real", icon: "💎", label: "Реальный" },
+            { id: "demo", icon: "🎮", label: "Демо" },
+          ].map((option) => (
+            <button
+              key={option.id}
+              type="button"
+              className={clsx("wallet-toggle", walletType === option.id && "is-active")}
+              onClick={() => setWalletType(option.id)}
+              disabled={loading || isRoundActive}
+              aria-pressed={walletType === option.id}
+            >
+              <span className="wallet-toggle-icon" aria-hidden>
+                {option.icon}
+              </span>
+              <span className="wallet-toggle-label">{option.label}</span>
+            </button>
+          ))}
+        </div>
+      </section>
+
+      <section className={clsx("card betting-card", isRoundActive && "opacity-75")} id="bettingSection">
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between">
+            <span className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400">Ставка</span>
+            <div className="flex items-center gap-2">
+              <button
+                className="secondary h-8 w-8 rounded-lg p-0 text-base"
+                onClick={() => setBetAmount((prev) => Math.max(1, Number(prev) - 10))}
+                disabled={loading || isRoundActive}
+                aria-label="Уменьшить ставку"
+              >
+                −
+              </button>
+              <span className="min-w-12 text-center text-xl font-bold text-cyan-400" id="currentBet">
+                {Number(betAmount).toFixed(0)}
+              </span>
+              <button
+                className="secondary h-8 w-8 rounded-lg p-0 text-base"
+                onClick={() => setBetAmount((prev) => Number(prev) + 10)}
+                disabled={loading || isRoundActive}
+                aria-label="Увеличить ставку"
+              >
+                +
+              </button>
             </div>
           </div>
 
-          <div>
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-semibold uppercase tracking-wider text-slate-300">Ставка</span>
-              <div className="flex items-center gap-2">
-                <button
-                  className="secondary h-8 w-8 rounded-lg p-0 text-lg"
-                  onClick={() => setBetAmount((prev) => Math.max(1, Number(prev) - 10))}
-                  disabled={loading || isRoundActive}
-                >
-                  −
-                </button>
-                <span className="min-w-12 text-center text-xl font-bold text-cyan-400" id="currentBet">
-                  {Number(betAmount).toFixed(0)}
-                </span>
-                <button
-                  className="secondary h-8 w-8 rounded-lg p-0 text-lg"
-                  onClick={() => setBetAmount((prev) => Number(prev) + 10)}
-                  disabled={loading || isRoundActive}
-                >
-                  +
-                </button>
-              </div>
-            </div>
-            <div className="grid grid-cols-4 gap-2">
-              {[25, 50, 100, 250].map((value) => (
-                <button
-                  key={value}
-                  className="secondary"
-                  onClick={() => setBetAmount(value)}
-                  disabled={loading || isRoundActive}
-                >
-                  {value}
-                </button>
-              ))}
-            </div>
+          <div className="grid grid-cols-4 gap-2">
+            {[25, 50, 100, 250].map((value) => (
+              <button
+                key={value}
+                className="secondary"
+                onClick={() => setBetAmount(value)}
+                disabled={loading || isRoundActive}
+              >
+                {value}
+              </button>
+            ))}
           </div>
         </div>
       </section>
