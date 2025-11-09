@@ -24,7 +24,7 @@ const formatPercent = value => {
 };
 
 const MetricCard = ({ title, value, hint }) => (
-  <div className="card metric-card">
+  <div className="stat-card">
     <h3 className="metric-title">{title}</h3>
     <p className="metric-value">{value}</p>
     {hint && <small className="metric-hint">{hint}</small>}
@@ -94,16 +94,16 @@ const AdminDashboardPage = () => {
   }
 
   if (error) {
-    return <div className="card alert error">{error}</div>;
+    return <div className="alert error">{error}</div>;
   }
 
   if (!overview) {
-    return <div className="card alert">Сводка недоступна.</div>;
+    return <div className="alert">Сводка недоступна.</div>;
   }
 
   return (
-    <div className="admin-dashboard">
-      <section className="card-grid">
+    <div className="space-y-6">
+      <section className="stats-grid">
         <MetricCard title="Игроки" value={formatNumber(overview.players)} hint="Уникальные Telegram ID" />
         <MetricCard title="Раунды (реал)" value={formatNumber(overview.rounds)} hint="game_rounds с wallet=real" />
         <MetricCard title="Раунды (демо)" value={formatNumber(overview.demo_rounds)} hint="game_rounds с wallet=demo" />
@@ -143,9 +143,9 @@ const AdminDashboardPage = () => {
       </section>
 
       <section className="card">
-        <h2>Последние транзакции</h2>
-        <div className="table-wrapper">
-          <table>
+        <h2 className="text-xl font-semibold mb-4">Последние транзакции</h2>
+        <div className="table-container">
+          <table className="table">
             <thead>
               <tr>
                 <th>ID</th>
@@ -159,7 +159,7 @@ const AdminDashboardPage = () => {
             <tbody>
               {transactions.length === 0 && (
                 <tr>
-                  <td colSpan={6} className="table-empty">Записей нет</td>
+                  <td colSpan={6} className="table-cell-empty">Записей нет</td>
                 </tr>
               )}
               {transactions.map(tx => (
@@ -167,7 +167,7 @@ const AdminDashboardPage = () => {
                   <td>{tx.id}</td>
                   <td>{tx.telegram_id || '—'}</td>
                   <td>{tx.wallet_type}</td>
-                  <td className={`table-amount ${Number(tx.amount) >= 0 ? 'positive' : 'negative'}`}>{formatNumber(tx.amount)}</td>
+                  <td className={Number(tx.amount) >= 0 ? 'text-green-400' : 'text-red-400'}>{formatNumber(tx.amount)}</td>
                   <td>{tx.reason}</td>
                   <td>{new Date(tx.created_at).toLocaleString()}</td>
                 </tr>
@@ -175,15 +175,15 @@ const AdminDashboardPage = () => {
             </tbody>
           </table>
         </div>
-        <div className="table-summary">
+        <div className="mt-4 text-sm text-slate-400">
           Итог по кошелькам: {Object.entries(txByWallet).map(([wallet, total]) => `${wallet}: ${formatNumber(total)}`).join(' · ')}
         </div>
       </section>
 
       <section className="card">
-        <h2>Риск-события</h2>
-        <div className="table-wrapper">
-          <table>
+        <h2 className="text-xl font-semibold mb-4">Риск-события</h2>
+        <div className="table-container">
+          <table className="table">
             <thead>
               <tr>
                 <th>ID</th>
@@ -196,7 +196,7 @@ const AdminDashboardPage = () => {
             <tbody>
               {riskEvents.length === 0 && (
                 <tr>
-                  <td colSpan={5} className="table-empty">Активных событий нет</td>
+                  <td colSpan={5} className="table-cell-empty">Активных событий нет</td>
                 </tr>
               )}
               {riskEvents.map(event => (

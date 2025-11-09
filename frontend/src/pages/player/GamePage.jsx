@@ -240,8 +240,8 @@ const GamePage = () => {
   }
 
   return (
-    <div className="game-table">
-      <div className="win-effects" ref={winEffectsRef} />
+    <div className="flex flex-col gap-6">
+      <div className="fixed inset-0 pointer-events-none z-50" ref={winEffectsRef} />
 
       {(fairness || fairnessError) && (
         <section className={`fairness-section ${showFairness ? "expanded" : "collapsed"}`}>
@@ -286,20 +286,21 @@ const GamePage = () => {
               )}
             </div>
           )}
-          {fairnessError && <div className="fairness-error">⚠️ {fairnessError}</div>}
+          {fairnessError && <div className="message error mt-2">⚠️ {fairnessError}</div>}
         </section>
       )}
-      <section className="dealer-section">
-        <div className="dealer-info">
-          <span className="dealer-label">🎩 ДИЛЕР</span>
-          <span className="dealer-score">{round.dealerScore || 0}</span>
+      
+      <section className="card">
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-lg font-semibold">🎩 ДИЛЕР</span>
+          <span className="score-value">{round.dealerScore || 0}</span>
         </div>
-        <div className="cards-area dealer-cards" id="dealerCards">
-          {round.dealerCards.length === 0 && <span>Раздача ожидается…</span>}
+        <div className="cards-container" id="dealerCards">
+          {round.dealerCards.length === 0 && <span className="text-slate-400">Раздача ожидается…</span>}
           {round.dealerCards.map((card, index) => (
             <div
               key={`${card.rank}-${card.suit}-${index}`}
-              className={`playing-card ${card.hidden ? "face-down" : getCardColorClass(card.suit)} ${index === round.dealerCards.length - 1 ? "last-dealer-card" : ""}`}
+              className={`${card.hidden ? "card-back" : "card"} ${card.hidden ? "" : getCardColorClass(card.suit)}`}
             >
               {!card.hidden && (
                 <>
@@ -312,19 +313,21 @@ const GamePage = () => {
         </div>
       </section>
 
-      <div className="game-messages">
-        <div className="message">{message}</div>
+      <div className="text-center">
+        <div className={`game-message ${message.includes('🎉') ? 'success' : message.includes('😔') || message.includes('💥') ? 'error' : ''}`}>
+          {message}
+        </div>
       </div>
 
-      <section className="player-section">
-        <div className="player-info">
-          <span className="player-label">👤 ВЫ</span>
-          <span className="player-score">{round.playerScore || 0}</span>
+      <section className="card">
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-lg font-semibold">👤 ВЫ</span>
+          <span className="score-value">{round.playerScore || 0}</span>
         </div>
-        <div className="cards-area player-cards" id="playerCards">
-          {round.playerCards.length === 0 && <span>Нажмите «Начать игру»</span>}
+        <div className="cards-container" id="playerCards">
+          {round.playerCards.length === 0 && <span className="text-slate-400">Нажмите «Начать игру»</span>}
           {round.playerCards.map((card, index) => (
-            <div key={`${card.rank}-${card.suit}-${index}`} className={`playing-card ${getCardColorClass(card.suit)}`}>
+            <div key={`${card.rank}-${card.suit}-${index}`} className={`card ${getCardColorClass(card.suit)}`}>
               <div className="card-value">{card.rank}</div>
               <div className="card-suit">{card.suit}</div>
             </div>
@@ -332,105 +335,113 @@ const GamePage = () => {
         </div>
       </section>
 
-      <section className={`betting-section ${isRoundActive ? "locked" : ""}`} id="bettingSection">
-        <div className="bet-amount">
-          <span className="bet-label">СТАВКА</span>
-          <div className="bet-controls">
-            <button
-              className="bet-btn decrease"
-              onClick={() => setBetAmount((prev) => Math.max(1, Number(prev) - 10))}
-              disabled={loading || isRoundActive}
-            >
-              −
-            </button>
-            <span className="bet-value" id="currentBet">
-              {Number(betAmount).toFixed(0)}
-            </span>
-            <button
-              className="bet-btn increase"
-              onClick={() => setBetAmount((prev) => Number(prev) + 10)}
-              disabled={loading || isRoundActive}
-            >
-              +
-            </button>
-          </div>
-          <div className="wallet-toggle">
-            <span className="bet-label">КОШЕЛЁК</span>
-            <div className="quick-bets">
-              <button
-                className={`quick-bet ${walletType === "real" ? "active" : ""}`}
-                type="button"
-                onClick={() => setWalletType("real")}
-                disabled={loading || isRoundActive}
-              >
-                💎 Реальный
-              </button>
-              <button
-                className={`quick-bet ${walletType === "demo" ? "active" : ""}`}
-                type="button"
-                onClick={() => setWalletType("demo")}
-                disabled={loading || isRoundActive}
-              >
-                🎮 Демо
-              </button>
+      <section className={`card ${isRoundActive ? "opacity-75" : ""}`} id="bettingSection">
+        <div className="space-y-4">
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="text-sm font-semibold uppercase tracking-wider text-slate-300">СТАВКА</span>
+              <div className="flex items-center gap-2">
+                <button
+                  className="secondary h-8 w-8 rounded-lg p-0 text-lg"
+                  onClick={() => setBetAmount((prev) => Math.max(1, Number(prev) - 10))}
+                  disabled={loading || isRoundActive}
+                >
+                  −
+                </button>
+                <span className="min-w-[3rem] text-center text-xl font-bold text-cyan-400" id="currentBet">
+                  {Number(betAmount).toFixed(0)}
+                </span>
+                <button
+                  className="secondary h-8 w-8 rounded-lg p-0 text-lg"
+                  onClick={() => setBetAmount((prev) => Number(prev) + 10)}
+                  disabled={loading || isRoundActive}
+                >
+                  +
+                </button>
+              </div>
+            </div>
+            <div>
+              <span className="text-sm font-semibold uppercase tracking-wider text-slate-300 block mb-2">КОШЕЛЁК</span>
+              <div className="flex gap-2">
+                <button
+                  className={`nav-link ${walletType === "real" ? "active" : ""}`}
+                  type="button"
+                  onClick={() => setWalletType("real")}
+                  disabled={loading || isRoundActive}
+                >
+                  💎 Реальный
+                </button>
+                <button
+                  className={`nav-link ${walletType === "demo" ? "active" : ""}`}
+                  type="button"
+                  onClick={() => setWalletType("demo")}
+                  disabled={loading || isRoundActive}
+                >
+                  🎮 Демо
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="quick-bets">
-          {[25, 50, 100, 250].map((value) => (
-            <button
-              key={value}
-              className="quick-bet"
-              onClick={() => setBetAmount(value)}
-              disabled={loading || isRoundActive}
-            >
-              {value}
-            </button>
-          ))}
+          <div className="grid grid-cols-4 gap-2">
+            {[25, 50, 100, 250].map((value) => (
+              <button
+                key={value}
+                className="secondary"
+                onClick={() => setBetAmount(value)}
+                disabled={loading || isRoundActive}
+              >
+                {value}
+              </button>
+            ))}
+          </div>
         </div>
       </section>
 
       <section className="game-controls">
-        <div className={`action-buttons ${isRoundActive ? "hide" : ""}`} id="actionButtons">
+        <div className={`${isRoundActive ? "hidden" : ""}`} id="actionButtons">
           <button
-            className="game-btn start-btn"
+            className="primary w-full"
             onClick={handleStartRound}
             disabled={loading}
             title="Сделайте ставку и начните новую раздачу"
           >
-            <div className="btn-content">
-              <span className="btn-icon">🎯</span>
-              <span className="btn-text">НАЧАТЬ ИГРУ</span>
+            <div className="flex items-center justify-center gap-2">
+              <span>🎯</span>
+              <span>НАЧАТЬ ИГРУ</span>
             </div>
           </button>
         </div>
 
-        <div className={`play-buttons ${isRoundActive ? "" : "hide"}`} id="playButtons">
-          <button className="game-btn hit-btn" onClick={makeRoundAction("hit")} disabled={!isRoundActive || loading}>
-            <div className="btn-content">
-              <span className="btn-icon">🎯</span>
-              <span className="btn-text">ВЗЯТЬ</span>
+        <div className={`action-buttons ${isRoundActive ? "" : "hidden"}`} id="playButtons">
+          <button 
+            className="primary" 
+            onClick={makeRoundAction("hit")} 
+            disabled={!isRoundActive || loading}
+          >
+            <div className="flex items-center justify-center gap-2">
+              <span>🎯</span>
+              <span>ВЗЯТЬ</span>
             </div>
           </button>
           <button
-            className="game-btn stand-btn"
+            className="secondary"
             onClick={makeRoundAction("settle")}
             disabled={!isRoundActive || loading}
           >
-            <div className="btn-content">
-              <span className="btn-icon">🛑</span>
-              <span className="btn-text">СТОП</span>
+            <div className="flex items-center justify-center gap-2">
+              <span>🛑</span>
+              <span>СТОП</span>
             </div>
           </button>
           <button
-            className="game-btn double-btn"
+            className="secondary"
             onClick={makeRoundAction("double")}
             disabled={!isRoundActive || loading || round.doubleDown}
           >
-            <div className="btn-content">
-              <span className="btn-icon">💰</span>
-              <span className="btn-text">УДВОИТЬ</span>
+            <div className="flex items-center justify-center gap-2">
+              <span>💰</span>
+              <span>УДВОИТЬ</span>
             </div>
           </button>
         </div>

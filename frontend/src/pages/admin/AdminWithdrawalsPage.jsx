@@ -99,22 +99,24 @@ const AdminWithdrawalsPage = () => {
   };
 
   return (
-    <div className="flex-col gap-15">
-      <section className="card admin-controls">
-        <label>
-          Статус
-          <select value={statusFilter} onChange={event => setStatusFilter(event.target.value)}>
-            {statusOptions.map(option => (
-              <option key={option} value={option}>
-                {option ? option : 'Все'}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button onClick={forceBatch}>Создать батч немедленно</button>
-        <button className="primary" onClick={loadData}>Обновить</button>
-        {message && <div className="alert alert-success">{message}</div>}
-        {error && <div className="alert alert-error">{error}</div>}
+    <div className="space-y-6">
+      <section className="card">
+        <div className="flex flex-wrap items-center gap-4">
+          <div className="input-group flex-1 min-w-[200px]">
+            <label className="input-label">Статус</label>
+            <select value={statusFilter} onChange={event => setStatusFilter(event.target.value)}>
+              {statusOptions.map(option => (
+                <option key={option} value={option}>
+                  {option ? option : 'Все'}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button onClick={forceBatch} className="secondary">Создать батч немедленно</button>
+          <button className="primary" onClick={loadData}>Обновить</button>
+        </div>
+        {message && <div className="alert alert-success mt-4">{message}</div>}
+        {error && <div className="alert alert-error mt-4">{error}</div>}
       </section>
 
       <section className="card">

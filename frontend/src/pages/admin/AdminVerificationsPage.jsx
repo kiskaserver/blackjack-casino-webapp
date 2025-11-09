@@ -105,61 +105,67 @@ const AdminVerificationsPage = () => {
   };
 
   return (
-    <div className="flex-col gap-15">
-      <section className="card admin-controls">
-        <label>
-          Статус
-          <select value={statusFilter} onChange={event => setStatusFilter(event.target.value)}>
-            {statusOptions.map(option => (
-              <option key={option} value={option}>
-                {option ? option : 'Все'}
-              </option>
-            ))}
-          </select>
-        </label>
-        <button className="primary" onClick={loadList}>Обновить</button>
-        {message && <div className="alert alert-success">{message}</div>}
-        {error && <div className="alert alert-error">{error}</div>}
+    <div className="space-y-6">
+      <section className="card">
+        <div className="flex items-center gap-4">
+          <div className="input-group flex-1 min-w-[200px]">
+            <label className="input-label">Статус</label>
+            <select value={statusFilter} onChange={event => setStatusFilter(event.target.value)}>
+              {statusOptions.map(option => (
+                <option key={option} value={option}>
+                  {option ? option : 'Все'}
+                </option>
+              ))}
+            </select>
+          </div>
+          <button className="primary" onClick={loadList}>Обновить</button>
+        </div>
+        {message && <div className="alert alert-success mt-4">{message}</div>}
+        {error && <div className="alert alert-error mt-4">{error}</div>}
       </section>
 
-      <div className="section-flex">
-        <section className="card section-narrow">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <section className="card lg:col-span-1">
           <h2>Запросы ({verifications.length})</h2>
           {loading && <p>Загрузка…</p>}
           {!loading && (
-            <ul className="section-list">
-              {verifications.length === 0 && <li className="section-list-item-empty">Нет запросов.</li>}
+            <div className="space-y-2">
+              {verifications.length === 0 && <p className="text-center text-slate-400 py-4">Нет запросов.</p>}
               {verifications.map(item => (
-                <li key={item.id}>
-                  <button
-                    onClick={() => selectVerification(item.id)}
-                    className={`section-list-item w-full ${selectedId === item.id ? 'btn-selected' : ''}`}
-                  >
-                    <strong>{item.id}</strong> · {item.status} · {item.document_type}
-                    <div className="section-list-item-text">
-                      Игрок: {item.player?.telegram_id || item.player_id} · Обновлено: {item.updated_at ? new Date(item.updated_at).toLocaleString() : '—'}
-                    </div>
-                  </button>
-                </li>
+                <button
+                  key={item.id}
+                  onClick={() => selectVerification(item.id)}
+                  className={`w-full text-left p-3 rounded-lg border transition-colors ${
+                    selectedId === item.id 
+                      ? 'border-cyan-500 bg-cyan-500/10 text-cyan-400' 
+                      : 'border-slate-700 hover:border-slate-600 hover:bg-slate-800'
+                  }`}
+                >
+                  <div className="font-semibold">{item.id}</div>
+                  <div className="text-sm text-slate-400">{item.status} · {item.document_type}</div>
+                  <div className="text-xs text-slate-500 mt-1">
+                    Игрок: {item.player?.telegram_id || item.player_id} · Обновлено: {item.updated_at ? new Date(item.updated_at).toLocaleString() : '—'}
+                  </div>
+                </button>
               ))}
-            </ul>
+            </div>
           )}
         </section>
 
-        <section className="card section-wide">
-          {!selected && <p className="section-empty-text">Выберите заявку, чтобы увидеть подробности.</p>}
+        <section className="card lg:col-span-2">
+          {!selected && <p className="text-center text-slate-400 py-8">Выберите заявку, чтобы увидеть подробности.</p>}
           {selected && (
-            <div className="flex-col gap-1">
+            <div className="space-y-4">
               <header>
-                <h2 className="mb-025">Заявка #{selected.id}</h2>
-                <div className="admin-details-meta">
+                <h2 className="mb-1">Заявка #{selected.id}</h2>
+                <div className="text-sm text-slate-400">
                   Игрок {selected.player?.telegram_id || selected.player_id} · статус {selected.status}
                 </div>
               </header>
 
-              <div className="card bg-card-dark">
+              <div className="card">
                 <h3>Документы</h3>
-                <ul className="section-list gap-05">
+                <ul className="space-y-2">
                   <li>Тип: {selected.document_type}</li>
                   <li>Номер: {selected.document_number || '—'}</li>
                   <li>Страна: {selected.country || '—'}</li>
@@ -186,7 +192,7 @@ const AdminVerificationsPage = () => {
                 </ul>
               </div>
 
-              <div className="card bg-card-dark">
+              <div className="card">
                 <h3>История</h3>
                 <p>Отправлено: {selected.submitted_at ? new Date(selected.submitted_at).toLocaleString() : '—'}</p>
                 <p>Проверено: {selected.reviewed_at ? new Date(selected.reviewed_at).toLocaleString() : '—'}</p>
@@ -194,20 +200,22 @@ const AdminVerificationsPage = () => {
                 <p>Причина: {selected.rejection_reason || '—'}</p>
               </div>
 
-              <div className="card bg-card-dark">
+              <div className="card">
                 <h3>Действия</h3>
-                <label>
-                  Примечание ревью
-                  <textarea rows={3} value={actionNote} onChange={event => setActionNote(event.target.value)} />
-                </label>
-                <label>
-                  Причина / комментарий для игрока
-                  <textarea rows={3} value={actionReason} onChange={event => setActionReason(event.target.value)} />
-                </label>
-                <div className="flex-row flex-wrap gap-075">
-                  <button className="primary" onClick={approve}>Одобрить</button>
-                  <button onClick={requestResubmission}>Запросить повторную подачу</button>
-                  <button className="danger" onClick={reject}>Отклонить</button>
+                <div className="space-y-4">
+                  <div className="input-group">
+                    <label className="input-label">Примечание ревью</label>
+                    <textarea rows={3} value={actionNote} onChange={event => setActionNote(event.target.value)} />
+                  </div>
+                  <div className="input-group">
+                    <label className="input-label">Причина / комментарий для игрока</label>
+                    <textarea rows={3} value={actionReason} onChange={event => setActionReason(event.target.value)} />
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    <button className="primary" onClick={approve}>Одобрить</button>
+                    <button className="secondary" onClick={requestResubmission}>Запросить повторную подачу</button>
+                    <button className="danger" onClick={reject}>Отклонить</button>
+                  </div>
                 </div>
               </div>
             </div>
