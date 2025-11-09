@@ -82,7 +82,7 @@ export const PlayerLayout = () => {
 
   return (
     <PlayerContext.Provider value={contextValue}>
-      <div className="relative min-h-screen overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50">
+      <div className="relative min-h-screen overflow-hidden bg-linear-to-br from-slate-950 via-slate-900 to-slate-950 text-slate-50">
         {/* Animated background particles */}
         <div
           className="pointer-events-none absolute inset-0 blur-3xl opacity-40"
@@ -92,13 +92,13 @@ export const PlayerLayout = () => {
           }}
         />
 
-        <div className="relative z-10 flex min-h-screen flex-col gap-5 px-3 pb-20 pt-4 sm:px-6 md:px-8 lg:px-10 lg:pb-24 lg:pt-6">
+        <div className="relative z-10 flex min-h-screen flex-col gap-4 px-3 pb-16 pt-4 sm:px-6 md:px-8 lg:px-10 lg:pb-20 lg:pt-6">
           {/* Header */}
-          <header className="card">
-            <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <header className="card px-4 py-4 sm:px-5 sm:py-4">
+            <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
               <div className="flex flex-col gap-1">
-                <h1 className="text-lg font-bold uppercase tracking-wider text-white/95">🎰 Blackjack</h1>
-                <p className="text-xs uppercase tracking-widest text-slate-400">casino mini app</p>
+                <h1 className="text-base font-semibold uppercase tracking-wider text-white/95">🎰 Blackjack</h1>
+                <p className="text-[11px] uppercase tracking-[0.3em] text-slate-400">casino mini app</p>
               </div>
 
               {/* Balance Cards Grid */}
@@ -117,7 +117,7 @@ export const PlayerLayout = () => {
                     {user?.username ? `@${user.username}` : user?.first_name || "Гость"}
                   </p>
                 </div>
-                <div className="flex items-center justify-end gap-2 balance-card">
+                <div className="balance-card balance-card-toolbar">
                   <AdminButton />
                   <button
                     type="button"
@@ -150,7 +150,7 @@ export const PlayerLayout = () => {
           </header>
 
           {/* Navigation */}
-          <nav className="flex snap-x items-stretch gap-2 overflow-x-auto rounded-2xl border border-cyan-500/20 bg-slate-900/80 p-1 backdrop-blur-sm">
+          <nav className="flex snap-x items-stretch gap-1.5 overflow-x-auto rounded-2xl border border-cyan-500/15 bg-slate-950/70 p-1 backdrop-blur-sm">
             {playerLinks.map((link) => (
               <NavLink
                 key={link.to}
@@ -158,14 +158,13 @@ export const PlayerLayout = () => {
                 end={link.end}
                 className={({ isActive }) =>
                   clsx(
-                    "nav-link group flex min-w-max flex-col items-center gap-1 rounded-xl px-3 py-2 text-xs sm:text-sm font-semibold transition-all duration-200",
-                    {
-                      active: isActive,
-                    },
+                    "flex min-w-[72px] flex-col items-center gap-0.5 rounded-lg border border-transparent px-2.5 py-1.5 text-[11px] font-semibold text-slate-300 transition-all duration-200 hover:bg-cyan-500/10 hover:text-white",
+                    isActive &&
+                      "border-cyan-400/40 bg-cyan-500/20 text-white shadow-[0_6px_16px_rgba(0,198,255,0.18)]",
                   )
                 }
               >
-                <span className="text-lg sm:text-xl" aria-hidden>
+                <span className="text-lg" aria-hidden>
                   {link.icon}
                 </span>
                 <span>{link.label}</span>

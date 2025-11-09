@@ -1,6 +1,7 @@
 "use client"
 
 import { useCallback, useEffect, useMemo, useState, useRef } from "react"
+import clsx from "clsx"
 import { createPlayerApi } from "../../api/playerApi.js"
 import { useTelegram } from "../../providers/TelegramProvider.jsx"
 import { usePlayerContext } from "../../layouts/PlayerLayout.jsx"
@@ -19,6 +20,14 @@ const resultMessages = {
   lose: "😔 Поражение. Попробуйте ещё раз. ",
   bust: "💥 Перебор! Выше 21 очка. ",
   push: "🤝 Ничья — ставка возвращена. ",
+}
+
+const formatCurrency = (value) => {
+  const numeric = Number(value ?? 0)
+  if (!Number.isFinite(numeric)) {
+    return "0.00"
+  }
+  return numeric.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 }
 
 const createDefaultRound = () => ({
@@ -42,7 +51,7 @@ const createDefaultRound = () => ({
 const GamePage = () => {
   const { initData } = useTelegram()
   const api = useMemo(() => createPlayerApi(() => initData), [initData])
-  const { updateBalances } = usePlayerContext()
+  const { balances: contextBalances, updateBalances } = usePlayerContext()
   const { updateAfterRound } = useStatistics()
   const { settings } = useSettings()
   const [round, setRound] = useState(() => createDefaultRound())
@@ -237,7 +246,7 @@ const GamePage = () => {
   }
 
   return (
-    <div className="flex flex-col gap-6">
+    <div className="flex flex-col gap-5">
       <div className="fixed inset-0 pointer-events-none z-50" ref={winEffectsRef} />
 
       {(fairness || fairnessError) && (
@@ -335,7 +344,7 @@ const GamePage = () => {
       </section>
 
       <section className={`card ${isRoundActive ? "opacity-75" : ""}`} id="bettingSection">
-        <div className="space-y-4">
+        <div className="space-y-3">
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="text-sm font-semibold uppercase tracking-wider text-slate-300">Ставка</span>
@@ -347,7 +356,7 @@ const GamePage = () => {
                 >
                   −
                 </button>
-                <span className="min-w-[3rem] text-center text-xl font-bold text-cyan-400" id="currentBet">
+                <span className="min-w-12 text-center text-xl font-bold text-cyan-400" id="currentBet">
                   {Number(betAmount).toFixed(0)}
                 </span>
                 <button
@@ -361,23 +370,30 @@ const GamePage = () => {
             </div>
             <div>
               <span className="text-sm font-semibold uppercase tracking-wider text-slate-300 block mb-2">Кошелёк</span>
-              <div className="flex gap-2">
-                <button
-                  className={`nav-link ${walletType === "real" ? "active" : ""}`}
-                  type="button"
-                  onClick={() => setWalletType("real")}
-                  disabled={loading || isRoundActive}
-                >
-                  💎 Реальный
-                </button>
-                <button
-                  className={`nav-link ${walletType === "demo" ? "active" : ""}`}
-                  type="button"
-                  onClick={() => setWalletType("demo")}
-                  disabled={loading || isRoundActive}
-                >
-                  🎮 Демо
-                </button>
+              <div className="wallet-toggle-group">
+                {[
+                  { id: "real", icon: "💎", label: "Реальный" },
+                  { id: "demo", icon: "🎮", label: "Демо" },
+                ].map((option) => {
+                  const balanceValue =
+                    contextBalances?.[option.id] ?? round?.balances?.[option.id] ?? 0
+                  return (
+                    <button
+                      key={option.id}
+                      type="button"
+                      className={clsx("wallet-toggle", walletType === option.id && "is-active")}
+                      onClick={() => setWalletType(option.id)}
+                      disabled={loading || isRoundActive}
+                      aria-pressed={walletType === option.id}
+                    >
+                      <span className="wallet-toggle-label">
+                        <span aria-hidden>{option.icon}</span>
+                        {option.label}
+                      </span>
+                      <span className="wallet-toggle-balance">₽ {formatCurrency(balanceValue)}</span>
+                    </button>
+                  )
+                })}
               </div>
             </div>
           </div>

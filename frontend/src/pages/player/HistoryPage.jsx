@@ -2,20 +2,29 @@ import { useEffect, useMemo, useState } from 'react';
 import { createPlayerApi } from '../../api/playerApi.js';
 import { useTelegram } from '../../providers/TelegramProvider.jsx';
 
+const pageSizeOptions = [10, 25, 50];
+
 const HistoryPage = () => {
   const { initData } = useTelegram();
   const api = useMemo(() => createPlayerApi(() => initData), [initData]);
   const [history, setHistory] = useState(null);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(true);
+  const [roundFilter, setRoundFilter] = useState('all');
+  const [roundPage, setRoundPage] = useState(1);
+  const [roundPageSize, setRoundPageSize] = useState(pageSizeOptions[0]);
+  const [transactionFilter, setTransactionFilter] = useState('all');
+  const [transactionPage, setTransactionPage] = useState(1);
+  const [transactionPageSize, setTransactionPageSize] = useState(pageSizeOptions[0]);
 
   useEffect(() => {
     let cancelled = false;
+
     const load = async () => {
       setLoading(true);
       setError('');
       try {
-        const data = await api.getHistory({ rounds: 25, transactions: 50 });
+        const data = await api.getHistory({ rounds: 200, transactions: 200 });
         if (!cancelled) {
           setHistory(data);
         }
@@ -29,11 +38,20 @@ const HistoryPage = () => {
         }
       }
     };
+
     load();
     return () => {
       cancelled = true;
     };
   }, [api]);
+
+  useEffect(() => {
+    setRoundPage(1);
+  }, [roundFilter, roundPageSize]);
+
+  useEffect(() => {
+    setTransactionPage(1);
+  }, [transactionFilter, transactionPageSize]);
 
   if (loading) {
     return <div className="stats-loading">⏳ Загрузка истории…</div>;
@@ -51,14 +69,76 @@ const HistoryPage = () => {
   const rounds = history.rounds || [];
   const transactions = history.transactions || [];
 
-  const formatAmount = value => {
+  const filteredRounds = useMemo(() => {
+    if (roundFilter === 'all') {
+      return rounds;
+    }
+    return rounds.filter(round => round.wallet_type === roundFilter);
+  }, [rounds, roundFilter]);
+
+  const filteredTransactions = useMemo(() => {
+    if (transactionFilter === 'all') {
+      return transactions;
+    }
+    return transactions.filter(tx => tx.wallet_type === transactionFilter);
+  }, [transactions, transactionFilter]);
+
+  const totalRoundPages = Math.max(1, Math.ceil((filteredRounds.length || 1) / roundPageSize));
+  const totalTransactionPages = Math.max(1, Math.ceil((filteredTransactions.length || 1) / transactionPageSize));
+
+  useEffect(() => {
+    if (roundPage > totalRoundPages) {
+      setRoundPage(totalRoundPages);
+    }
+  }, [roundPage, totalRoundPages]);
+
+  useEffect(() => {
+    if (transactionPage > totalTransactionPages) {
+      setTransactionPage(totalTransactionPages);
+    }
+  }, [transactionPage, totalTransactionPages]);
+
+  const roundStart = (roundPage - 1) * roundPageSize;
+  const paginatedRounds = filteredRounds.slice(roundStart, roundStart + roundPageSize);
+  const transactionStart = (transactionPage - 1) * transactionPageSize;
+  const paginatedTransactions = filteredTransactions.slice(transactionStart, transactionStart + transactionPageSize);
+
+  const roundRangeStart = filteredRounds.length === 0 ? 0 : roundStart + 1;
+  const roundRangeEnd = filteredRounds.length === 0 ? 0 : roundStart + paginatedRounds.length;
+  const transactionRangeStart = filteredTransactions.length === 0 ? 0 : transactionStart + 1;
+  const transactionRangeEnd = filteredTransactions.length === 0 ? 0 : transactionStart + paginatedTransactions.length;
+
+  const roundInfoText = filteredRounds.length
+    ? `${roundRangeStart}–${roundRangeEnd} из ${filteredRounds.length}`
+    : 'Нет записей';
+  const transactionInfoText = filteredTransactions.length
+    ? `${transactionRangeStart}–${transactionRangeEnd} из ${filteredTransactions.length}`
+    : 'Нет записей';
+
+  const formatAmount = (value, withSign = false) => {
     const numeric = Number(value ?? 0);
     if (!Number.isFinite(numeric)) {
       return '0.00';
     }
     const formatted = numeric.toFixed(2);
-    return numeric > 0 ? `+${formatted}` : formatted;
+    if (withSign && numeric > 0) {
+      return `+${formatted}`;
+    }
+    return formatted;
   };
+
+  const formatDateTime = value => {
+    if (!value) {
+      return '—';
+    }
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return value;
+    }
+    return date.toLocaleString('ru-RU');
+  };
+
+  const walletLabel = type => (type === 'real' ? '💎 Реальный' : '🎮 Демо');
 
   return (
     <div className="history-container">
@@ -92,7 +172,8 @@ const HistoryPage = () => {
                 <div className="stat-row stat-divider">
                   <span className="stat-label">Net P&L:</span>
                   <span className={`stat-value ${Number(stats.netProfit || 0) >= 0 ? 'positive' : 'negative'}`}>
-                    {Number(stats.netProfit || 0) >= 0 ? '+' : ''}{Number(stats.netProfit || 0).toFixed(2)}
+                    {Number(stats.netProfit || 0) >= 0 ? '+' : ''}
+                    {Number(stats.netProfit || 0).toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -119,7 +200,8 @@ const HistoryPage = () => {
                 <div className="stat-row stat-divider">
                   <span className="stat-label">Net P&L:</span>
                   <span className={`stat-value ${Number(stats.wallets?.demo?.netProfit || 0) >= 0 ? 'positive' : 'negative'}`}>
-                    {Number(stats.wallets?.demo?.netProfit || 0) >= 0 ? '+' : ''}{Number(stats.wallets?.demo?.netProfit || 0).toFixed(2)}
+                    {Number(stats.wallets?.demo?.netProfit || 0) >= 0 ? '+' : ''}
+                    {Number(stats.wallets?.demo?.netProfit || 0).toFixed(2)}
                   </span>
                 </div>
               </div>
@@ -129,7 +211,55 @@ const HistoryPage = () => {
       )}
 
       <div className="table-wrapper">
-        <h2 className="table-heading page-section-title">🎲 Последние раунды</h2>
+        <div className="table-controls">
+          <h2 className="table-heading">🎲 Последние раунды</h2>
+          <div className="table-controls-group">
+            <select
+              className="pagination-select"
+              value={roundFilter}
+              onChange={event => setRoundFilter(event.target.value)}
+            >
+              <option value="all">Все кошельки</option>
+              <option value="real">Только реальные</option>
+              <option value="demo">Только демо</option>
+            </select>
+            <select
+              className="pagination-select"
+              value={roundPageSize}
+              onChange={event => setRoundPageSize(Number(event.target.value))}
+            >
+              {pageSizeOptions.map(size => (
+                <option key={size} value={size}>
+                  {size} / страницу
+                </option>
+              ))}
+            </select>
+            <span className="table-count">{roundInfoText}</span>
+          </div>
+          <div className="table-pagination">
+            <button
+              type="button"
+              className="pagination-button"
+              onClick={() => setRoundPage(page => Math.max(1, page - 1))}
+              disabled={roundPage <= 1}
+              aria-label="Предыдущая страница"
+            >
+              ←
+            </button>
+            <span className="pagination-info">
+              Страница {roundPage} / {totalRoundPages}
+            </span>
+            <button
+              type="button"
+              className="pagination-button"
+              onClick={() => setRoundPage(page => Math.min(totalRoundPages, page + 1))}
+              disabled={roundPage >= totalRoundPages}
+              aria-label="Следующая страница"
+            >
+              →
+            </button>
+          </div>
+        </div>
         <table>
           <thead>
             <tr>
@@ -143,34 +273,89 @@ const HistoryPage = () => {
             </tr>
           </thead>
           <tbody>
-            {rounds.length === 0 && (
+            {filteredRounds.length === 0 ? (
               <tr>
-                <td colSpan={7} className="table-cell-empty">ℹ️ Раундов пока нет</td>
+                <td colSpan={7} className="table-cell-empty">ℹ️ Под выбранные фильтры раундов нет</td>
               </tr>
+            ) : (
+              paginatedRounds.map(round => {
+                const betAmount = Number(round.final_bet ?? round.base_bet ?? 0);
+                const winAmount = Number(round.win_amount ?? 0);
+                const winClass = winAmount > 0 ? 'table-cell-positive' : winAmount < 0 ? 'table-cell-negative' : '';
+
+                return (
+                  <tr key={round.round_id}>
+                    <td className="table-cell-emoji">{round.round_id}</td>
+                    <td>{walletLabel(round.wallet_type)}</td>
+                    <td className="table-cell-right font-weight-600">{betAmount.toFixed(2)}</td>
+                    <td className={`table-cell-right ${winClass}`}>{formatAmount(winAmount, true)}</td>
+                    <td>
+                      {round.result === 'win' && '✅'}
+                      {round.result === 'lose' && '❌'}
+                      {round.result === 'push' && '🤝'}
+                      {round.result === 'blackjack' && '🎉'}
+                      {round.result === 'bust' && '💥'} {round.result || '—'}
+                    </td>
+                    <td>{round.status || '—'}</td>
+                    <td>{formatDateTime(round.settled_at || round.created_at)}</td>
+                  </tr>
+                );
+              })
             )}
-            {rounds.map(round => (
-              <tr key={round.round_id}>
-                <td className="table-cell-emoji">{round.round_id}</td>
-                <td>{round.wallet_type === 'real' ? '💎' : '🎮'} {round.wallet_type}</td>
-                <td className="table-cell-right font-weight-600">{Number(round.final_bet || round.base_bet || 0).toFixed(2)}</td>
-                <td className={`table-cell-right ${Number(round.win_amount || 0) > 0 ? 'table-cell-positive' : 'table-cell-negative'}`}>{Number(round.win_amount || 0).toFixed(2)}</td>
-                <td>
-                  {round.result === 'win' && '✅'}
-                  {round.result === 'lose' && '❌'}
-                  {round.result === 'push' && '🤝'}
-                  {round.result === 'blackjack' && '🎉'}
-                  {round.result === 'bust' && '💥'} {round.result || '—'}
-                </td>
-                <td>{round.status}</td>
-                <td>{round.settled_at ? new Date(round.settled_at).toLocaleString('ru-RU') : (round.created_at ? new Date(round.created_at).toLocaleString('ru-RU') : '—')}</td>
-              </tr>
-            ))}
           </tbody>
         </table>
       </div>
 
       <div className="table-wrapper">
-        <h2 className="table-heading page-section-title">💸 Движение средств</h2>
+        <div className="table-controls">
+          <h2 className="table-heading">💸 Движение средств</h2>
+          <div className="table-controls-group">
+            <select
+              className="pagination-select"
+              value={transactionFilter}
+              onChange={event => setTransactionFilter(event.target.value)}
+            >
+              <option value="all">Все кошельки</option>
+              <option value="real">Только реальные</option>
+              <option value="demo">Только демо</option>
+            </select>
+            <select
+              className="pagination-select"
+              value={transactionPageSize}
+              onChange={event => setTransactionPageSize(Number(event.target.value))}
+            >
+              {pageSizeOptions.map(size => (
+                <option key={size} value={size}>
+                  {size} / страницу
+                </option>
+              ))}
+            </select>
+            <span className="table-count">{transactionInfoText}</span>
+          </div>
+          <div className="table-pagination">
+            <button
+              type="button"
+              className="pagination-button"
+              onClick={() => setTransactionPage(page => Math.max(1, page - 1))}
+              disabled={transactionPage <= 1}
+              aria-label="Предыдущая страница"
+            >
+              ←
+            </button>
+            <span className="pagination-info">
+              Страница {transactionPage} / {totalTransactionPages}
+            </span>
+            <button
+              type="button"
+              className="pagination-button"
+              onClick={() => setTransactionPage(page => Math.min(totalTransactionPages, page + 1))}
+              disabled={transactionPage >= totalTransactionPages}
+              aria-label="Следующая страница"
+            >
+              →
+            </button>
+          </div>
+        </div>
         <table>
           <thead>
             <tr>
@@ -182,25 +367,26 @@ const HistoryPage = () => {
             </tr>
           </thead>
           <tbody>
-            {transactions.length === 0 && (
+            {filteredTransactions.length === 0 ? (
               <tr>
-                <td colSpan={5} className="table-cell-empty">ℹ️ Транзакций пока нет</td>
+                <td colSpan={5} className="table-cell-empty">ℹ️ Под выбранные фильтры транзакций нет</td>
               </tr>
-            )}
-            {transactions.map(tx => {
-              const amountValue = Number(tx.amount ?? 0);
-              const amountClass = amountValue > 0 ? 'table-cell-positive' : amountValue < 0 ? 'table-cell-negative' : '';
+            ) : (
+              paginatedTransactions.map(tx => {
+                const amountValue = Number(tx.amount ?? 0);
+                const amountClass = amountValue > 0 ? 'table-cell-positive' : amountValue < 0 ? 'table-cell-negative' : '';
 
-              return (
-                <tr key={tx.id}>
-                  <td>{tx.id}</td>
-                  <td>{tx.wallet_type === 'real' ? '💎' : '🎮'} {tx.wallet_type}</td>
-                  <td className={`table-cell-right ${amountClass}`}>{formatAmount(amountValue)}</td>
-                  <td>{tx.reason}</td>
-                  <td>{tx.created_at ? new Date(tx.created_at).toLocaleString('ru-RU') : '—'}</td>
-                </tr>
-              );
-            })}
+                return (
+                  <tr key={tx.id}>
+                    <td>{tx.id}</td>
+                    <td>{walletLabel(tx.wallet_type)}</td>
+                    <td className={`table-cell-right ${amountClass}`}>{formatAmount(amountValue, true)}</td>
+                    <td>{tx.reason}</td>
+                    <td>{formatDateTime(tx.created_at)}</td>
+                  </tr>
+                );
+              })
+            )}
           </tbody>
         </table>
       </div>

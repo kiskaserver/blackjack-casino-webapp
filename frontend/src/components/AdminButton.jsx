@@ -27,7 +27,7 @@ export const AdminButton = () => {
     <div className="relative">
       <button
         type="button"
-        className="admin-button relative flex h-11 w-11 items-center justify-center rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-600/20 to-orange-600/20 text-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-amber-500/50 hover:from-amber-600/30 hover:to-orange-600/30 hover:shadow-lg hover:shadow-amber-500/20"
+        className="admin-button relative flex h-11 w-11 items-center justify-center rounded-xl border border-amber-500/30 bg-linear-to-br from-amber-600/20 to-orange-600/20 text-lg backdrop-blur-sm transition-all duration-300 hover:scale-105 hover:border-amber-500/50 hover:from-amber-600/30 hover:to-orange-600/30 hover:shadow-lg hover:shadow-amber-500/20"
         onClick={handleAdminClick}
         onMouseEnter={() => setShowTooltip(true)}
         onMouseLeave={() => setShowTooltip(false)}
