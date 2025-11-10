@@ -24,6 +24,8 @@ const PlayerContext = createContext({
   balances: defaultBalances,
   updateBalances: () => {},
   refreshProfile: () => Promise.resolve(),
+  loadingProfile: false,
+  profileError: "",
 })
 
 export const usePlayerContext = () => useContext(PlayerContext)
@@ -73,8 +75,10 @@ export const PlayerLayout = () => {
       balances,
       updateBalances,
       refreshProfile: loadProfile,
+      loadingProfile,
+      profileError,
     }),
-    [profile, balances, updateBalances, loadProfile],
+    [profile, balances, updateBalances, loadProfile, loadingProfile, profileError],
   )
 
   const formattedReal = balances.real.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
@@ -160,16 +164,16 @@ export const PlayerLayout = () => {
                 end={link.end}
                 className={({ isActive }) =>
                   clsx(
-                    "flex min-w-16 flex-col items-center gap-px rounded-lg border border-transparent px-2 py-1 text-[10px] font-semibold tracking-[0.08em] text-slate-300 transition-all duration-200 hover:bg-cyan-500/10 hover:text-white",
+                    "player-nav-link flex min-w-16 flex-col items-center justify-center rounded-lg border border-transparent px-2 py-1 text-[10px] font-semibold tracking-[0.08em] text-slate-300 transition-all duration-200 hover:bg-cyan-500/10 hover:text-white",
                     isActive &&
                       "border-cyan-400/40 bg-cyan-500/20 text-white shadow-[0_6px_16px_rgba(0,198,255,0.18)]",
                   )
                 }
               >
-                <span className="text-lg leading-none" aria-hidden>
+                <span className="player-nav-icon text-lg leading-none" aria-hidden>
                   {link.icon}
                 </span>
-                <span className="leading-tight whitespace-nowrap">{link.label}</span>
+                <span className="player-nav-label whitespace-nowrap">{link.label}</span>
               </NavLink>
             ))}
           </nav>

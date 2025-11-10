@@ -1,55 +1,56 @@
 "use client"
 
-import { useCallback, useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { Link } from "react-router-dom"
 import { createPlayerApi } from "../../api/playerApi.js"
 import { useTelegram } from "../../providers/TelegramProvider.jsx"
+import { usePlayerContext } from "../../layouts/PlayerLayout.jsx"
 
 const ProfilePage = () => {
   const { initData } = useTelegram()
-  const api = useMemo(() => createPlayerApi(() => initData), [initData])
-  const [profile, setProfile] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState("")
+  const api = useMemo(() => (initData ? createPlayerApi(() => initData) : null), [initData])
+  const { profile, refreshProfile, loadingProfile, profileError, updateBalances } = usePlayerContext()
   const [demoTarget, setDemoTarget] = useState("")
-
-  const loadProfile = useCallback(async () => {
-    if (!initData) {
-      return
-    }
-    setError("")
-    setLoading(true)
-    try {
-      const data = await api.getProfile()
-      setProfile(data)
-    } catch (err) {
-      setError(err.message || "Не удалось загрузить профиль")
-    } finally {
-      setLoading(false)
-    }
-  }, [api, initData])
-
-  useEffect(() => {
-    loadProfile()
-  }, [loadProfile])
+  const [formError, setFormError] = useState("")
+  const [formSuccess, setFormSuccess] = useState("")
+  const [formLoading, setFormLoading] = useState(false)
 
   const handleResetDemo = async (event) => {
     event.preventDefault()
-    try {
-      await api.resetDemoBalance({ target: demoTarget ? Number(demoTarget) : undefined })
-      setDemoTarget("")
-      await loadProfile()
-    } catch (err) {
-      setError(err.message || "Не удалось сбросить демо баланс")
+    if (!api) {
+      setFormError("Требуется авторизация через Telegram")
+      return
     }
+    setFormError("")
+    setFormSuccess("")
+    setFormLoading(true)
+    try {
+      const payload = await api.resetDemoBalance({ target: demoTarget ? Number(demoTarget) : undefined })
+      if (payload?.balances) {
+        updateBalances(payload.balances)
+      }
+      setDemoTarget("")
+      await refreshProfile()
+      const nextBalance = payload?.balances?.demo ?? payload?.balance
+      if (typeof nextBalance !== "undefined") {
+        const formatted = Number(nextBalance).toLocaleString("ru-RU", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })
+        setFormSuccess(`Демо баланс обновлён до ${formatted}`)
+      }
+    } catch (err) {
+      setFormError(err.message || "Не удалось сбросить демо баланс")
+    }
+    setFormLoading(false)
   }
 
-  if (loading) {
+  if (loadingProfile && !profile) {
     return <div className="text-center py-8 text-slate-400">⏳ Загрузка профиля…</div>
   }
 
-  if (error) {
-    return <div className="message error">{error}</div>
+  if (profileError) {
+    return <div className="message error">{profileError}</div>
   }
 
   if (!profile) {
@@ -222,6 +223,8 @@ const ProfilePage = () => {
           значению по умолчанию.
         </p>
         <form onSubmit={handleResetDemo} className="flex flex-col gap-3 max-w-md">
+          {formError && <div className="message error">{formError}</div>}
+          {formSuccess && <div className="message success">{formSuccess}</div>}
           <label className="flex flex-col gap-2 text-sm text-slate-200">
             <span className="font-semibold uppercase tracking-[0.2em] text-slate-300">Целевой баланс (опционально)</span>
             <input
@@ -234,8 +237,8 @@ const ProfilePage = () => {
               className="w-full"
             />
           </label>
-          <button type="submit" className="secondary w-full">
-            🔄 Сбросить демо баланс
+          <button type="submit" className="secondary w-full" disabled={formLoading}>
+            {formLoading ? "⏳ Обновление…" : "🔄 Сбросить демо баланс"}
           </button>
         </form>
       </section>

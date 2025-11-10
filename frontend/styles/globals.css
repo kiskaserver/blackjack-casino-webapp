@@ -287,11 +287,26 @@ button {
   box-shadow: 0 8px 16px rgba(0, 198, 255, 0.15);
 }
 
+.player-nav-link {
+  gap: 0.08rem;
+  line-height: 1;
+}
+
+.player-nav-icon {
+  margin-bottom: -0.1rem;
+}
+
+.player-nav-label {
+  font-size: 0.68rem;
+  line-height: 1.05;
+}
+
 .wallet-toggle-group {
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
   gap: 0.5rem;
+  justify-content: center;
 }
 
 .wallet-toggle {
@@ -363,6 +378,7 @@ button {
 .header-balance-row {
   display: flex;
   flex-wrap: nowrap;
+  align-items: center;
   justify-content: flex-end;
   gap: 0.5rem;
   overflow-x: auto;
@@ -370,7 +386,7 @@ button {
 
 .header-balance-pill {
   display: inline-flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.4rem;
   padding: 0.4rem 0.8rem;
   border-radius: 999px;
@@ -381,6 +397,8 @@ button {
   letter-spacing: 0.14em;
   text-transform: uppercase;
   white-space: nowrap;
+  min-width: 11rem;
+  justify-content: space-between;
 }
 
 .header-balance-pill.real {
@@ -463,6 +481,7 @@ button {
 
 .wallet-toggle-group.compact {
   gap: 0.4rem;
+  justify-content: center;
 }
 
 .wallet-card-compact .wallet-toggle {

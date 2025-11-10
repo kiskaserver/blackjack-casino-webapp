@@ -1,52 +1,56 @@
-import { useEffect, useMemo, useState } from 'react';
-import { createPlayerApi } from '../../api/playerApi.js';
-import { useTelegram } from '../../providers/TelegramProvider.jsx';
+"use client"
+
+import { useEffect, useMemo, useState } from "react"
+import { createPlayerApi } from "../../api/playerApi.js"
+import { useTelegram } from "../../providers/TelegramProvider.jsx"
 
 const pageSizeOptions = [10, 25, 50];
 
 const HistoryPage = () => {
-  const { initData } = useTelegram();
-  const api = useMemo(() => createPlayerApi(() => initData), [initData]);
-  const [history, setHistory] = useState(null);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [roundFilter, setRoundFilter] = useState('all');
-  const [roundPage, setRoundPage] = useState(1);
-  const [roundPageSize, setRoundPageSize] = useState(pageSizeOptions[0]);
-  const [transactionFilter, setTransactionFilter] = useState('all');
-  const [transactionPage, setTransactionPage] = useState(1);
-  const [transactionPageSize, setTransactionPageSize] = useState(pageSizeOptions[0]);
+  const { initData } = useTelegram()
+  const api = useMemo(() => (initData ? createPlayerApi(() => initData) : null), [initData])
+  const [history, setHistory] = useState(null)
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(true)
+  const [roundFilter, setRoundFilter] = useState("all")
+  const [roundPage, setRoundPage] = useState(1)
+  const [roundPageSize, setRoundPageSize] = useState(pageSizeOptions[0])
+  const [transactionFilter, setTransactionFilter] = useState("all")
+  const [transactionPage, setTransactionPage] = useState(1)
+  const [transactionPageSize, setTransactionPageSize] = useState(pageSizeOptions[0])
 
   useEffect(() => {
-    if (!initData) {
-      return;
+    if (!api) {
+      return
     }
-    let cancelled = false;
+
+    let cancelled = false
 
     const load = async () => {
-      setLoading(true);
-      setError('');
+      setLoading(true)
+      setError("")
       try {
-        const data = await api.getHistory({ rounds: 200, transactions: 200 });
+        const data = await api.getHistory({ rounds: 200, transactions: 200 })
         if (!cancelled) {
-          setHistory(data);
+          setHistory(data)
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err.message || 'Не удалось загрузить историю');
+          setError(err.message || "Не удалось загрузить историю")
+          setHistory(null)
         }
       } finally {
         if (!cancelled) {
-          setLoading(false);
+          setLoading(false)
         }
       }
-    };
+    }
 
-    load();
+    load()
     return () => {
-      cancelled = true;
-    };
-  }, [api, initData]);
+      cancelled = true
+    }
+  }, [api])
 
   useEffect(() => {
     setRoundPage(1);
