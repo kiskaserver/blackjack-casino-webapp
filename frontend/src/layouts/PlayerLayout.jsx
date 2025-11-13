@@ -83,6 +83,18 @@ export const PlayerLayout = () => {
 
   const formattedReal = balances.real.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   const formattedDemo = balances.demo.toLocaleString("ru-RU", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+  const playerChipLabel = useMemo(() => {
+    if (user?.username) {
+      return `@${user.username}`
+    }
+    if (user?.id) {
+      return `ID ${user.id}`
+    }
+    if (user?.first_name) {
+      return user.first_name
+    }
+    return "Гость"
+  }, [user])
 
   return (
     <PlayerContext.Provider value={contextValue}>
@@ -119,9 +131,7 @@ export const PlayerLayout = () => {
                   </div>
                 </div>
                 <div className="flex flex-wrap items-center justify-end gap-2">
-                  <span className="header-player-chip">
-                    {user?.username ? `@${user.username}` : user?.first_name || "Гость"}
-                  </span>
+                  <span className="header-player-chip">{playerChipLabel}</span>
                   <div className="header-actions">
                     <AdminButton />
                     <button
@@ -156,7 +166,7 @@ export const PlayerLayout = () => {
           </header>
 
           {/* Navigation */}
-          <nav className="flex snap-x items-center gap-2 overflow-x-auto rounded-3xl border border-cyan-500/20 bg-slate-950/70 px-4 py-3 backdrop-blur-sm">
+          <nav className="flex snap-x items-center gap-2 overflow-x-auto rounded-3xl border border-cyan-500/20 bg-slate-950/70 px-4 py-3 backdrop-blur-sm lg:flex-wrap lg:justify-center lg:gap-3 lg:overflow-visible">
             {playerLinks.map((link) => (
               <NavLink
                 key={link.to}
@@ -164,7 +174,7 @@ export const PlayerLayout = () => {
                 end={link.end}
                 className={({ isActive }) =>
                   clsx(
-                    "player-nav-link flex min-w-[5.5rem] shrink-0 flex-col items-center justify-center text-[11px] font-semibold tracking-[0.12em] text-slate-300 transition-all duration-200 hover:text-white",
+                    "player-nav-link flex shrink-0 flex-col items-center justify-center text-[11px] font-semibold tracking-[0.12em] text-slate-300 transition-all duration-200 hover:text-white",
                     isActive && "player-nav-link-active",
                   )
                 }
