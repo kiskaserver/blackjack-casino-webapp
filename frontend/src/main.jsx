@@ -8,7 +8,7 @@ import { AdminProvider } from "./providers/AdminProvider.jsx"
 import { SettingsProvider } from "./providers/SettingsProvider.jsx"
 import { injectSpeedInsights } from "@vercel/speed-insights"
 import { Analytics } from "@vercel/analytics/react"
-import "../styles/globals.css"
+import "./styles/globals.css"
 
 const enableSpeedInsights = import.meta.env.PROD && import.meta.env.VITE_ENABLE_SPEED_INSIGHTS !== "false"
 const enableVercelAnalytics = import.meta.env.PROD && import.meta.env.VITE_ENABLE_VERCEL_ANALYTICS !== "false"

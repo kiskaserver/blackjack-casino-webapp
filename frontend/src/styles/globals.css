@@ -1,0 +1,2174 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Базовые цвета */
+  --color-primary: #00c6ff;
+  --color-primary-alt: #0b4dff;
+  --color-success: #28f1b9;
+  --color-danger: #ff5f7a;
+  --color-warning: #ffc857;
+  
+  /* Семантические применения */
+  --color-bg-card: rgba(15, 26, 46, 0.6);
+  --color-border-card: rgba(0, 198, 255, 0.1);
+  --color-text-primary: #ffffff;
+  --color-text-secondary: #cbd5f5;
+  --color-text-muted: #94a3b8;
+  
+  /* Существующие переменные темы */
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.145 0 0);
+  --primary: oklch(0.205 0 0);
+  --primary-foreground: oklch(0.985 0 0);
+  --secondary: oklch(0.97 0 0);
+  --secondary-foreground: oklch(0.205 0 0);
+  --muted: oklch(0.97 0 0);
+  --muted-foreground: oklch(0.556 0 0);
+  --accent: oklch(0.97 0 0);
+  --accent-foreground: oklch(0.205 0 0);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.577 0.245 27.325);
+  --border: oklch(0.922 0 0);
+  --input: oklch(0.922 0 0);
+  --ring: oklch(0.708 0 0);
+  --chart-1: oklch(0.646 0.222 41.116);
+  --chart-2: oklch(0.6 0.118 184.704);
+  --chart-3: oklch(0.398 0.07 227.392);
+  --chart-4: oklch(0.828 0.189 84.429);
+  --chart-5: oklch(0.769 0.188 70.08);
+  --radius: 0.625rem;
+  --sidebar: oklch(0.985 0 0);
+  --sidebar-foreground: oklch(0.145 0 0);
+  --sidebar-primary: oklch(0.205 0 0);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.97 0 0);
+  --sidebar-accent-foreground: oklch(0.205 0 0);
+  --sidebar-border: oklch(0.922 0 0);
+  --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+  --background: oklch(0.145 0 0);
+  --foreground: oklch(0.985 0 0);
+  --card: oklch(0.145 0 0);
+  --card-foreground: oklch(0.985 0 0);
+  --popover: oklch(0.145 0 0);
+  --popover-foreground: oklch(0.985 0 0);
+  --primary: oklch(0.985 0 0);
+  --primary-foreground: oklch(0.205 0 0);
+  --secondary: oklch(0.269 0 0);
+  --secondary-foreground: oklch(0.985 0 0);
+  --muted: oklch(0.269 0 0);
+  --muted-foreground: oklch(0.708 0 0);
+  --accent: oklch(0.269 0 0);
+  --accent-foreground: oklch(0.985 0 0);
+  --destructive: oklch(0.396 0.141 25.723);
+  --destructive-foreground: oklch(0.637 0.237 25.331);
+  --border: oklch(0.269 0 0);
+  --input: oklch(0.269 0 0);
+  --ring: oklch(0.439 0 0);
+  --chart-1: oklch(0.488 0.243 264.376);
+  --chart-2: oklch(0.696 0.17 162.48);
+  --chart-3: oklch(0.769 0.188 70.08);
+  --chart-4: oklch(0.627 0.265 303.9);
+  --chart-5: oklch(0.645 0.246 16.439);
+  --sidebar: oklch(0.205 0 0);
+  --sidebar-foreground: oklch(0.985 0 0);
+  --sidebar-primary: oklch(0.488 0.243 264.376);
+  --sidebar-primary-foreground: oklch(0.985 0 0);
+  --sidebar-accent: oklch(0.269 0 0);
+  --sidebar-accent-foreground: oklch(0.985 0 0);
+  --sidebar-border: oklch(0.269 0 0);
+  --sidebar-ring: oklch(0.439 0 0);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+/* ============================================================================
+   Базовые стили и сброс
+   ============================================================================ */
+
+* {
+  @apply m-0 p-0;
+  box-sizing: border-box;
+}
+
+html {
+  @apply scroll-smooth;
+}
+
+body {
+  @apply bg-slate-950 text-slate-50 antialiased;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue", sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea,
+select,
+button {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* ============================================================================
+   Утилитарные классы
+   ============================================================================ */
+
+.sr-only {
+  @apply absolute w-px h-px p-0 -m-px overflow-hidden whitespace-nowrap border-0;
+}
+
+.text-balance {
+  text-wrap: balance;
+}
+
+.gpu-accelerated {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* ============================================================================
+   Поддержка prefers-reduced-motion
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+  
+  .firework {
+    display: none !important;
+  }
+  
+  .card,
+  .tg-card,
+  .tg-primary-btn,
+  .tg-secondary-btn {
+    transition: none !important;
+  }
+}
+
+/* ============================================================================
+   Базовые стили с улучшенной производительностью
+   ============================================================================ */
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ============================================================================
+   Экран загрузки
+   ============================================================================ */
+
+.loading-screen {
+  @apply fixed inset-0 flex flex-col items-center justify-center bg-slate-950 z-50;
+  background: #0a0e27; /* Fallback для градиента */
+  will-change: opacity;
+}
+
+@supports (background: linear-gradient(135deg, #0a0e27 0%, #1a0a2e 100%)) {
+  .loading-screen {
+    background: linear-gradient(135deg, #0a0e27 0%, #1a0a2e 100%);
+  }
+}
+
+.loading-spinner {
+  @apply w-16 h-16 border-4 border-slate-800 border-t-cyan-400 rounded-full animate-spin;
+  transform: translate3d(0, 0, 0);
+}
+
+.loading-text {
+  @apply mt-6 text-lg font-semibold text-slate-300;
+}
+
+/* ============================================================================
+   Карточки с улучшенной производительностью
+   ============================================================================ */
+
+.tg-card {
+  @apply rounded-2xl transition-all duration-300;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-card);
+  padding: 1.25rem;
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+}
+
+@supports (backdrop-filter: blur(10px)) {
+  .tg-card {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+.tg-card:hover {
+  border-color: rgba(0, 198, 255, 0.2);
+  transform: translate3d(0, -2px, 0);
+}
+
+/* Fallback для мобильных устройств */
+@media (max-width: 768px) {
+  .tg-card {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: rgba(15, 26, 46, 0.9);
+  }
+}
+
+/* ============================================================================
+   Кнопки с улучшенной доступностью
+   ============================================================================ */
+
+.tg-primary-btn {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-alt) 100%);
+  color: #ffffff;
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 8px 16px rgba(0, 198, 255, 0.3);
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.tg-primary-btn:hover:not(:disabled) {
+  transform: translate3d(0, -2px, 0);
+  box-shadow: 0 12px 24px rgba(0, 198, 255, 0.4);
+}
+
+.tg-primary-btn:active:not(:disabled) {
+  transform: translate3d(0, 0, 0);
+}
+
+.tg-primary-btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.tg-primary-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.tg-secondary-btn {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200;
+  background: rgba(15, 26, 46, 0.8);
+  color: var(--color-primary);
+  border: 1.5px solid rgba(0, 198, 255, 0.3);
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.tg-secondary-btn:hover:not(:disabled) {
+  background: rgba(0, 198, 255, 0.1);
+  border-color: rgba(0, 198, 255, 0.6);
+}
+
+.tg-secondary-btn:active:not(:disabled) {
+  background: rgba(0, 198, 255, 0.2);
+}
+
+.tg-secondary-btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.tg-secondary-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.tg-danger-btn {
+  @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200;
+  background: rgba(255, 95, 122, 0.15);
+  color: var(--color-danger);
+  border: 1.5px solid rgba(255, 95, 122, 0.3);
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.tg-danger-btn:hover:not(:disabled) {
+  background: rgba(255, 95, 122, 0.25);
+  border-color: rgba(255, 95, 122, 0.6);
+}
+
+.tg-danger-btn:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.tg-danger-btn:focus-visible {
+  outline: 2px solid var(--color-danger);
+  outline-offset: 2px;
+}
+
+/* Состояние загрузки для кнопок */
+.tg-btn-loading {
+  position: relative;
+  color: transparent !important;
+}
+
+.tg-btn-loading::after {
+  content: '';
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* ============================================================================
+   Навигация с улучшенной сенсорной поддержкой
+   ============================================================================ */
+
+.tg-nav-link {
+  @apply relative flex flex-col items-center justify-center gap-1 px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 text-slate-300;
+  border: 1px solid transparent;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.tg-nav-link:hover {
+  @apply text-slate-100;
+  background: rgba(0, 198, 255, 0.05);
+}
+
+.tg-nav-link.active {
+  @apply text-white;
+  background: linear-gradient(135deg, rgba(0, 198, 255, 0.2) 0%, rgba(11, 77, 255, 0.2) 100%);
+  border-color: rgba(0, 198, 255, 0.3);
+  box-shadow: 0 8px 16px rgba(0, 198, 255, 0.15);
+}
+
+.tg-nav-link:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.tg-player-nav-link {
+  gap: 0.15rem;
+  line-height: 1;
+  min-width: 3.1rem;
+  min-height: 2.6rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 0.75rem;
+  background: rgba(6, 14, 32, 0.45);
+  border: 1px solid rgba(0, 198, 255, 0.1);
+  box-shadow: 0 4px 12px rgba(3, 10, 22, 0.35);
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.tg-player-nav-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.35rem;
+  height: 1.35rem;
+  border-radius: 0.65rem;
+  margin-bottom: 0.02rem;
+  background: linear-gradient(145deg, rgba(0, 198, 255, 0.16), rgba(11, 77, 255, 0.2));
+  border: 1px solid rgba(0, 198, 255, 0.18);
+  box-shadow: inset 0 2px 4px rgba(255, 255, 255, 0.08), 0 5px 10px rgba(0, 198, 255, 0.12);
+  font-size: 0.82rem;
+  line-height: 1;
+}
+
+.tg-player-nav-label {
+  font-size: 0.58rem;
+  line-height: 1.05;
+  letter-spacing: 0.07em;
+}
+
+.tg-player-nav-link:hover {
+  border-color: rgba(0, 198, 255, 0.38);
+  background: rgba(0, 198, 255, 0.12);
+  box-shadow: 0 14px 32px rgba(0, 198, 255, 0.18);
+}
+
+.tg-player-nav-link:hover .tg-player-nav-icon {
+  box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.12), 0 10px 24px rgba(0, 198, 255, 0.3);
+}
+
+.tg-player-nav-link-active {
+  border-color: rgba(0, 198, 255, 0.55);
+  background: linear-gradient(150deg, rgba(0, 198, 255, 0.28), rgba(11, 77, 255, 0.32));
+  box-shadow: 0 18px 38px rgba(0, 198, 255, 0.28);
+  color: #ffffff;
+}
+
+.tg-player-nav-link-active .tg-player-nav-icon {
+  border-color: rgba(255, 255, 255, 0.35);
+  background: linear-gradient(145deg, rgba(0, 198, 255, 0.35), rgba(11, 77, 255, 0.45));
+}
+
+.tg-player-nav-link-active .tg-player-nav-label {
+  color: #ffffff;
+}
+
+/* ============================================================================
+   Компоненты кошелька
+   ============================================================================ */
+
+.tg-wallet-toggle-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.tg-wallet-toggle {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-width: 7.25rem;
+  padding: 0.65rem 0.9rem;
+  border-radius: 0.9rem;
+  border: 1.5px solid rgba(0, 198, 255, 0.18);
+  background: rgba(12, 24, 44, 0.7);
+  color: var(--color-text-secondary);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.2;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.tg-wallet-toggle:hover:not(:disabled) {
+  background: rgba(0, 198, 255, 0.12);
+  border-color: rgba(0, 198, 255, 0.35);
+  color: #ffffff;
+}
+
+.tg-wallet-toggle:focus-visible {
+  outline: 2px solid rgba(0, 198, 255, 0.5);
+  outline-offset: 2px;
+}
+
+.tg-wallet-toggle.is-active {
+  color: #ffffff;
+  border-color: rgba(0, 198, 255, 0.55);
+  background: linear-gradient(135deg, rgba(0, 198, 255, 0.28) 0%, rgba(11, 77, 255, 0.28) 100%);
+  box-shadow: 0 12px 30px rgba(0, 198, 255, 0.22);
+}
+
+.tg-wallet-toggle:disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+.tg-wallet-toggle-label {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  width: 100%;
+  font-size: 0.9rem;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.tg-wallet-toggle-balance {
+  font-size: 0.68rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.tg-wallet-toggle.is-active .tg-wallet-toggle-balance {
+  color: #e0f2fe;
+}
+
+/* ============================================================================
+   Баланс и заголовки
+   ============================================================================ */
+
+.tg-header-balance-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.5rem;
+  width: 100%;
+  overflow: visible;
+}
+
+.tg-header-balance-pill {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 198, 255, 0.25);
+  background: rgba(12, 24, 44, 0.7);
+  color: var(--color-text-secondary);
+  font-size: 0.68rem;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  min-width: 10rem;
+  flex: 1 1 11rem;
+}
+
+.tg-header-balance-pill .tg-pill-meta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.tg-header-balance-pill.real {
+  border-color: rgba(34, 211, 238, 0.35);
+  background: rgba(8, 145, 178, 0.22);
+  color: #22d3ee;
+}
+
+.tg-header-balance-pill.demo {
+  border-color: rgba(250, 204, 21, 0.35);
+  background: rgba(120, 53, 15, 0.22);
+  color: #facc15;
+}
+
+.tg-header-balance-pill .tg-pill-label {
+  font-weight: 600;
+  letter-spacing: 0.18em;
+}
+
+.tg-header-balance-pill .tg-pill-value {
+  font-size: 0.95rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
+  min-width: 5.6rem;
+  text-align: right;
+}
+
+.tg-header-player-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(0, 198, 255, 0.22);
+  background: rgba(12, 24, 44, 0.65);
+  color: #e2e8f0;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.tg-header-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tg-header-action-button {
+  height: 2.5rem;
+  width: 2.5rem;
+  padding: 0;
+  border-radius: 0.85rem;
+  font-size: 1.05rem;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* ============================================================================
+   Компактные карточки кошелька
+   ============================================================================ */
+
+.tg-wallet-card-compact {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem 1.1rem;
+}
+
+.tg-wallet-card-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.tg-wallet-card-title {
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.tg-wallet-card-subtitle {
+  font-size: 0.7rem;
+  color: #64748b;
+}
+
+.tg-wallet-toggle-group.compact {
+  gap: 0.4rem;
+  justify-content: center;
+}
+
+.tg-wallet-card-compact .tg-wallet-toggle {
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0.45rem 0.9rem;
+  font-size: 0.78rem;
+}
+
+.tg-wallet-card-compact .tg-wallet-toggle-label {
+  font-size: 0.8rem;
+}
+
+/* ============================================================================
+   Статус-бейджи
+   ============================================================================ */
+
+.tg-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 9999px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(11, 23, 45, 0.6);
+  color: var(--color-text-secondary);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.tg-status-badge.success {
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(34, 197, 94, 0.4);
+  color: #4ade80;
+}
+
+.tg-status-badge.warning {
+  background: rgba(245, 158, 11, 0.18);
+  border-color: rgba(245, 158, 11, 0.4);
+  color: #facc15;
+}
+
+.tg-status-badge.info {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: rgba(59, 130, 246, 0.4);
+  color: #93c5fd;
+}
+
+.tg-status-badge.danger {
+  background: rgba(248, 113, 113, 0.18);
+  border-color: rgba(248, 113, 113, 0.4);
+  color: #f87171;
+}
+
+/* ============================================================================
+   Второстепенные кнопки
+   ============================================================================ */
+
+.tg-ghost-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 0.8rem;
+  border: 1px solid rgba(0, 198, 255, 0.25);
+  background: rgba(10, 20, 40, 0.55);
+  color: #67e8f9;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.tg-ghost-button:hover {
+  border-color: rgba(0, 198, 255, 0.55);
+  background: rgba(0, 198, 255, 0.18);
+  color: #ffffff;
+}
+
+.tg-ghost-button:focus-visible {
+  outline: 2px solid rgba(0, 198, 255, 0.45);
+  outline-offset: 2px;
+}
+
+.tg-profile-hint {
+  font-size: 0.78rem;
+  color: var(--color-text-muted);
+}
+
+/* ============================================================================
+   Сообщения и алерты
+   ============================================================================ */
+
+.tg-message {
+  @apply flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium;
+  background: rgba(15, 26, 46, 0.8);
+  color: #a8b5c9;
+  border: 1px solid rgba(100, 150, 200, 0.2);
+}
+
+.tg-message.error {
+  @apply text-red-300;
+  background: rgba(255, 95, 122, 0.1);
+  border-color: rgba(255, 95, 122, 0.3);
+}
+
+.tg-message.success {
+  @apply text-green-300;
+  background: rgba(40, 241, 185, 0.1);
+  border-color: rgba(40, 241, 185, 0.3);
+}
+
+.tg-message.warning {
+  @apply text-yellow-300;
+  background: rgba(255, 200, 87, 0.1);
+  border-color: rgba(255, 200, 87, 0.3);
+}
+
+.tg-alert {
+  @apply flex items-center gap-2 px-4 py-3 rounded-xl font-medium;
+  background: rgba(15, 26, 46, 0.8);
+  color: #a8b5c9;
+  border: 1px solid rgba(100, 150, 200, 0.2);
+}
+
+.tg-alert.error {
+  @apply text-red-400;
+  background: rgba(255, 95, 122, 0.15);
+  border-color: rgba(255, 95, 122, 0.4);
+}
+
+.tg-alert.success {
+  @apply text-green-400;
+  background: rgba(40, 241, 185, 0.15);
+  border-color: rgba(40, 241, 185, 0.4);
+}
+
+.tg-alert-warning {
+  color: #ffe087;
+  background: rgba(255, 200, 87, 0.12);
+  border: 1px solid rgba(255, 200, 87, 0.35);
+}
+
+/* ============================================================================
+   Элементы форм с улучшенной валидацией
+   ============================================================================ */
+
+.tg-form-input[type="text"],
+.tg-form-input[type="email"],
+.tg-form-input[type="password"],
+.tg-form-input[type="number"],
+.tg-form-textarea,
+.tg-form-select {
+  @apply w-full px-4 py-3 rounded-xl text-base font-medium transition-all duration-200;
+  background: rgba(15, 26, 46, 0.6);
+  color: #ffffff;
+  border: 1.5px solid rgba(0, 198, 255, 0.2);
+  font-family: inherit;
+  min-height: 44px;
+}
+
+.tg-form-input:focus,
+.tg-form-textarea:focus,
+.tg-form-select:focus {
+  outline: none;
+  border-color: rgba(0, 198, 255, 0.6);
+  background: rgba(15, 26, 46, 0.8);
+  box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.1);
+}
+
+.tg-form-input::placeholder,
+.tg-form-textarea::placeholder {
+  color: #7a8a9f;
+}
+
+/* Состояния валидации */
+.tg-form-input:invalid,
+.tg-form-textarea:invalid,
+.tg-form-select:invalid {
+  border-color: rgba(255, 95, 122, 0.4);
+  background: rgba(255, 95, 122, 0.05);
+}
+
+.tg-form-input:valid,
+.tg-form-textarea:valid,
+.tg-form-select:valid {
+  border-color: rgba(40, 241, 185, 0.4);
+}
+
+.tg-range-input[type="range"] {
+  @apply w-full h-2 rounded-full bg-slate-800 appearance-none cursor-pointer transition-all;
+  accent-color: var(--color-primary);
+  min-height: 44px;
+}
+
+.tg-range-input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  @apply w-5 h-5 rounded-full bg-cyan-400 cursor-pointer shadow-lg transition-all;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.tg-range-input[type="range"]::-moz-range-thumb {
+  @apply w-5 h-5 rounded-full bg-cyan-400 cursor-pointer shadow-lg border-0 transition-all;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.tg-checkbox-input[type="checkbox"],
+.tg-radio-input[type="radio"] {
+  @apply cursor-pointer accent-cyan-400;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+/* ============================================================================
+   Таблицы
+   ============================================================================ */
+
+.tg-table-container {
+  @apply w-full overflow-x-auto rounded-lg;
+  border: 1px solid rgba(0, 198, 255, 0.1);
+  -webkit-overflow-scrolling: touch;
+}
+
+.tg-table {
+  @apply w-full border-collapse text-sm;
+}
+
+.tg-table thead {
+  @apply bg-slate-800/50;
+}
+
+.tg-table th {
+  @apply px-4 py-3 text-left font-semibold text-slate-200 border-b border-slate-700/50;
+}
+
+.tg-table td {
+  @apply px-4 py-3 border-b border-slate-700/30 text-slate-300;
+}
+
+.tg-table tbody tr:hover {
+  @apply bg-slate-800/20;
+}
+
+.tg-table-cell-empty {
+  @apply text-center text-slate-500 py-6;
+}
+
+.tg-metric-title {
+  @apply text-sm font-semibold text-slate-200 mb-2;
+}
+
+.tg-metric-value {
+  @apply text-2xl font-bold text-cyan-400;
+}
+
+.tg-metric-hint {
+  @apply text-xs text-slate-500 block mt-1;
+}
+
+/* ============================================================================
+   Игровые компоненты
+   ============================================================================ */
+
+.tg-game-message {
+  @apply text-center text-lg font-bold py-4 px-4 rounded-xl;
+  color: #a8b5c9;
+  background: rgba(15, 26, 46, 0.6);
+}
+
+.tg-game-message.success {
+  @apply text-green-400;
+  background: rgba(40, 241, 185, 0.1);
+}
+
+.tg-game-message.error {
+  @apply text-red-400;
+  background: rgba(255, 95, 122, 0.1);
+}
+
+.tg-cards-container {
+  @apply flex flex-wrap gap-3 items-center justify-center min-h-[140px];
+}
+
+.tg-cards-container .tg-card {
+  @apply relative w-20 h-28 rounded-lg flex items-center justify-center font-bold text-xl transition-all duration-200 cursor-default;
+  background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
+  color: #000;
+  border: 2px solid #333;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.tg-cards-container .tg-card.red {
+  color: #ff0000;
+}
+
+.tg-cards-container .tg-card.black {
+  color: #000000;
+}
+
+.tg-cards-container .tg-card-back {
+  @apply w-20 h-28 rounded-lg flex items-center justify-center font-bold text-3xl;
+  background: linear-gradient(135deg, #0066cc 0%, #003399 100%);
+  border: 2px solid #001a66;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+  color: #00ffff;
+}
+
+.tg-cards-container .tg-card-value {
+  @apply absolute top-1 left-1 text-xs font-bold;
+}
+
+.tg-cards-container .tg-card-suit {
+  @apply absolute bottom-1 right-1 text-xs;
+}
+
+.tg-score-value {
+  @apply text-2xl font-bold text-cyan-400;
+}
+
+.tg-game-controls {
+  @apply flex flex-col gap-3;
+}
+
+.tg-action-buttons {
+  @apply flex flex-col gap-2;
+}
+
+/* ============================================================================
+   Честность и статистика
+   ============================================================================ */
+
+.tg-fairness-section {
+  @apply rounded-2xl overflow-hidden transition-all duration-300;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-card);
+  will-change: transform, opacity;
+  transform: translate3d(0, 0, 0);
+}
+
+@supports (backdrop-filter: blur(10px)) {
+  .tg-fairness-section {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+.tg-fairness-toggle {
+  @apply w-full flex items-center justify-between gap-3 px-4 py-3 font-semibold text-slate-200;
+  background: rgba(0, 198, 255, 0.05);
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 44px;
+}
+
+.tg-fairness-toggle:hover {
+  background: rgba(0, 198, 255, 0.15);
+}
+
+.tg-fairness-toggle-icon {
+  @apply text-lg shrink-0;
+}
+
+.tg-fairness-toggle-text {
+  @apply flex-1 text-left;
+}
+
+.tg-fairness-toggle-arrow {
+  @apply shrink-0 transition-transform duration-300;
+}
+
+.tg-fairness-content {
+  @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 p-4;
+}
+
+.tg-fairness-card {
+  @apply flex flex-col gap-2 p-3 rounded-lg;
+  background: rgba(0, 198, 255, 0.08);
+  border: 1px solid rgba(0, 198, 255, 0.2);
+}
+
+.tg-fairness-card-target {
+  border-color: rgba(40, 241, 185, 0.4);
+  background: rgba(40, 241, 185, 0.08);
+}
+
+.tg-fairness-label {
+  @apply text-xs font-medium text-slate-400;
+}
+
+.tg-fairness-value {
+  @apply text-xl font-bold text-cyan-400;
+}
+
+.tg-fairness-note {
+  @apply text-xs text-slate-500;
+}
+
+.tg-balance-card {
+  @apply flex flex-col gap-0.5 px-3.5 py-2.5 rounded-xl;
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border-card);
+}
+
+.tg-balance-card-toolbar {
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-end;
+  flex-wrap: nowrap;
+  gap: 0.5rem;
+}
+
+.tg-balance-card-real {
+  border-color: rgba(0, 198, 255, 0.2);
+  background: rgba(0, 198, 255, 0.08);
+}
+
+.tg-balance-card-demo {
+  border-color: rgba(255, 200, 87, 0.2);
+  background: rgba(255, 200, 87, 0.08);
+}
+
+.tg-balance-label {
+  @apply text-xs font-semibold uppercase tracking-widest text-slate-400;
+}
+
+/* ============================================================================
+   Модальные окна с улучшенной анимацией
+   ============================================================================ */
+
+.tg-modal {
+  @apply fixed inset-0 flex items-end z-50 pointer-events-none;
+}
+
+.tg-modal.open {
+  @apply pointer-events-auto;
+}
+
+.tg-modal-overlay {
+  @apply fixed inset-0 bg-black/65 z-40 pointer-events-auto;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  animation: tg-fadeIn 0.3s ease-out;
+}
+
+.tg-modal-content {
+  @apply w-full max-h-[90vh] overflow-y-auto rounded-t-3xl flex flex-col pointer-events-auto;
+  background: rgba(15, 26, 46, 0.95);
+  border-top: 1px solid rgba(0, 198, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  animation: tg-slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  position: relative;
+  z-index: 50;
+  box-shadow: 0 -20px 45px rgba(2, 10, 25, 0.35);
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+@keyframes tg-slideUp {
+  from {
+    transform: translate3d(0, 100%, 0);
+    opacity: 0;
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+    opacity: 1;
+  }
+}
+
+@keyframes tg-fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.tg-modal-header {
+  @apply flex items-center justify-between gap-3 px-6 py-4 border-b border-slate-700/50;
+}
+
+.tg-modal-header h2,
+.tg-modal-header h3 {
+  @apply text-xl font-bold text-white flex-1;
+}
+
+.tg-close-btn {
+  @apply flex items-center justify-center w-10 h-10 rounded-xl text-lg transition-all shrink-0;
+  background: rgba(0, 198, 255, 0.1);
+  border: 1px solid rgba(0, 198, 255, 0.2);
+  color: var(--color-primary);
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.tg-close-btn:hover {
+  background: rgba(0, 198, 255, 0.2);
+}
+
+.tg-close-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.tg-modal-body {
+  @apply flex-1 overflow-y-auto px-6 py-4 space-y-4;
+  -webkit-overflow-scrolling: touch;
+}
+
+.tg-modal-footer {
+  @apply flex items-center justify-end gap-2 px-6 py-4 border-t border-slate-700/50;
+}
+
+.tg-modal-btn {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all;
+  background: rgba(15, 26, 46, 0.8);
+  color: #a8b5c9;
+  border: 1px solid rgba(100, 150, 200, 0.2);
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.tg-modal-btn:hover {
+  background: rgba(0, 198, 255, 0.15);
+  color: var(--color-primary);
+}
+
+.tg-modal-btn.primary {
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-alt) 100%);
+  color: #ffffff;
+  border: none;
+}
+
+.tg-modal-btn.secondary {
+  background: rgba(0, 198, 255, 0.1);
+  color: var(--color-primary);
+  border: 1px solid rgba(0, 198, 255, 0.3);
+}
+
+.tg-modal-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ============================================================================
+   Анимация фейерверков с аппаратным ускорением
+   ============================================================================ */
+
+.tg-firework {
+  @apply fixed rounded-full pointer-events-none;
+  width: 8px;
+  height: 8px;
+  animation: tg-explode 1.2s ease-out forwards;
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+}
+
+@keyframes tg-explode {
+  0% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(0.8);
+  }
+  60% {
+    opacity: 1;
+    transform: translate3d(var(--tx), var(--ty), 0) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translate3d(calc(var(--tx) * 1.2), calc(var(--ty) * 1.2), 0) scale(0.6);
+  }
+}
+
+/* ============================================================================
+   Утилиты компоновки
+   ============================================================================ */
+
+.tg-flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.tg-flex-row {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.tg-gap-15 {
+  gap: 3.75rem;
+}
+
+.tg-w-180 {
+  width: 180px;
+}
+
+.tg-volume-slider {
+  width: 100%;
+  height: 0.5rem;
+  border-radius: 9999px;
+  appearance: none;
+  cursor: pointer;
+  background: linear-gradient(to right, #1a2844 0%, #1a2844 100%);
+  accent-color: var(--color-primary);
+  min-height: 44px;
+}
+
+.tg-volume-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 9999px;
+  background: #22d3ee;
+  box-shadow: 0 10px 25px rgba(34, 211, 238, 0.35);
+  transition: transform 0.15s ease;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.tg-volume-slider::-webkit-slider-thumb:active {
+  transform: scale(0.95);
+}
+
+.tg-volume-slider::-moz-range-thumb {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 9999px;
+  background: #22d3ee;
+  border: 0;
+  box-shadow: 0 10px 25px rgba(34, 211, 238, 0.35);
+  transition: transform 0.15s ease;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.tg-volume-slider::-moz-range-thumb:active {
+  transform: scale(0.95);
+}
+
+/* ============================================================================
+   Статистика и сетки
+   ============================================================================ */
+
+.tg-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.tg-stat-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 198, 255, 0.15);
+  background: rgba(12, 24, 44, 0.7);
+  box-shadow: 0 12px 28px rgba(5, 15, 35, 0.25);
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.tg-stat-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #67e3ff;
+}
+
+.tg-stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #22d3ee;
+}
+
+.tg-stat-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+}
+
+.tg-achievement-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(40, 241, 185, 0.25);
+  background: rgba(40, 241, 185, 0.1);
+}
+
+.tg-achievement-title {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #67e3ff;
+}
+
+.tg-achievement-desc {
+  font-size: 0.75rem;
+  color: var(--color-text-muted);
+}
+
+.tg-achievement-points {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4ade80;
+}
+
+.tg-stats-loading {
+  border-radius: 1rem;
+  border: 1px solid rgba(30, 41, 59, 0.6);
+  background: rgba(15, 23, 42, 0.6);
+  padding: 1.5rem 1rem;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+
+@supports (backdrop-filter: blur(12px)) {
+  .tg-stats-loading {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+.tg-stats-error {
+  color: var(--color-danger);
+  background: rgba(255, 95, 122, 0.1);
+  border: 1px solid rgba(255, 95, 122, 0.25);
+}
+
+/* ============================================================================
+   Контейнеры страниц
+   ============================================================================ */
+
+.tg-history-container,
+.tg-payments-container,
+.tg-verification-page {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.tg-page-section,
+.tg-payment-section,
+.tg-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  padding: 1.25rem;
+  border-radius: 0.875rem;
+  border: 1px solid var(--color-border-card);
+  background: var(--color-bg-card);
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+@supports (backdrop-filter: blur(12px)) {
+  .tg-page-section,
+  .tg-payment-section,
+  .tg-form-group {
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+  }
+}
+
+.tg-page-section-title,
+.tg-payment-section > h2 {
+  font-size: 1.125rem;
+  line-height: 1.625rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.tg-table-wrapper {
+  overflow-x: auto;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(15, 35, 64, 0.35);
+  background: rgba(12, 24, 44, 0.5);
+  -webkit-overflow-scrolling: touch;
+}
+
+@supports (backdrop-filter: blur(10px)) {
+  .tg-table-wrapper {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+  }
+}
+
+.tg-table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.82rem;
+  color: #d1d9e5;
+}
+
+.tg-table-wrapper th {
+  background: rgba(8, 20, 40, 0.6);
+  padding: 0.65rem 0.85rem;
+  text-align: left;
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.tg-table-wrapper td {
+  padding: 0.65rem 0.85rem;
+  color: var(--color-text-secondary);
+  border-top: 1px solid rgba(30, 50, 80, 0.6);
+}
+
+.tg-table-wrapper tbody tr:hover {
+  background: rgba(30, 64, 116, 0.2);
+}
+
+.tg-table-heading {
+  margin-bottom: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.tg-table-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 0 0.25rem;
+}
+
+.tg-table-controls .tg-table-heading {
+  margin-bottom: 0;
+}
+
+.tg-table-controls-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tg-table-count {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.tg-table-pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.tg-pagination-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 198, 255, 0.25);
+  background: rgba(10, 20, 40, 0.6);
+  color: #e2e8f0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  min-height: 44px;
+  min-width: 44px;
+}
+
+.tg-pagination-button:hover:not(:disabled) {
+  border-color: rgba(0, 198, 255, 0.5);
+  background: rgba(0, 198, 255, 0.18);
+  color: #ffffff;
+}
+
+.tg-pagination-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tg-pagination-select {
+  min-width: 4.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 198, 255, 0.2);
+  background: rgba(10, 20, 40, 0.75);
+  color: #e2e8f0;
+  padding: 0.4rem 0.7rem;
+  font-size: 0.8rem;
+  min-height: 44px;
+}
+
+.tg-pagination-info {
+  font-size: 0.72rem;
+  color: var(--color-text-muted);
+}
+
+.tg-table-cell-right {
+  text-align: right;
+}
+
+.tg-table-cell-emoji {
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", sans-serif;
+}
+
+.tg-table-cell-positive {
+  color: var(--color-success);
+}
+
+.tg-table-cell-negative {
+  color: var(--color-danger);
+}
+
+.tg-table-cell-flex-col {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tg-font-weight-600 {
+  font-weight: 600;
+}
+
+.tg-stat-value.positive,
+.tg-stat-row .tg-stat-value.positive {
+  color: var(--color-success);
+}
+
+.tg-stat-value.negative,
+.tg-stat-row .tg-stat-value.negative {
+  color: var(--color-danger);
+}
+
+.tg-stat-value.warning,
+.tg-stat-row .tg-stat-value.warning {
+  color: var(--color-warning);
+}
+
+.tg-stat-divider {
+  border-top: 1px solid rgba(71, 85, 105, 0.5);
+  padding-top: 0.5rem;
+}
+
+/* ============================================================================
+   Формы и вводы
+   ============================================================================ */
+
+.tg-form-field,
+.tg-form-label-group,
+.tg-form-label-group-wide {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+}
+
+.tg-form-field-label,
+.tg-form-label,
+.tg-input-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+
+.tg-form-input,
+.tg-form-select,
+.tg-form-field input,
+.tg-form-field select,
+.tg-form-field textarea,
+.tg-form-label-group input,
+.tg-form-label-group select,
+.tg-form-label-group textarea,
+.tg-form-label-group-wide input,
+.tg-form-label-group-wide select,
+.tg-form-label-group-wide textarea,
+.tg-input-group textarea,
+.tg-input-group input,
+.tg-input-group select {
+  width: 100%;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 198, 255, 0.2);
+  background: rgba(10, 18, 36, 0.75);
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  color: #f8fafc;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  min-height: 44px;
+}
+
+.tg-form-input:focus,
+.tg-form-select:focus,
+.tg-form-field input:focus,
+.tg-form-field select:focus,
+.tg-form-field textarea:focus,
+.tg-form-label-group input:focus,
+.tg-form-label-group select:focus,
+.tg-form-label-group textarea:focus,
+.tg-form-label-group-wide input:focus,
+.tg-form-label-group-wide select:focus,
+.tg-form-label-group-wide textarea:focus,
+.tg-input-group textarea:focus,
+.tg-input-group input:focus,
+.tg-input-group select:focus {
+  border-color: rgba(0, 198, 255, 0.6);
+  box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.18);
+  outline: none;
+}
+
+.tg-form-field textarea,
+.tg-form-label-group textarea,
+.tg-form-label-group-wide textarea,
+.tg-input-group textarea {
+  min-height: 6rem;
+}
+
+.tg-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tg-verification-status {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tg-verification-status-text {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: #e2e8f0;
+}
+
+.tg-status-label {
+  font-weight: 600;
+  color: var(--color-text-secondary);
+}
+
+.tg-status-value {
+  font-weight: 600;
+}
+
+.tg-status-value.verified {
+  color: var(--color-success);
+}
+
+.tg-status-value.pending {
+  color: var(--color-warning);
+}
+
+.tg-verification-request {
+  background: rgba(10, 18, 36, 0.75);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.tg-request-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #ffffff;
+}
+
+.tg-request-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.tg-request-row {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.tg-request-label {
+  font-size: 0.75rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.tg-request-value {
+  font-size: 0.875rem;
+  color: #e2e8f0;
+}
+
+.tg-request-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 198, 255, 0.2);
+  background: rgba(0, 198, 255, 0.08);
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.tg-request-status.approved {
+  color: var(--color-success);
+}
+
+.tg-request-status.rejected {
+  color: var(--color-danger);
+}
+
+.tg-request-status.pending,
+.tg-request-status.resubmit {
+  color: var(--color-warning);
+}
+
+.tg-no-requests,
+.tg-verification-hint {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+}
+
+/* ============================================================================
+   Платежи и вывод средств
+   ============================================================================ */
+
+.tg-payment-form,
+.tg-withdrawal-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.tg-payment-success {
+  margin-top: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 198, 255, 0.2);
+  background: rgba(0, 198, 255, 0.08);
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  color: #8be9ff;
+  word-break: break-word;
+}
+
+.tg-payment-success a {
+  color: #63c5ff;
+  text-decoration: underline;
+}
+
+.tg-payment-btn {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #ffffff;
+  background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-alt) 100%);
+  box-shadow: 0 10px 22px rgba(0, 198, 255, 0.3);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+  min-height: 44px;
+  transform: translate3d(0, 0, 0);
+  will-change: transform;
+}
+
+.tg-payment-btn:hover:not(:disabled) {
+  transform: translate3d(0, -2px, 0);
+  box-shadow: 0 14px 28px rgba(0, 198, 255, 0.35);
+}
+
+.tg-payment-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.tg-payment-btn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.tg-withdrawal-method-section {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.tg-withdrawal-crypto-fields {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.tg-form-label-group-wide {
+  grid-column: span 1;
+}
+
+.tg-withdrawal-urgent-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(0, 198, 255, 0.2);
+  background: rgba(12, 24, 44, 0.7);
+  padding: 0.625rem 0.75rem;
+  min-height: 44px;
+}
+
+.tg-withdrawal-urgent-text {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================================
+   Медиа-запросы для адаптивности
+   ============================================================================ */
+
+@media (max-width: 767px) {
+  /* Мобильные стили с улучшенной сенсорной поддержкой */
+  .tg-header-balance-row {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.35rem;
+    overflow: visible;
+    justify-content: center;
+  }
+
+  .tg-header-balance-pill {
+    min-width: 6.2rem;
+    max-width: 45%;
+    padding: 0.28rem 0.5rem;
+    flex: 0 1 auto;
+    box-sizing: border-box;
+  }
+
+  .tg-header-balance-pill .tg-pill-meta {
+    gap: 0.22rem;
+  }
+
+  .tg-header-balance-pill .tg-pill-meta span[aria-hidden] {
+    font-size: 0.9rem;
+    line-height: 1;
+  }
+
+  .tg-header-balance-pill .tg-pill-value {
+    display: inline-block;
+    max-width: 5.1rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+    font-size: 0.88rem;
+  }
+
+  .tg-header-balance-pill .tg-pill-label {
+    font-size: 0.68rem;
+  }
+
+  .tg-player-nav-bar {
+    justify-content: center;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+
+  /* Отключить дорогие эффекты на мобильных */
+  .tg-card,
+  .tg-modal-content,
+  .tg-fairness-section {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+
+  .tg-header-balance-pill {
+    max-width: 48%;
+  }
+
+  .tg-header-balance-pill .tg-pill-value {
+    min-width: 0 !important;
+    max-width: 5.1rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-align: right !important;
+  }
+}
+
+@media (min-width: 768px) {
+  .tg-header-balance-row {
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    gap: 0.65rem;
+  }
+
+  .tg-header-balance-pill {
+    flex: 0 0 12.25rem;
+    min-width: auto;
+  }
+
+  .tg-stats-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tg-withdrawal-method-section {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tg-withdrawal-crypto-fields {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .tg-form-label-group-wide {
+    grid-column: span 2;
+  }
+}
+
+@media (min-width: 1024px) {
+  .tg-player-nav-bar {
+    gap: 0.35rem;
+    padding: 0.45rem 0.9rem;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 28rem;
+  }
+
+  .tg-player-nav-link {
+    min-width: 2.8rem;
+    min-height: 2.4rem;
+    padding: 0.35rem 0.5rem;
+  }
+
+  .tg-player-nav-icon {
+    width: 1.15rem;
+    height: 1.15rem;
+    font-size: 0.7rem;
+  }
+
+  .tg-player-nav-label {
+    font-size: 0.5rem;
+    letter-spacing: 0.055em;
+  }
+
+  .tg-header-balance-row {
+    gap: 0.85rem;
+  }
+
+  .tg-header-balance-pill {
+    flex: 0 0 13rem;
+  }
+
+  .tg-stats-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .tg-header-balance-pill {
+    flex: 0 0 13.75rem;
+  }
+}
+
+/* ============================================================================
+   Поддержка браузеров без backdrop-filter
+   ============================================================================ */
+
+@supports not (backdrop-filter: blur(10px)) {
+  .tg-card,
+  .tg-modal-content,
+  .tg-fairness-section,
+  .tg-page-section,
+  .tg-payment-section,
+  .tg-form-group,
+  .tg-table-wrapper,
+  .tg-stats-loading {
+    background: rgba(15, 26, 46, 0.95);
+  }
+}
+
+/* ============================================================================
+   Цветовые схемы для системных предпочтений
+   ============================================================================ */
+
+html,
+body,
+:root {
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: light) {
+  html,
+  body,
+  :root {
+    color-scheme: light;
+  }
+}
+
+/* ============================================================================
+   Обеспечение обратной совместимости со старыми классами
+   ============================================================================ */
+
+/* Старые классы для обратной совместимости */
+.card {
+  composes: tg-card;
+}
+
+.primary {
+  composes: tg-primary-btn;
+}
+
+.secondary {
+  composes: tg-secondary-btn;
+}
+
+.danger {
+  composes: tg-danger-btn;
+}
+
+.nav-link {
+  composes: tg-nav-link;
+}
+
+.player-nav-link {
+  composes: tg-player-nav-link;
+}
+
+.wallet-toggle {
+  composes: tg-wallet-toggle;
+}
+
+.header-balance-pill {
+  composes: tg-header-balance-pill;
+}
+
+.status-badge {
+  composes: tg-status-badge;
+}
+
+.modal {
+  composes: tg-modal;
+}
+
+.firework {
+  composes: tg-firework;
+}
+
+/* Обеспечиваем, что старые классы все еще работают */
+.card,
+.primary,
+.secondary,
+.danger,
+.nav-link,
+.player-nav-link,
+.wallet-toggle,
+.header-balance-pill,
+.status-badge,
+.modal,
+.firework {
+  /* Стили применятся через composes */
+}
