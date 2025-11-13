@@ -120,13 +120,17 @@ export const PlayerLayout = () => {
               <div className="flex w-full flex-col gap-2 lg:w-auto lg:items-end">
                 <div className="header-balance-row">
                   <div className="header-balance-pill real" aria-label="Реальный счёт">
-                    <span aria-hidden>💎</span>
-                    <span className="pill-label">Реальный</span>
+                    <span className="pill-meta">
+                      <span aria-hidden>💎</span>
+                      <span className="pill-label">Реальный</span>
+                    </span>
                     <span className="pill-value">{formattedReal}</span>
                   </div>
                   <div className="header-balance-pill demo" aria-label="Демо счёт">
-                    <span aria-hidden>🎮</span>
-                    <span className="pill-label">Демо</span>
+                    <span className="pill-meta">
+                      <span aria-hidden>🎮</span>
+                      <span className="pill-label">Демо</span>
+                    </span>
                     <span className="pill-value">{formattedDemo}</span>
                   </div>
                 </div>
