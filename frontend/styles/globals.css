@@ -431,23 +431,40 @@ button {
 }
 
 @media (max-width: 767px) {
+  /* Keep pills compact horizontally on mobile, allow scrolling if needed */
   .header-balance-row {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
+    flex-direction: row;
+    align-items: center;
+    gap: 0.4rem;
+    overflow-x: auto;
+    justify-content: flex-end;
   }
+
   .header-balance-pill {
-    min-width: 0;
-    width: 100%;
-    flex: 1 1 100%;
-    max-width: 100%;
-  }
-  .header-balance-pill .pill-value {
-    min-width: 0;
+    min-width: 7.5rem;
     width: auto;
+    flex: 0 0 auto;
+    max-width: 48%;
+    padding: 0.3rem 0.6rem;
+  }
+
+  .header-balance-pill .pill-meta {
+    gap: 0.25rem;
+  }
+
+  .header-balance-pill .pill-meta span[aria-hidden] {
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+
+  .header-balance-pill .pill-value {
+    display: inline-block;
+    max-width: 5.2rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
     text-align: right;
-    overflow-wrap: anywhere;
-    word-break: break-all;
+    font-size: 0.9rem;
   }
 }
 
