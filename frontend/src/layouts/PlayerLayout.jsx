@@ -166,7 +166,7 @@ export const PlayerLayout = () => {
           </header>
 
           {/* Navigation */}
-          <nav className="flex snap-x items-center gap-2 overflow-x-auto rounded-3xl border border-cyan-500/20 bg-slate-950/70 px-4 py-3 backdrop-blur-sm lg:flex-wrap lg:justify-center lg:gap-3 lg:overflow-visible">
+          <nav className="player-nav-bar flex snap-x items-center gap-2 overflow-x-auto rounded-3xl border border-cyan-500/20 bg-slate-950/70 px-4 py-3 backdrop-blur-sm lg:justify-center lg:gap-3 lg:overflow-visible">
             {playerLinks.map((link) => (
               <NavLink
                 key={link.to}

@@ -288,36 +288,36 @@ button {
 }
 
 .player-nav-link {
-  gap: 0.25rem;
+  gap: 0.2rem;
   line-height: 1;
-  min-width: 4.4rem;
-  min-height: 3.65rem;
-  padding: 0.78rem 0.85rem;
-  border-radius: 0.98rem;
+  min-width: 3.4rem;
+  min-height: 2.85rem;
+  padding: 0.55rem 0.65rem;
+  border-radius: 0.85rem;
   background: rgba(6, 14, 32, 0.5);
   border: 1px solid rgba(0, 198, 255, 0.12);
-  box-shadow: 0 8px 20px rgba(3, 10, 22, 0.45);
+  box-shadow: 0 6px 16px rgba(3, 10, 22, 0.4);
 }
 
 .player-nav-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2.05rem;
-  height: 2.05rem;
-  border-radius: 0.85rem;
-  margin-bottom: 0.1rem;
+  width: 1.55rem;
+  height: 1.55rem;
+  border-radius: 0.72rem;
+  margin-bottom: 0.05rem;
   background: linear-gradient(145deg, rgba(0, 198, 255, 0.16), rgba(11, 77, 255, 0.2));
   border: 1px solid rgba(0, 198, 255, 0.22);
-  box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.08), 0 7px 16px rgba(0, 198, 255, 0.14);
-  font-size: 1.12rem;
+  box-shadow: inset 0 2px 5px rgba(255, 255, 255, 0.08), 0 6px 14px rgba(0, 198, 255, 0.14);
+  font-size: 0.95rem;
   line-height: 1;
 }
 
 .player-nav-label {
-  font-size: 0.7rem;
+  font-size: 0.64rem;
   line-height: 1.05;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
 }
 
 .player-nav-link:hover {
@@ -425,7 +425,7 @@ button {
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.6rem;
+  gap: 0.5rem;
   width: 100%;
   overflow: visible;
 }
@@ -433,47 +433,70 @@ button {
 .header-balance-pill {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.4rem 0.8rem;
+  gap: 0.5rem;
+  padding: 0.45rem 0.85rem;
   border-radius: 999px;
   border: 1px solid rgba(0, 198, 255, 0.25);
   background: rgba(12, 24, 44, 0.7);
   color: #cbd5f5;
-  font-size: 0.68rem;
+  font-size: 0.7rem;
   letter-spacing: 0.14em;
   text-transform: uppercase;
   white-space: nowrap;
-  min-width: 11rem;
+  min-width: 10.25rem;
   justify-content: space-between;
-  flex: 1 1 12rem;
+  flex: 1 1 11rem;
 }
 
-@media (min-width: 1024px) {
-  .player-nav-link {
-    min-width: 3.9rem;
-    min-height: 3.4rem;
-    padding: 0.65rem 0.78rem;
-  }
-
-  .player-nav-icon {
-    width: 1.85rem;
-    height: 1.85rem;
-    font-size: 1rem;
-  }
-
-  .player-nav-label {
-    font-size: 0.66rem;
-    letter-spacing: 0.09em;
-  }
-
+@media (min-width: 768px) {
   .header-balance-row {
     flex-wrap: nowrap;
-    gap: 0.75rem;
+    justify-content: flex-end;
+    gap: 0.65rem;
   }
 
   .header-balance-pill {
-    flex: 0 1 auto;
-    min-width: 13rem;
+    flex: 0 0 12.25rem;
+    min-width: auto;
+  }
+}
+
+@media (min-width: 1024px) {
+  .player-nav-bar {
+    gap: 0.45rem;
+    padding: 0.55rem 1.1rem;
+  }
+
+  .player-nav-link {
+    min-width: 3rem;
+    min-height: 2.6rem;
+    padding: 0.45rem 0.55rem;
+    border-radius: 0.75rem;
+  }
+
+  .player-nav-icon {
+    width: 1.35rem;
+    height: 1.35rem;
+    font-size: 0.82rem;
+  }
+
+  .player-nav-label {
+    font-size: 0.56rem;
+    letter-spacing: 0.065em;
+  }
+
+  .header-balance-row {
+    gap: 0.85rem;
+  }
+
+  .header-balance-pill {
+    flex: 0 0 13rem;
+  }
+}
+
+@media (min-width: 1280px) {
+  .header-balance-pill {
+    flex: 0 0 13.75rem;
   }
 }
 
@@ -498,6 +521,8 @@ button {
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.04em;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1, "lnum" 1;
 }
 
 .header-player-chip {
