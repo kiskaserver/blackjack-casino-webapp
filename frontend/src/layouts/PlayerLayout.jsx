@@ -156,7 +156,7 @@ export const PlayerLayout = () => {
           </header>
 
           {/* Navigation */}
-          <nav className="flex snap-x items-center gap-1.5 overflow-x-auto rounded-2xl border border-cyan-500/20 bg-slate-950/70 px-3 py-2 backdrop-blur-sm">
+          <nav className="flex snap-x items-center gap-2 overflow-x-auto rounded-3xl border border-cyan-500/20 bg-slate-950/70 px-4 py-3 backdrop-blur-sm">
             {playerLinks.map((link) => (
               <NavLink
                 key={link.to}
@@ -164,9 +164,8 @@ export const PlayerLayout = () => {
                 end={link.end}
                 className={({ isActive }) =>
                   clsx(
-                    "player-nav-link flex min-w-16 shrink-0 flex-col items-center justify-center rounded-xl border border-transparent px-3 py-2 text-[11px] font-semibold tracking-[0.08em] text-slate-300 transition-all duration-200 hover:bg-cyan-500/10 hover:text-white",
-                    isActive &&
-                      "border-cyan-400/40 bg-cyan-500/20 text-white shadow-[0_6px_18px_rgba(0,198,255,0.18)]",
+                    "player-nav-link flex min-w-[5.5rem] shrink-0 flex-col items-center justify-center text-[11px] font-semibold tracking-[0.12em] text-slate-300 transition-all duration-200 hover:text-white",
+                    isActive && "player-nav-link-active",
                   )
                 }
               >
