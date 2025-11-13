@@ -431,40 +431,53 @@ button {
 }
 
 @media (max-width: 767px) {
-  /* Keep pills compact horizontally on mobile, allow scrolling if needed */
+  /* Mobile: keep pills side-by-side but constrained, center within header */
   .header-balance-row {
     flex-direction: row;
     align-items: center;
-    gap: 0.4rem;
-    overflow-x: auto;
-    justify-content: flex-end;
+    gap: 0.35rem;
+    overflow: visible;
+    justify-content: center;
   }
 
   .header-balance-pill {
-    min-width: 7.5rem;
-    width: auto;
-    flex: 0 0 auto;
-    max-width: 48%;
-    padding: 0.3rem 0.6rem;
+    min-width: 6.2rem;
+    max-width: 45%;
+    padding: 0.28rem 0.5rem;
+    flex: 0 1 auto;
+    box-sizing: border-box;
   }
 
   .header-balance-pill .pill-meta {
-    gap: 0.25rem;
+    gap: 0.22rem;
   }
 
   .header-balance-pill .pill-meta span[aria-hidden] {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     line-height: 1;
   }
 
+  /* Value cell: ensure it truncates instead of overflowing */
   .header-balance-pill .pill-value {
     display: inline-block;
-    max-width: 5.2rem;
+    max-width: 5.1rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     text-align: right;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
+  }
+
+  /* Slightly reduce fonts so pills remain compact on tiny screens */
+  .header-balance-pill .pill-label {
+    font-size: 0.68rem;
+  }
+
+  /* Center the nav on small Telegram webviews too */
+  .player-nav-bar {
+    justify-content: center;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
   }
 }
 
