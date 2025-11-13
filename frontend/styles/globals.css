@@ -471,6 +471,10 @@ button {
   .player-nav-bar {
     gap: 0.35rem;
     padding: 0.45rem 0.9rem;
+    justify-content: center;
+    margin-left: auto;
+    margin-right: auto;
+    max-width: 28rem;
   }
 
   .player-nav-link {
