@@ -430,6 +430,27 @@ button {
   overflow: visible;
 }
 
+@media (max-width: 767px) {
+  .header-balance-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+  .header-balance-pill {
+    min-width: 0;
+    width: 100%;
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+  .header-balance-pill .pill-value {
+    min-width: 0;
+    width: auto;
+    text-align: right;
+    overflow-wrap: anywhere;
+    word-break: break-all;
+  }
+}
+
 .header-balance-pill {
   display: flex;
   align-items: center;
