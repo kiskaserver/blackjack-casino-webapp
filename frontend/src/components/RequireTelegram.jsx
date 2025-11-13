@@ -1,359 +1,391 @@
 "use client"
 
 import { useEffect, useMemo, useState } from "react"
-
 import { useTelegram } from "../providers/TelegramProvider.jsx"
 
 const CTA_DEFAULT_USERNAME = "BlackjackCasinoBot"
 
 const resolveBotUsername = () =>
-	import.meta.env.VITE_TELEGRAM_BOT_USERNAME?.replace(/^@/, "") || CTA_DEFAULT_USERNAME
+  import.meta.env.VITE_TELEGRAM_BOT_USERNAME?.replace(/^@/, "") || CTA_DEFAULT_USERNAME
 
 const buildTelegramLink = () => {
-	const explicitUrl = import.meta.env.VITE_TELEGRAM_BOT_URL
-	if (explicitUrl) {
-		return explicitUrl
-	}
-
-	const username = resolveBotUsername()
-	return `https://t.me/${username}`
+  const explicitUrl = import.meta.env.VITE_TELEGRAM_BOT_URL
+  if (explicitUrl) return explicitUrl
+  return `https://t.me/${resolveBotUsername()}`
 }
 
 const deviceGuides = [
-	{
-		title: "Telegram Desktop",
-		icon: "💻",
-		steps: [
-			"Откройте официальный клиент Telegram Desktop",
-			"Вставьте t.me ссылку в строку поиска",
-			"Нажмите «Открыть Mini App» и подтвердите запуск",
-		],
-	},
-	{
-		title: "Telegram iOS / Android",
-		icon: "📱",
-		steps: [
-			"Тапните по кнопке «Открыть в Telegram»",
-			"Переключитесь в Telegram, если приложение не открылось автоматически",
-			"Подтвердите запуск мини-приложения внутри чата",
-		],
-	},
+  {
+    title: "Telegram Desktop",
+    icon: "💻",
+    steps: [
+      "Откройте официальный клиент Telegram Desktop",
+      "Вставьте ссылку t.me в строку поиска или адресную строку",
+      "Нажмите «Открыть Mini App» и подтвердите запуск",
+    ],
+  },
+  {
+    title: "Telegram iOS / Android",
+    icon: "📱",
+    steps: [
+      "Нажмите кнопку «Открыть в Telegram» ниже",
+      "Если приложение не открылось — переключитесь в Telegram вручную",
+      "Подтвердите запуск мини-приложения в чате с ботом",
+    ],
+  },
 ]
 
 const experienceHighlights = [
-	{
-		icon: "⚡",
-		title: "WebApp моментально",
-		text: "Внутри Telegram WebApp все балансы и раунды синхронизируются мгновенно.",
-	},
-	{
-		icon: "🛡️",
-		title: "Антифрод",
-		text: "Защита аккаунта и токенов, поэтому в браузере доступ ограничен.",
-	},
-	{
-		icon: "📊",
-		title: "Статистика",
-		text: "История, выплаты и пуши доступны только внутри официального бота.",
-	},
-	{
-		icon: "🎧",
-		title: "Поддержка",
-		text: "Уведомления от Stars и Cryptomus приходят прямо в чат с ботом.",
-	},
+  {
+    icon: "⚡",
+    title: "Мгновенная синхронизация",
+    text: "Балансы, раунды и статусы обновляются в реальном времени.",
+  },
+  {
+    icon: "🛡️",
+    title: "Антифрод-защита",
+    text: "Безопасность аккаунта обеспечивается через Telegram initData.",
+  },
+  {
+    icon: "📊",
+    title: "Полная статистика",
+    text: "История ставок, выплаты, рейтинги — только внутри бота.",
+  },
+  {
+    icon: "🔔",
+    title: "Умные уведомления",
+    text: "Пуши от Stars и Cryptomus приходят напрямую в чат.",
+  },
 ]
 
 const faqItems = [
-	{
-		title: "Почему нельзя играть в браузере?",
-		text: "WebApp защищает токены через Telegram.initData — без него нельзя безопасно идентифицировать игрока.",
-	},
-	{
-		title: "Нужно ли устанавливать что-то ещё?",
-		text: "Нет, достаточно официального Telegram клиента на iOS, Android или Desktop.",
-	},
-	{
-		title: "Работает ли демо баланс?",
-		text: "Да, после запуска внутри бота доступны и демо, и реальный кошельки.",
-	},
-	{
-		title: "Можно ли обойтись без Telegram?",
-		text: "Только в режиме разработчика через initData. Для игроков нужен Telegram WebApp.",
-	},
+  {
+    question: "Почему нельзя играть в браузере?",
+    answer:
+      "Для идентификации пользователя и защиты от фрода требуется initData от Telegram WebApp. Без него запуск невозможен по соображениям безопасности.",
+  },
+  {
+    question: "Нужно ли устанавливать что-то дополнительно?",
+    answer:
+      "Нет. Достаточно официального клиента Telegram — на iOS, Android или Desktop. Мини-приложение не требует загрузки.",
+  },
+  {
+    question: "Работает ли демо-режим?",
+    answer:
+      "Да. После запуска в Telegram сразу доступны оба кошелька: демо (для тестов) и реальный (с пополнением через Stars и Cryptomus).",
+  },
+  {
+    question: "Можно ли обойтись без Telegram?",
+    answer:
+      "Только в режиме разработчика — через ручной ввод initData. Для игроков обязательна авторизация через Telegram WebApp.",
+  },
 ]
 
 export const RequireTelegram = () => {
-	const { initDataUnsafe, setInitData } = useTelegram()
+  const { initDataUnsafe, setInitData } = useTelegram()
 
-	const [botLink] = useState(buildTelegramLink)
-	const [botUsername] = useState(resolveBotUsername)
-	const [copyMessage, setCopyMessage] = useState("")
-	const [allowManualInit, setAllowManualInit] = useState(false)
-	const [manualValue, setManualValue] = useState("")
-	const [error, setError] = useState("")
-	const [rawTelegramInitData, setRawTelegramInitData] = useState("")
+  const [botLink] = useState(buildTelegramLink)
+  const [botUsername] = useState(resolveBotUsername)
+  const [copyMessage, setCopyMessage] = useState("")
+  const [allowManualInit, setAllowManualInit] = useState(false)
+  const [manualValue, setManualValue] = useState("")
+  const [error, setError] = useState("")
+  const [rawTelegramInitData, setRawTelegramInitData] = useState("")
 
-	const telegramUser = initDataUnsafe?.user
-	const telegramId = telegramUser?.id
-	const telegramUsername = telegramUser?.username
+  const telegramUser = initDataUnsafe?.user
+  const telegramId = telegramUser?.id
+  const telegramUsername = telegramUser?.username
 
-	const playerLabel = useMemo(() => {
-		if (telegramUsername) {
-			return `@${telegramUsername}`
-		}
-		if (telegramId) {
-			return `ID ${telegramId}`
-		}
-		return "Гость"
-	}, [telegramId, telegramUsername])
+  const playerLabel = useMemo(() => {
+    if (telegramUsername) return `@${telegramUsername}`
+    if (telegramId) return `ID ${telegramId}`
+    return "Гость"
+  }, [telegramId, telegramUsername])
 
-	useEffect(() => {
-		setAllowManualInit(import.meta.env.DEV)
-	}, [])
+  useEffect(() => {
+    setAllowManualInit(import.meta.env.DEV)
+  }, [])
 
-	useEffect(() => {
-		if (typeof window !== "undefined" && window.Telegram?.WebApp?.initData) {
-			setRawTelegramInitData(window.Telegram.WebApp.initData)
-		}
-	}, [])
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.Telegram?.WebApp?.initData) {
+      setRawTelegramInitData(window.Telegram.WebApp.initData)
+    }
+  }, [])
 
-	const handleOpenTelegram = () => {
-		window.open(botLink, "_blank")
-	}
+  const handleOpenTelegram = () => {
+    window.open(botLink, "_blank", "noopener,noreferrer")
+  }
 
-	const handleCopyLink = async () => {
-		if (!navigator?.clipboard) {
-			setCopyMessage(`Скопируйте вручную: ${botLink}`)
-			return
-		}
-		try {
-			await navigator.clipboard.writeText(botLink)
-			setCopyMessage("Ссылка скопирована 👌")
-			setTimeout(() => setCopyMessage(""), 2500)
-		} catch (copyError) {
-			console.error("Не удалось скопировать ссылку", copyError)
-			setCopyMessage("Не вышло автоматически, кликните правой кнопкой")
-		}
-	}
+  const handleCopyLink = async () => {
+    if (!navigator?.clipboard) {
+      setCopyMessage(`Скопируйте вручную: ${botLink}`)
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(botLink)
+      setCopyMessage("✅ Ссылка скопирована!")
+      setTimeout(() => setCopyMessage(""), 3000)
+    } catch (err) {
+      console.error("Copy failed", err)
+      setCopyMessage("❌ Не удалось скопировать. Попробуйте вручную.")
+    }
+  }
 
-	const handleSubmit = (event) => {
-		event.preventDefault()
-		if (!manualValue.trim()) {
-			setError("Вставьте строку initData из Telegram WebApp")
-			return
-		}
-		setError("")
-		setInitData(manualValue.trim())
-	}
+  const handleSubmit = (event) => {
+    event.preventDefault()
+    const value = manualValue.trim()
+    if (!value) {
+      setError("Вставьте корректную строку initData из Telegram WebApp")
+      return
+    }
+    setError("")
+    setInitData(value)
+  }
 
-	return (
-		<div className="relative min-h-screen w-full overflow-hidden bg-slate-950 text-slate-100">
-			<div
-				className="pointer-events-none absolute inset-0 opacity-80"
-				style={{
-					background:
-						"radial-gradient(circle at 10% 20%, rgba(8, 145, 178, 0.28), transparent 55%), radial-gradient(circle at 70% 20%, rgba(14, 116, 144, 0.25), transparent 60%), radial-gradient(circle at 40% 75%, rgba(56, 189, 248, 0.23), transparent 62%)",
-				}}
-			/>
+  return (
+    <div className="min-h-screen bg-linear-to-br from-slate-900 via-slate-950 to-slate-900 text-slate-100">
+      <main className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-8 lg:py-12">
+        {/* Hero */}
+        <section className="mb-16">
+          <div className="text-center">
+            <div className="inline-flex items-center gap-2 rounded-full bg-cyan-500/10 px-4 py-1.5 text-sm font-medium text-cyan-300">
+              <span>🚀 Blackjack Casino</span>
+              <span className="text-xs text-cyan-400">Mini App</span>
+            </div>
+            <h1 className="mt-4 text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">
+              Откройте игру <span className="text-cyan-400">прямо в Telegram</span>
+            </h1>
+            <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-300">
+              Мини-приложение доступно только внутри Telegram. Мы распознали запуск в обычном браузере.
+              <br />
+              Перейдите в Telegram и откройте бота:{" "}
+              <span className="font-mono font-semibold text-cyan-300">@{botUsername}</span>.
+            </p>
+          </div>
 
-			<main className="relative z-10 mx-auto flex w-full max-w-6xl flex-col gap-16 px-4 py-12 sm:px-6 lg:px-10 lg:py-16">
-				<section className="grid gap-10 rounded-[2.5rem] border border-white/5 bg-slate-950/70 p-8 shadow-[0_35px_120px_rgba(8,25,45,0.55)] backdrop-blur-xl lg:grid-cols-[1.05fr_0.95fr]">
-					<div className="flex flex-col gap-6">
-						<div className="inline-flex w-fit items-center gap-3 rounded-full border border-cyan-400/30 bg-cyan-500/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.4em] text-cyan-100">
-							Blackjack Casino
-							<span className="text-xs font-normal text-cyan-200/80">Mini App</span>
-						</div>
-						<div className="space-y-3">
-							<h1 className="text-4xl font-semibold leading-tight text-white sm:text-5xl">
-								Откройте Blackjack прямо в Telegram
-							</h1>
-							<p className="text-lg text-slate-300">
-								Мы распознали запуск в обычном браузере. Мини-приложение работает только внутри Telegram, поэтому подсказываем, как открыть бота
-								{" "}
-								<span className="text-cyan-300 font-semibold">@{botUsername}</span>.
-							</p>
-						</div>
+          {/* CTA Buttons */}
+          <div className="mt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
+            <button
+              type="button"
+              onClick={handleOpenTelegram}
+              className="flex items-center justify-center gap-2 rounded-xl bg-linear-to-r from-cyan-500 to-emerald-500 px-8 py-4 text-lg font-bold text-white shadow-lg transition-all hover:from-cyan-400 hover:to-emerald-400 hover:shadow-cyan-500/30 focus:outline-none focus:ring-2 focus:ring-cyan-400 focus:ring-offset-2 focus:ring-offset-slate-900"
+            >
+              🚀 Открыть в Telegram
+            </button>
+            <button
+              type="button"
+              onClick={handleCopyLink}
+              className="group flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800/60 px-6 py-4 text-lg font-medium text-slate-200 transition hover:bg-slate-700/80 hover:text-white"
+            >
+              <span>🔗 Скопировать ссылку</span>
+              <span className="text-xs font-normal text-slate-400 group-hover:text-slate-300">t.me/{botUsername}</span>
+            </button>
+          </div>
 
-						<div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-							<button type="button" className="primary w-full sm:w-auto" onClick={handleOpenTelegram}>
-								🚀 Открыть в Telegram
-							</button>
-							<button type="button" className="secondary w-full justify-center sm:w-auto" onClick={handleCopyLink}>
-								🔗 Скопировать ссылку
-							</button>
-							<a
-								href={botLink}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="underline-offset-4 text-center text-sm font-semibold text-cyan-300 hover:underline"
-							>
-								💬 Написать @{botUsername}
-							</a>
-						</div>
+          {copyMessage && (
+            <p
+              className={`mt-3 text-center text-sm font-medium ${
+                copyMessage.startsWith("✅") ? "text-emerald-400" : "text-rose-400"
+              }`}
+            >
+              {copyMessage}
+            </p>
+          )}
+        </section>
 
-						{copyMessage && <p className="text-sm text-cyan-200">{copyMessage}</p>}
+        {/* Why Telegram? Highlights */}
+        <section className="mb-16">
+          <h2 className="mb-6 text-center text-2xl font-bold text-white sm:text-3xl">Почему только в Telegram?</h2>
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            {experienceHighlights.map((item, i) => (
+              <div
+                key={i}
+                className="group rounded-2xl border border-slate-800 bg-slate-900/60 p-5 transition hover:border-cyan-500/30 hover:bg-slate-800/50"
+              >
+                <div className="mb-3 flex items-center gap-2 text-xl">
+                  <span className="text-cyan-400">{item.icon}</span>
+                  <h3 className="text-lg font-semibold text-white">{item.title}</h3>
+                </div>
+                <p className="text-sm text-slate-300">{item.text}</p>
+              </div>
+            ))}
+          </div>
+        </section>
 
-						<div className="grid gap-4 sm:grid-cols-2">
-							{experienceHighlights.map(({ icon, title, text }) => (
-								<div key={title} className="rounded-2xl border border-white/5 bg-white/5 p-4">
-									<div className="flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.2em] text-cyan-200">
-										<span>{icon}</span>
-										<span>{title}</span>
-									</div>
-									<p className="mt-2 text-sm text-slate-200">{text}</p>
-								</div>
-							))}
-						</div>
-					</div>
+        {/* Device Guides */}
+        <section className="mb-16">
+          <h2 className="mb-6 text-center text-2xl font-bold text-white">Как открыть?</h2>
+          <div className="grid gap-6 md:grid-cols-2">
+            {deviceGuides.map((guide, i) => (
+              <div key={i} className="rounded-2xl border border-slate-800 bg-slate-900/60 p-6">
+                <div className="mb-4 flex items-center gap-3">
+                  <span className="text-2xl">{guide.icon}</span>
+                  <h3 className="text-xl font-semibold text-white">{guide.title}</h3>
+                </div>
+                <ol className="space-y-3">
+                  {guide.steps.map((step, idx) => (
+                    <li key={idx} className="flex gap-3">
+                      <span className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-cyan-500/15 text-sm font-bold text-cyan-300">
+                        {idx + 1}
+                      </span>
+                      <span className="text-slate-200">{step}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
+            ))}
+          </div>
+        </section>
 
-					<div className="relative">
-						<div className="absolute inset-0 rounded-3xl bg-linear-to-br from-cyan-500/20 via-slate-900/40 to-indigo-500/20 blur-3xl" aria-hidden />
-						<div className="relative flex h-full flex-col justify-between gap-6 rounded-3xl border border-white/10 bg-slate-900/80 p-6 shadow-[0_25px_60px_rgba(8,18,50,0.55)]">
-							<div className="flex items-center justify-between rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm">
-								<div>
-									<p className="text-xs uppercase tracking-[0.28em] text-slate-400">Режим доступа</p>
-									<p className="text-base font-semibold text-white">Telegram WebApp</p>
-								</div>
-								<span className="inline-flex items-center gap-2 rounded-full bg-emerald-500/10 px-3 py-1 text-xs font-semibold text-emerald-300">
-									● Проверено
-								</span>
-							</div>
+        {/* Stats & CTA block */}
+        <section className="mb-16 rounded-3xl border border-slate-800 bg-linear-to-br from-slate-900/70 to-slate-950 p-6 sm:p-8">
+          <div className="grid gap-8 lg:grid-cols-2">
+            <div>
+              <h2 className="text-2xl font-bold text-white sm:text-3xl">🎲 Демо и реальный баланс</h2>
+              <p className="mt-3 text-slate-300">
+                После запуска в Telegram вы получите:
+              </p>
+              <ul className="mt-4 space-y-2 text-slate-200">
+                <li className="flex items-start gap-2">
+                  <span className="mt-1 text-cyan-400">✓</span>
+                  <span>Два кошелька: демо и реальный</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-1 text-cyan-400">✓</span>
+                  <span>Live-статистика и история ставок</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-1 text-cyan-400">✓</span>
+                  <span>Уведомления о выплатах и бонусах</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="mt-1 text-cyan-400">✓</span>
+                  <span>Доступ к Stars и Cryptomus</span>
+                </li>
+              </ul>
+              <div className="mt-6 grid grid-cols-2 gap-4">
+                <div className="rounded-xl border border-emerald-500/20 bg-emerald-500/5 p-4 text-center">
+                  <p className="text-xs uppercase tracking-wider text-emerald-400">Средний RTP</p>
+                  <p className="mt-1 text-xl font-bold text-emerald-300">99.3%</p>
+                </div>
+                <div className="rounded-xl border border-cyan-500/20 bg-cyan-500/5 p-4 text-center">
+                  <p className="text-xs uppercase tracking-wider text-cyan-400">Выплат за 24ч</p>
+                  <p className="mt-1 text-xl font-bold text-cyan-300">427</p>
+                </div>
+              </div>
+            </div>
 
-							  <div className="rounded-2xl border border-white/10 bg-linear-to-br from-slate-900/90 via-slate-950/70 to-slate-900/60 p-5">
-								<p className="text-xl font-semibold text-white">«Telegram ID = доступ ко всем функциям»</p>
-								<p className="mt-3 text-sm text-slate-300">
-									Внутри бота откроется полноценное казино с демо/реальными балансами, статистикой и антифрод-защитой. Никаких отдельных логинов.
-								</p>
-								<div className="mt-4 grid gap-3 sm:grid-cols-2">
-									<div className="rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3">
-										<p className="text-xs uppercase tracking-[0.3em] text-slate-500">Средний RTP</p>
-										<p className="text-lg font-semibold text-emerald-400">99.3%</p>
-									</div>
-									<div className="rounded-xl border border-white/10 bg-slate-950/60 px-4 py-3">
-										<p className="text-xs uppercase tracking-[0.3em] text-slate-500">Выплат за 24ч</p>
-										<p className="text-lg font-semibold text-cyan-300">427</p>
-									</div>
-								</div>
-							</div>
+            <div className="flex flex-col justify-center">
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  onClick={handleOpenTelegram}
+                  className="w-full rounded-xl bg-linear-to-r from-cyan-600 to-emerald-600 px-6 py-4 font-bold text-white shadow-lg transition hover:opacity-90"
+                >
+                  🚀 Начать играть в @{botUsername}
+                </button>
+                <a
+                  href={botLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full rounded-xl border border-slate-700 bg-slate-800/60 px-6 py-4 text-center font-medium text-slate-200 transition hover:bg-slate-700/80"
+                >
+                  💬 Перейти в чат с ботом
+                </a>
+                <p className="text-center text-xs text-slate-500">
+                  Ссылка работает только внутри официального Telegram-клиента
+                </p>
+              </div>
+            </div>
+          </div>
+        </section>
 
-							<div className="rounded-2xl border border-white/10 bg-slate-950/70 px-4 py-3 text-sm text-slate-300">
-								<p>После запуска внутри Telegram вы сможете:</p>
-								<ul className="mt-2 list-disc space-y-1 pl-5 text-slate-200">
-									<li>Играть в демо и real режимах с мгновенной синхронизацией</li>
-									<li>Открывать статистику, выплаты, историю</li>
-									<li>Получать пуши и автоуведомления от бота</li>
-								</ul>
-							</div>
-						</div>
-					</div>
-				</section>
+        {/* FAQ Accordion */}
+        <section className="mb-16">
+          <div className="mb-6 text-center">
+            <p className="text-xs font-semibold uppercase tracking-widest text-cyan-400">FAQ</p>
+            <h2 className="mt-2 text-2xl font-bold text-white">Часто задаваемые вопросы</h2>
+          </div>
+          <div className="space-y-4">
+            {faqItems.map((faq, i) => (
+              <details
+                key={i}
+                className="group rounded-2xl border border-slate-800 bg-slate-900/60 transition hover:border-cyan-500/30"
+              >
+                <summary className="cursor-pointer list-none p-5 font-semibold text-slate-100 outline-none transition focus-visible:ring-2 focus-visible:ring-cyan-500">
+                  <span>{faq.question}</span>
+                  <span className="float-right transition-transform group-open:rotate-180">
+                    ▼
+                  </span>
+                </summary>
+                <div className="border-t border-slate-800 bg-slate-900/40 p-5 pt-4 text-slate-300">
+                  {faq.answer}
+                </div>
+              </details>
+            ))}
+          </div>
+        </section>
 
-				<section className="grid gap-6 rounded-4xl border border-cyan-400/15 bg-slate-950/70 p-6 sm:grid-cols-2">
-					{deviceGuides.map(({ title, icon, steps }) => (
-						<div key={title} className="rounded-2xl border border-white/10 bg-slate-900/65 p-5">
-							<div className="flex items-center gap-3 text-xs font-semibold uppercase tracking-[0.28em] text-cyan-200">
-								<span className="text-xl">{icon}</span>
-								<span>{title}</span>
-							</div>
-							<ol className="mt-4 space-y-3 text-sm text-slate-200">
-								{steps.map((step, index) => (
-									<li key={`${title}-${index}`} className="flex items-start gap-3">
-										<span className="mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full bg-cyan-500/15 text-xs font-bold text-cyan-200">
-											{index + 1}
-										</span>
-										<span>{step}</span>
-									</li>
-								))}
-							</ol>
-						</div>
-					))}
-				</section>
+        {/* Debug Mode */}
+        {allowManualInit && (
+          <section className="rounded-2xl border border-amber-900/30 bg-amber-900/10 p-6">
+            <h3 className="flex items-center gap-2 text-lg font-bold text-amber-300">
+              <span>🔧 Режим отладки (DEV)</span>
+            </h3>
+            <p className="mt-1 text-sm text-amber-200/80">
+              Только для разработчиков. Можно имитировать initData из Telegram.
+            </p>
 
-				<section className="rounded-4xl border border-white/10 bg-slate-950/70 p-6">
-					<div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-						<div className="max-w-2xl space-y-3">
-							<h2 className="text-2xl font-semibold text-white">🎲 Демо и реальный баланс</h2>
-							<p className="text-slate-300">
-								В Telegram вас ждут два кошелька, live-статистика и общий профиль. Демо помогает протестировать механику, а real счёт подключен к Cryptomus и Stars.
-							</p>
-							<p className="text-sm text-slate-400">
-								В браузере эти данные скрыты специально, чтобы защитить аккаунт от подделок и утечки токенов.
-							</p>
-						</div>
-						<div className="grid w-full max-w-sm gap-3 rounded-2xl border border-white/10 bg-slate-900/70 p-4">
-							<button type="button" className="primary w-full" onClick={handleOpenTelegram}>
-								🚀 Открыть @{botUsername}
-							</button>
-							<a
-								href={botLink}
-								target="_blank"
-								rel="noopener noreferrer"
-								className="secondary flex w-full items-center justify-center gap-2 text-center"
-							>
-								💬 Перейти в чат
-							</a>
-							<p className="text-center text-xs text-slate-400">Ссылка работает только внутри Telegram-клиента</p>
-						</div>
-					</div>
-				</section>
+            <details className="mt-4 group">
+              <summary className="cursor-pointer list-none py-2 font-medium text-slate-200 transition hover:text-white">
+                ℹ️ Текущее значение <code className="ml-1 font-mono text-sm text-cyan-300">window.Telegram.WebApp.initData</code>
+              </summary>
+              <div className="mt-3 overflow-x-auto rounded-lg bg-slate-900/70 p-4">
+                <pre className="whitespace-pre-wrap wrap-break-word text-xs text-slate-300">
+                  {rawTelegramInitData || "(пусто — проверьте запуск через Telegram)"}
+                </pre>
+              </div>
+            </details>
 
-				<section className="rounded-4xl border border-white/10 bg-slate-950/80 p-6 space-y-6">
-					<div>
-						<p className="text-xs uppercase tracking-[0.35em] text-cyan-200">FAQ</p>
-						<h2 className="mt-2 text-2xl font-semibold text-white">Ответы на частые вопросы</h2>
-					</div>
-					<div className="grid gap-4 md:grid-cols-2">
-						{faqItems.map(({ title, text }) => (
-							<article key={title} className="rounded-2xl border border-white/10 bg-slate-900/60 p-4">
-								<h3 className="text-lg font-semibold text-white">{title}</h3>
-								<p className="mt-2 text-sm text-slate-300">{text}</p>
-							</article>
-						))}
-					</div>
-				</section>
+            <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+              <div>
+                <label htmlFor="initData" className="mb-2 block text-sm font-medium text-slate-200">
+                  Вставьте initData (query_id=...&user=...)
+                </label>
+                <textarea
+                  id="initData"
+                  value={manualValue}
+                  onChange={(e) => setManualValue(e.target.value)}
+                  rows={4}
+                  className="w-full rounded-lg border border-slate-700 bg-slate-800/60 px-4 py-3 font-mono text-sm text-slate-200 placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                  placeholder="query_id=AA...&user=%7B%22id%22%3A..."
+                />
+              </div>
+              {error && <p className="text-sm text-rose-400">{error}</p>}
+              <div className="flex justify-end">
+                <button
+                  type="submit"
+                  className="rounded-lg bg-cyan-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-cyan-500 focus:outline-none focus:ring-2 focus:ring-cyan-500 focus:ring-offset-2 focus:ring-offset-slate-900"
+                >
+                  ✓ Применить initData
+                </button>
+              </div>
+            </form>
+          </section>
+        )}
+      </main>
 
-				{allowManualInit && (
-					<section className="rounded-3xl border border-slate-800 bg-slate-950/70 p-6">
-						<h2 className="text-lg font-semibold text-white">🔧 Режим отладки</h2>
-						<p className="mt-1 text-sm text-slate-400">
-							Вы находитесь в режиме разработки. Можно вручную вставить initData, чтобы протестировать WebApp без Telegram.
-						</p>
-
-						<details className="mt-4 group">
-							<summary className="cursor-pointer font-semibold text-slate-200 transition-colors hover:text-white">
-								ℹ️ Переменная Telegram.WebApp.initData
-							</summary>
-							<div className="mt-3 rounded-lg bg-slate-900/70 p-3">
-								<p className="mb-2 font-mono text-xs text-slate-400">window.Telegram.WebApp.initData:</p>
-								<pre className="wrap-break-word whitespace-pre-wrap rounded bg-slate-950/80 p-3 text-xs text-slate-300">
-									{rawTelegramInitData || "(пусто)"}
-								</pre>
-							</div>
-						</details>
-
-						<form onSubmit={handleSubmit} className="mt-4 space-y-4">
-							<div>
-								<label className="mb-2 block text-sm font-semibold text-slate-200">initData</label>
-								<textarea
-									value={manualValue}
-									onChange={(event) => setManualValue(event.target.value)}
-									rows={5}
-									placeholder="query_id=...&user=..."
-									className="w-full"
-								/>
-							</div>
-							{error && <div className="alert error">{error}</div>}
-							<div className="flex justify-end">
-								<button type="submit" className="secondary">
-									✓ Использовать initData
-								</button>
-							</div>
-						</form>
-					</section>
-				)}
-			</main>
-		</div>
-	)
+      {/* Optional: subtle decorative background */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0 -z-10 opacity-30"
+        style={{
+          background:
+            "radial-gradient(circle at 10% 20%, rgba(8, 145, 178, 0.15), transparent 40%), radial-gradient(circle at 80% 30%, rgba(14, 116, 144, 0.12), transparent 50%), radial-gradient(circle at 50% 80%, rgba(56, 189, 248, 0.08), transparent 45%)",
+        }}
+      />
+    </div>
+  )
 }
 
 export default RequireTelegram
