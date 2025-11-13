@@ -84,8 +84,8 @@ const faqItems = [
   },
 ]
 
-export const RequireTelegram = () => {
-  const { initDataUnsafe, setInitData } = useTelegram()
+export const RequireTelegram = ({ children }) => {
+  const { initData, user, setInitData } = useTelegram()
 
   const [botLink] = useState(buildTelegramLink)
   const [botUsername] = useState(resolveBotUsername)
@@ -95,9 +95,9 @@ export const RequireTelegram = () => {
   const [error, setError] = useState("")
   const [rawTelegramInitData, setRawTelegramInitData] = useState("")
 
-  const telegramUser = initDataUnsafe?.user
-  const telegramId = telegramUser?.id
-  const telegramUsername = telegramUser?.username
+  const telegramId = user?.id
+  const telegramUsername = user?.username
+  const hasInitData = Boolean(initData && initData.trim())
 
   const playerLabel = useMemo(() => {
     if (telegramUsername) {
@@ -114,10 +114,18 @@ export const RequireTelegram = () => {
   }, [])
 
   useEffect(() => {
+    if (hasInitData) {
+      setRawTelegramInitData(initData.trim())
+      return
+    }
     if (typeof window !== "undefined" && window.Telegram?.WebApp?.initData) {
       setRawTelegramInitData(window.Telegram.WebApp.initData)
     }
-  }, [])
+  }, [hasInitData, initData])
+
+  if (hasInitData) {
+    return children ?? null
+  }
 
   const handleOpenTelegram = () => {
     window.open(botLink, "_blank", "noopener,noreferrer")
