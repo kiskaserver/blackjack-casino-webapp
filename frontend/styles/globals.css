@@ -587,6 +587,22 @@ button {
   text-align: right;
 }
 
+/* Ensure mobile-specific constraints override base rules */
+@media (max-width: 767px) {
+  .header-balance-pill {
+    max-width: 48%;
+  }
+
+  .header-balance-pill .pill-value {
+    min-width: 0 !important;
+    max-width: 5.1rem !important;
+    white-space: nowrap !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    text-align: right !important;
+  }
+}
+
 .header-player-chip {
   display: inline-flex;
   align-items: center;
