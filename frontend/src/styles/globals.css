@@ -196,9 +196,8 @@ button {
   }
   
   .card,
-  .tg-card,
-  .tg-primary-btn,
-  .tg-secondary-btn {
+  .primary,
+  .secondary {
     transition: none !important;
   }
 }
@@ -245,7 +244,7 @@ button {
    Карточки с улучшенной производительностью
    ============================================================================ */
 
-.tg-card {
+.card {
   @apply rounded-2xl transition-all duration-300;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-card);
@@ -255,20 +254,20 @@ button {
 }
 
 @supports (backdrop-filter: blur(10px)) {
-  .tg-card {
+  .card {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
 }
 
-.tg-card:hover {
+.card:hover {
   border-color: rgba(0, 198, 255, 0.2);
   transform: translate3d(0, -2px, 0);
 }
 
 /* Fallback для мобильных устройств */
 @media (max-width: 768px) {
-  .tg-card {
+  .card {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     background: rgba(15, 26, 46, 0.9);
@@ -279,7 +278,7 @@ button {
    Кнопки с улучшенной доступностью
    ============================================================================ */
 
-.tg-primary-btn {
+.primary {
   @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200;
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-alt) 100%);
   color: #ffffff;
@@ -292,25 +291,25 @@ button {
   min-width: 44px;
 }
 
-.tg-primary-btn:hover:not(:disabled) {
+.primary:hover:not(:disabled) {
   transform: translate3d(0, -2px, 0);
   box-shadow: 0 12px 24px rgba(0, 198, 255, 0.4);
 }
 
-.tg-primary-btn:active:not(:disabled) {
+.primary:active:not(:disabled) {
   transform: translate3d(0, 0, 0);
 }
 
-.tg-primary-btn:disabled {
+.primary:disabled {
   @apply opacity-50 cursor-not-allowed;
 }
 
-.tg-primary-btn:focus-visible {
+.primary:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-.tg-secondary-btn {
+.secondary {
   @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200;
   background: rgba(15, 26, 46, 0.8);
   color: var(--color-primary);
@@ -320,25 +319,25 @@ button {
   min-width: 44px;
 }
 
-.tg-secondary-btn:hover:not(:disabled) {
+.secondary:hover:not(:disabled) {
   background: rgba(0, 198, 255, 0.1);
   border-color: rgba(0, 198, 255, 0.6);
 }
 
-.tg-secondary-btn:active:not(:disabled) {
+.secondary:active:not(:disabled) {
   background: rgba(0, 198, 255, 0.2);
 }
 
-.tg-secondary-btn:disabled {
+.secondary:disabled {
   @apply opacity-50 cursor-not-allowed;
 }
 
-.tg-secondary-btn:focus-visible {
+.secondary:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-.tg-danger-btn {
+.danger {
   @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all duration-200;
   background: rgba(255, 95, 122, 0.15);
   color: var(--color-danger);
@@ -348,27 +347,27 @@ button {
   min-width: 44px;
 }
 
-.tg-danger-btn:hover:not(:disabled) {
+.danger:hover:not(:disabled) {
   background: rgba(255, 95, 122, 0.25);
   border-color: rgba(255, 95, 122, 0.6);
 }
 
-.tg-danger-btn:disabled {
+.danger:disabled {
   @apply opacity-50 cursor-not-allowed;
 }
 
-.tg-danger-btn:focus-visible {
+.danger:focus-visible {
   outline: 2px solid var(--color-danger);
   outline-offset: 2px;
 }
 
 /* Состояние загрузки для кнопок */
-.tg-btn-loading {
+.btn-loading {
   position: relative;
   color: transparent !important;
 }
 
-.tg-btn-loading::after {
+.btn-loading::after {
   content: '';
   position: absolute;
   width: 16px;
@@ -388,31 +387,31 @@ button {
    Навигация с улучшенной сенсорной поддержкой
    ============================================================================ */
 
-.tg-nav-link {
+.nav-link {
   @apply relative flex flex-col items-center justify-center gap-1 px-4 py-3 rounded-2xl text-sm font-semibold transition-all duration-200 text-slate-300;
   border: 1px solid transparent;
   min-height: 44px;
   min-width: 44px;
 }
 
-.tg-nav-link:hover {
+.nav-link:hover {
   @apply text-slate-100;
   background: rgba(0, 198, 255, 0.05);
 }
 
-.tg-nav-link.active {
+.nav-link.active {
   @apply text-white;
   background: linear-gradient(135deg, rgba(0, 198, 255, 0.2) 0%, rgba(11, 77, 255, 0.2) 100%);
   border-color: rgba(0, 198, 255, 0.3);
   box-shadow: 0 8px 16px rgba(0, 198, 255, 0.15);
 }
 
-.tg-nav-link:focus-visible {
+.nav-link:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-.tg-player-nav-link {
+.player-nav-link {
   gap: 0.15rem;
   line-height: 1;
   min-width: 3.1rem;
@@ -426,7 +425,7 @@ button {
   min-width: 44px;
 }
 
-.tg-player-nav-icon {
+.player-nav-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -441,35 +440,35 @@ button {
   line-height: 1;
 }
 
-.tg-player-nav-label {
+.player-nav-label {
   font-size: 0.58rem;
   line-height: 1.05;
   letter-spacing: 0.07em;
 }
 
-.tg-player-nav-link:hover {
+.player-nav-link:hover {
   border-color: rgba(0, 198, 255, 0.38);
   background: rgba(0, 198, 255, 0.12);
   box-shadow: 0 14px 32px rgba(0, 198, 255, 0.18);
 }
 
-.tg-player-nav-link:hover .tg-player-nav-icon {
+.player-nav-link:hover .player-nav-icon {
   box-shadow: inset 0 2px 8px rgba(255, 255, 255, 0.12), 0 10px 24px rgba(0, 198, 255, 0.3);
 }
 
-.tg-player-nav-link-active {
+.player-nav-link-active {
   border-color: rgba(0, 198, 255, 0.55);
   background: linear-gradient(150deg, rgba(0, 198, 255, 0.28), rgba(11, 77, 255, 0.32));
   box-shadow: 0 18px 38px rgba(0, 198, 255, 0.28);
   color: #ffffff;
 }
 
-.tg-player-nav-link-active .tg-player-nav-icon {
+.player-nav-link-active .player-nav-icon {
   border-color: rgba(255, 255, 255, 0.35);
   background: linear-gradient(145deg, rgba(0, 198, 255, 0.35), rgba(11, 77, 255, 0.45));
 }
 
-.tg-player-nav-link-active .tg-player-nav-label {
+.player-nav-link-active .player-nav-label {
   color: #ffffff;
 }
 
@@ -477,7 +476,7 @@ button {
    Компоненты кошелька
    ============================================================================ */
 
-.tg-wallet-toggle-group {
+.wallet-toggle-group {
   display: flex;
   flex-wrap: wrap;
   align-items: stretch;
@@ -485,7 +484,7 @@ button {
   justify-content: center;
 }
 
-.tg-wallet-toggle {
+.wallet-toggle {
   position: relative;
   display: flex;
   flex-direction: column;
@@ -507,29 +506,29 @@ button {
   min-height: 44px;
 }
 
-.tg-wallet-toggle:hover:not(:disabled) {
+.wallet-toggle:hover:not(:disabled) {
   background: rgba(0, 198, 255, 0.12);
   border-color: rgba(0, 198, 255, 0.35);
   color: #ffffff;
 }
 
-.tg-wallet-toggle:focus-visible {
+.wallet-toggle:focus-visible {
   outline: 2px solid rgba(0, 198, 255, 0.5);
   outline-offset: 2px;
 }
 
-.tg-wallet-toggle.is-active {
+.wallet-toggle.is-active {
   color: #ffffff;
   border-color: rgba(0, 198, 255, 0.55);
   background: linear-gradient(135deg, rgba(0, 198, 255, 0.28) 0%, rgba(11, 77, 255, 0.28) 100%);
   box-shadow: 0 12px 30px rgba(0, 198, 255, 0.22);
 }
 
-.tg-wallet-toggle:disabled {
+.wallet-toggle:disabled {
   @apply opacity-50 cursor-not-allowed;
 }
 
-.tg-wallet-toggle-label {
+.wallet-toggle-label {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -540,14 +539,14 @@ button {
   white-space: nowrap;
 }
 
-.tg-wallet-toggle-balance {
+.wallet-toggle-balance {
   font-size: 0.68rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
-.tg-wallet-toggle.is-active .tg-wallet-toggle-balance {
+.wallet-toggle.is-active .wallet-toggle-balance {
   color: #e0f2fe;
 }
 
@@ -555,7 +554,7 @@ button {
    Баланс и заголовки
    ============================================================================ */
 
-.tg-header-balance-row {
+.header-balance-row {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -565,7 +564,7 @@ button {
   overflow: visible;
 }
 
-.tg-header-balance-pill {
+.header-balance-pill {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -583,30 +582,30 @@ button {
   flex: 1 1 11rem;
 }
 
-.tg-header-balance-pill .tg-pill-meta {
+.header-balance-pill .pill-meta {
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
 }
 
-.tg-header-balance-pill.real {
+.header-balance-pill.real {
   border-color: rgba(34, 211, 238, 0.35);
   background: rgba(8, 145, 178, 0.22);
   color: #22d3ee;
 }
 
-.tg-header-balance-pill.demo {
+.header-balance-pill.demo {
   border-color: rgba(250, 204, 21, 0.35);
   background: rgba(120, 53, 15, 0.22);
   color: #facc15;
 }
 
-.tg-header-balance-pill .tg-pill-label {
+.header-balance-pill .pill-label {
   font-weight: 600;
   letter-spacing: 0.18em;
 }
 
-.tg-header-balance-pill .tg-pill-value {
+.header-balance-pill .pill-value {
   font-size: 0.95rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -616,7 +615,7 @@ button {
   text-align: right;
 }
 
-.tg-header-player-chip {
+.header-player-chip {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -631,13 +630,13 @@ button {
   text-transform: uppercase;
 }
 
-.tg-header-actions {
+.header-actions {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.tg-header-action-button {
+.header-action-button {
   height: 2.5rem;
   width: 2.5rem;
   padding: 0;
@@ -651,20 +650,20 @@ button {
    Компактные карточки кошелька
    ============================================================================ */
 
-.tg-wallet-card-compact {
+.wallet-card-compact {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   padding: 1rem 1.1rem;
 }
 
-.tg-wallet-card-header {
+.wallet-card-header {
   display: flex;
   flex-direction: column;
   gap: 0.3rem;
 }
 
-.tg-wallet-card-title {
+.wallet-card-title {
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.28em;
@@ -672,17 +671,17 @@ button {
   color: var(--color-text-muted);
 }
 
-.tg-wallet-card-subtitle {
+.wallet-card-subtitle {
   font-size: 0.7rem;
   color: #64748b;
 }
 
-.tg-wallet-toggle-group.compact {
+.wallet-toggle-group.compact {
   gap: 0.4rem;
   justify-content: center;
 }
 
-.tg-wallet-card-compact .tg-wallet-toggle {
+.wallet-card-compact .wallet-toggle {
   flex-direction: row;
   align-items: center;
   justify-content: center;
@@ -691,7 +690,7 @@ button {
   font-size: 0.78rem;
 }
 
-.tg-wallet-card-compact .tg-wallet-toggle-label {
+.wallet-card-compact .wallet-toggle-label {
   font-size: 0.8rem;
 }
 
@@ -699,7 +698,7 @@ button {
    Статус-бейджи
    ============================================================================ */
 
-.tg-status-badge {
+.status-badge {
   display: inline-flex;
   align-items: center;
   gap: 0.35rem;
@@ -714,25 +713,25 @@ button {
   text-transform: uppercase;
 }
 
-.tg-status-badge.success {
+.status-badge.success {
   background: rgba(34, 197, 94, 0.18);
   border-color: rgba(34, 197, 94, 0.4);
   color: #4ade80;
 }
 
-.tg-status-badge.warning {
+.status-badge.warning {
   background: rgba(245, 158, 11, 0.18);
   border-color: rgba(245, 158, 11, 0.4);
   color: #facc15;
 }
 
-.tg-status-badge.info {
+.status-badge.info {
   background: rgba(59, 130, 246, 0.18);
   border-color: rgba(59, 130, 246, 0.4);
   color: #93c5fd;
 }
 
-.tg-status-badge.danger {
+.status-badge.danger {
   background: rgba(248, 113, 113, 0.18);
   border-color: rgba(248, 113, 113, 0.4);
   color: #f87171;
@@ -742,7 +741,7 @@ button {
    Второстепенные кнопки
    ============================================================================ */
 
-.tg-ghost-button {
+.ghost-button {
   display: inline-flex;
   align-items: center;
   gap: 0.45rem;
@@ -761,18 +760,18 @@ button {
   min-width: 44px;
 }
 
-.tg-ghost-button:hover {
+.ghost-button:hover {
   border-color: rgba(0, 198, 255, 0.55);
   background: rgba(0, 198, 255, 0.18);
   color: #ffffff;
 }
 
-.tg-ghost-button:focus-visible {
+.ghost-button:focus-visible {
   outline: 2px solid rgba(0, 198, 255, 0.45);
   outline-offset: 2px;
 }
 
-.tg-profile-hint {
+.profile-hint {
   font-size: 0.78rem;
   color: var(--color-text-muted);
 }
@@ -781,51 +780,51 @@ button {
    Сообщения и алерты
    ============================================================================ */
 
-.tg-message {
+.message {
   @apply flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-medium;
   background: rgba(15, 26, 46, 0.8);
   color: #a8b5c9;
   border: 1px solid rgba(100, 150, 200, 0.2);
 }
 
-.tg-message.error {
+.message.error {
   @apply text-red-300;
   background: rgba(255, 95, 122, 0.1);
   border-color: rgba(255, 95, 122, 0.3);
 }
 
-.tg-message.success {
+.message.success {
   @apply text-green-300;
   background: rgba(40, 241, 185, 0.1);
   border-color: rgba(40, 241, 185, 0.3);
 }
 
-.tg-message.warning {
+.message.warning {
   @apply text-yellow-300;
   background: rgba(255, 200, 87, 0.1);
   border-color: rgba(255, 200, 87, 0.3);
 }
 
-.tg-alert {
+.alert {
   @apply flex items-center gap-2 px-4 py-3 rounded-xl font-medium;
   background: rgba(15, 26, 46, 0.8);
   color: #a8b5c9;
   border: 1px solid rgba(100, 150, 200, 0.2);
 }
 
-.tg-alert.error {
+.alert.error {
   @apply text-red-400;
   background: rgba(255, 95, 122, 0.15);
   border-color: rgba(255, 95, 122, 0.4);
 }
 
-.tg-alert.success {
+.alert.success {
   @apply text-green-400;
   background: rgba(40, 241, 185, 0.15);
   border-color: rgba(40, 241, 185, 0.4);
 }
 
-.tg-alert-warning {
+.alert.warning {
   color: #ffe087;
   background: rgba(255, 200, 87, 0.12);
   border: 1px solid rgba(255, 200, 87, 0.35);
@@ -835,12 +834,12 @@ button {
    Элементы форм с улучшенной валидацией
    ============================================================================ */
 
-.tg-form-input[type="text"],
-.tg-form-input[type="email"],
-.tg-form-input[type="password"],
-.tg-form-input[type="number"],
-.tg-form-textarea,
-.tg-form-select {
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
   @apply w-full px-4 py-3 rounded-xl text-base font-medium transition-all duration-200;
   background: rgba(15, 26, 46, 0.6);
   color: #ffffff;
@@ -849,55 +848,61 @@ button {
   min-height: 44px;
 }
 
-.tg-form-input:focus,
-.tg-form-textarea:focus,
-.tg-form-select:focus {
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
   outline: none;
   border-color: rgba(0, 198, 255, 0.6);
   background: rgba(15, 26, 46, 0.8);
   box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.1);
 }
 
-.tg-form-input::placeholder,
-.tg-form-textarea::placeholder {
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[type="password"]::placeholder,
+input[type="number"]::placeholder,
+textarea::placeholder {
   color: #7a8a9f;
 }
 
 /* Состояния валидации */
-.tg-form-input:invalid,
-.tg-form-textarea:invalid,
-.tg-form-select:invalid {
+input:invalid,
+textarea:invalid,
+select:invalid {
   border-color: rgba(255, 95, 122, 0.4);
   background: rgba(255, 95, 122, 0.05);
 }
 
-.tg-form-input:valid,
-.tg-form-textarea:valid,
-.tg-form-select:valid {
+input:valid,
+textarea:valid,
+select:valid {
   border-color: rgba(40, 241, 185, 0.4);
 }
 
-.tg-range-input[type="range"] {
+input[type="range"] {
   @apply w-full h-2 rounded-full bg-slate-800 appearance-none cursor-pointer transition-all;
   accent-color: var(--color-primary);
   min-height: 44px;
 }
 
-.tg-range-input[type="range"]::-webkit-slider-thumb {
+input[type="range"]::-webkit-slider-thumb {
   appearance: none;
   @apply w-5 h-5 rounded-full bg-cyan-400 cursor-pointer shadow-lg transition-all;
   min-height: 44px;
   min-width: 44px;
 }
 
-.tg-range-input[type="range"]::-moz-range-thumb {
+input[type="range"]::-moz-range-thumb {
   @apply w-5 h-5 rounded-full bg-cyan-400 cursor-pointer shadow-lg border-0 transition-all;
   min-height: 44px;
   min-width: 44px;
 }
 
-.tg-checkbox-input[type="checkbox"],
-.tg-radio-input[type="radio"] {
+input[type="checkbox"],
+input[type="radio"] {
   @apply cursor-pointer accent-cyan-400;
   min-height: 44px;
   min-width: 44px;
@@ -907,45 +912,45 @@ button {
    Таблицы
    ============================================================================ */
 
-.tg-table-container {
+.table-container {
   @apply w-full overflow-x-auto rounded-lg;
   border: 1px solid rgba(0, 198, 255, 0.1);
   -webkit-overflow-scrolling: touch;
 }
 
-.tg-table {
+.table {
   @apply w-full border-collapse text-sm;
 }
 
-.tg-table thead {
+.table thead {
   @apply bg-slate-800/50;
 }
 
-.tg-table th {
+.table th {
   @apply px-4 py-3 text-left font-semibold text-slate-200 border-b border-slate-700/50;
 }
 
-.tg-table td {
+.table td {
   @apply px-4 py-3 border-b border-slate-700/30 text-slate-300;
 }
 
-.tg-table tbody tr:hover {
+.table tbody tr:hover {
   @apply bg-slate-800/20;
 }
 
-.tg-table-cell-empty {
+.table-cell-empty {
   @apply text-center text-slate-500 py-6;
 }
 
-.tg-metric-title {
+.metric-title {
   @apply text-sm font-semibold text-slate-200 mb-2;
 }
 
-.tg-metric-value {
+.metric-value {
   @apply text-2xl font-bold text-cyan-400;
 }
 
-.tg-metric-hint {
+.metric-hint {
   @apply text-xs text-slate-500 block mt-1;
 }
 
@@ -953,27 +958,27 @@ button {
    Игровые компоненты
    ============================================================================ */
 
-.tg-game-message {
+.game-message {
   @apply text-center text-lg font-bold py-4 px-4 rounded-xl;
   color: #a8b5c9;
   background: rgba(15, 26, 46, 0.6);
 }
 
-.tg-game-message.success {
+.game-message.success {
   @apply text-green-400;
   background: rgba(40, 241, 185, 0.1);
 }
 
-.tg-game-message.error {
+.game-message.error {
   @apply text-red-400;
   background: rgba(255, 95, 122, 0.1);
 }
 
-.tg-cards-container {
+.cards-container {
   @apply flex flex-wrap gap-3 items-center justify-center min-h-[140px];
 }
 
-.tg-cards-container .tg-card {
+.cards-container .card {
   @apply relative w-20 h-28 rounded-lg flex items-center justify-center font-bold text-xl transition-all duration-200 cursor-default;
   background: linear-gradient(135deg, #ffffff 0%, #f0f0f0 100%);
   color: #000;
@@ -983,15 +988,15 @@ button {
   will-change: transform;
 }
 
-.tg-cards-container .tg-card.red {
+.cards-container .card.red {
   color: #ff0000;
 }
 
-.tg-cards-container .tg-card.black {
+.cards-container .card.black {
   color: #000000;
 }
 
-.tg-cards-container .tg-card-back {
+.cards-container .card-back {
   @apply w-20 h-28 rounded-lg flex items-center justify-center font-bold text-3xl;
   background: linear-gradient(135deg, #0066cc 0%, #003399 100%);
   border: 2px solid #001a66;
@@ -999,23 +1004,23 @@ button {
   color: #00ffff;
 }
 
-.tg-cards-container .tg-card-value {
+.cards-container .card-value {
   @apply absolute top-1 left-1 text-xs font-bold;
 }
 
-.tg-cards-container .tg-card-suit {
+.cards-container .card-suit {
   @apply absolute bottom-1 right-1 text-xs;
 }
 
-.tg-score-value {
+.score-value {
   @apply text-2xl font-bold text-cyan-400;
 }
 
-.tg-game-controls {
+.game-controls {
   @apply flex flex-col gap-3;
 }
 
-.tg-action-buttons {
+.action-buttons {
   @apply flex flex-col gap-2;
 }
 
@@ -1023,7 +1028,7 @@ button {
    Честность и статистика
    ============================================================================ */
 
-.tg-fairness-section {
+.fairness-section {
   @apply rounded-2xl overflow-hidden transition-all duration-300;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-card);
@@ -1032,13 +1037,13 @@ button {
 }
 
 @supports (backdrop-filter: blur(10px)) {
-  .tg-fairness-section {
+  .fairness-section {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
 }
 
-.tg-fairness-toggle {
+.fairness-toggle {
   @apply w-full flex items-center justify-between gap-3 px-4 py-3 font-semibold text-slate-200;
   background: rgba(0, 198, 255, 0.05);
   border: none;
@@ -1047,56 +1052,56 @@ button {
   min-height: 44px;
 }
 
-.tg-fairness-toggle:hover {
+.fairness-toggle:hover {
   background: rgba(0, 198, 255, 0.15);
 }
 
-.tg-fairness-toggle-icon {
+.fairness-toggle-icon {
   @apply text-lg shrink-0;
 }
 
-.tg-fairness-toggle-text {
+.fairness-toggle-text {
   @apply flex-1 text-left;
 }
 
-.tg-fairness-toggle-arrow {
+.fairness-toggle-arrow {
   @apply shrink-0 transition-transform duration-300;
 }
 
-.tg-fairness-content {
+.fairness-content {
   @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 p-4;
 }
 
-.tg-fairness-card {
+.fairness-card {
   @apply flex flex-col gap-2 p-3 rounded-lg;
   background: rgba(0, 198, 255, 0.08);
   border: 1px solid rgba(0, 198, 255, 0.2);
 }
 
-.tg-fairness-card-target {
+.fairness-card-target {
   border-color: rgba(40, 241, 185, 0.4);
   background: rgba(40, 241, 185, 0.08);
 }
 
-.tg-fairness-label {
+.fairness-label {
   @apply text-xs font-medium text-slate-400;
 }
 
-.tg-fairness-value {
+.fairness-value {
   @apply text-xl font-bold text-cyan-400;
 }
 
-.tg-fairness-note {
+.fairness-note {
   @apply text-xs text-slate-500;
 }
 
-.tg-balance-card {
+.balance-card {
   @apply flex flex-col gap-0.5 px-3.5 py-2.5 rounded-xl;
   background: var(--color-bg-card);
   border: 1px solid var(--color-border-card);
 }
 
-.tg-balance-card-toolbar {
+.balance-card-toolbar {
   flex-direction: row;
   align-items: center;
   justify-content: flex-end;
@@ -1104,17 +1109,17 @@ button {
   gap: 0.5rem;
 }
 
-.tg-balance-card-real {
+.balance-card-real {
   border-color: rgba(0, 198, 255, 0.2);
   background: rgba(0, 198, 255, 0.08);
 }
 
-.tg-balance-card-demo {
+.balance-card-demo {
   border-color: rgba(255, 200, 87, 0.2);
   background: rgba(255, 200, 87, 0.08);
 }
 
-.tg-balance-label {
+.balance-label {
   @apply text-xs font-semibold uppercase tracking-widest text-slate-400;
 }
 
@@ -1122,28 +1127,28 @@ button {
    Модальные окна с улучшенной анимацией
    ============================================================================ */
 
-.tg-modal {
+.modal {
   @apply fixed inset-0 flex items-end z-50 pointer-events-none;
 }
 
-.tg-modal.open {
+.modal.open {
   @apply pointer-events-auto;
 }
 
-.tg-modal-overlay {
+.modal-overlay {
   @apply fixed inset-0 bg-black/65 z-40 pointer-events-auto;
   backdrop-filter: none;
   -webkit-backdrop-filter: none;
-  animation: tg-fadeIn 0.3s ease-out;
+  animation: fadeIn 0.3s ease-out;
 }
 
-.tg-modal-content {
+.modal-content {
   @apply w-full max-h-[90vh] overflow-y-auto rounded-t-3xl flex flex-col pointer-events-auto;
   background: rgba(15, 26, 46, 0.95);
   border-top: 1px solid rgba(0, 198, 255, 0.1);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
-  animation: tg-slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  animation: slideUp 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   position: relative;
   z-index: 50;
   box-shadow: 0 -20px 45px rgba(2, 10, 25, 0.35);
@@ -1151,7 +1156,7 @@ button {
   will-change: transform;
 }
 
-@keyframes tg-slideUp {
+@keyframes slideUp {
   from {
     transform: translate3d(0, 100%, 0);
     opacity: 0;
@@ -1162,7 +1167,7 @@ button {
   }
 }
 
-@keyframes tg-fadeIn {
+@keyframes fadeIn {
   from {
     opacity: 0;
   }
@@ -1171,16 +1176,16 @@ button {
   }
 }
 
-.tg-modal-header {
+.modal-header {
   @apply flex items-center justify-between gap-3 px-6 py-4 border-b border-slate-700/50;
 }
 
-.tg-modal-header h2,
-.tg-modal-header h3 {
+.modal-header h2,
+.modal-header h3 {
   @apply text-xl font-bold text-white flex-1;
 }
 
-.tg-close-btn {
+.close-btn {
   @apply flex items-center justify-center w-10 h-10 rounded-xl text-lg transition-all shrink-0;
   background: rgba(0, 198, 255, 0.1);
   border: 1px solid rgba(0, 198, 255, 0.2);
@@ -1190,25 +1195,25 @@ button {
   min-width: 44px;
 }
 
-.tg-close-btn:hover {
+.close-btn:hover {
   background: rgba(0, 198, 255, 0.2);
 }
 
-.tg-close-btn:focus-visible {
+.close-btn:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-.tg-modal-body {
+.modal-body {
   @apply flex-1 overflow-y-auto px-6 py-4 space-y-4;
   -webkit-overflow-scrolling: touch;
 }
 
-.tg-modal-footer {
+.modal-footer {
   @apply flex items-center justify-end gap-2 px-6 py-4 border-t border-slate-700/50;
 }
 
-.tg-modal-btn {
+.modal-btn {
   @apply inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all;
   background: rgba(15, 26, 46, 0.8);
   color: #a8b5c9;
@@ -1218,24 +1223,24 @@ button {
   min-width: 44px;
 }
 
-.tg-modal-btn:hover {
+.modal-btn:hover {
   background: rgba(0, 198, 255, 0.15);
   color: var(--color-primary);
 }
 
-.tg-modal-btn.primary {
+.modal-btn.primary {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-alt) 100%);
   color: #ffffff;
   border: none;
 }
 
-.tg-modal-btn.secondary {
+.modal-btn.secondary {
   background: rgba(0, 198, 255, 0.1);
   color: var(--color-primary);
   border: 1px solid rgba(0, 198, 255, 0.3);
 }
 
-.tg-modal-btn:focus-visible {
+.modal-btn:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
@@ -1244,16 +1249,16 @@ button {
    Анимация фейерверков с аппаратным ускорением
    ============================================================================ */
 
-.tg-firework {
+.firework {
   @apply fixed rounded-full pointer-events-none;
   width: 8px;
   height: 8px;
-  animation: tg-explode 1.2s ease-out forwards;
+  animation: explode 1.2s ease-out forwards;
   transform: translate3d(0, 0, 0);
   will-change: transform, opacity;
 }
 
-@keyframes tg-explode {
+@keyframes explode {
   0% {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(0.8);
@@ -1272,28 +1277,28 @@ button {
    Утилиты компоновки
    ============================================================================ */
 
-.tg-flex-col {
+.flex-col {
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
 }
 
-.tg-flex-row {
+.flex-row {
   display: flex;
   flex-direction: row;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
-.tg-gap-15 {
+.gap-15 {
   gap: 3.75rem;
 }
 
-.tg-w-180 {
+.w-180 {
   width: 180px;
 }
 
-.tg-volume-slider {
+.volume-slider {
   width: 100%;
   height: 0.5rem;
   border-radius: 9999px;
@@ -1304,7 +1309,7 @@ button {
   min-height: 44px;
 }
 
-.tg-volume-slider::-webkit-slider-thumb {
+.volume-slider::-webkit-slider-thumb {
   appearance: none;
   width: 1.25rem;
   height: 1.25rem;
@@ -1316,11 +1321,11 @@ button {
   min-width: 44px;
 }
 
-.tg-volume-slider::-webkit-slider-thumb:active {
+.volume-slider::-webkit-slider-thumb:active {
   transform: scale(0.95);
 }
 
-.tg-volume-slider::-moz-range-thumb {
+.volume-slider::-moz-range-thumb {
   width: 1.25rem;
   height: 1.25rem;
   border-radius: 9999px;
@@ -1332,7 +1337,7 @@ button {
   min-width: 44px;
 }
 
-.tg-volume-slider::-moz-range-thumb:active {
+.volume-slider::-moz-range-thumb:active {
   transform: scale(0.95);
 }
 
@@ -1340,13 +1345,13 @@ button {
    Статистика и сетки
    ============================================================================ */
 
-.tg-stats-grid {
+.stats-grid {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: 1rem;
 }
 
-.tg-stat-card {
+.stat-card {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -1359,19 +1364,19 @@ button {
   will-change: transform;
 }
 
-.tg-stat-title {
+.stat-title {
   font-size: 1rem;
   font-weight: 600;
   color: #67e3ff;
 }
 
-.tg-stat-value {
+.stat-value {
   font-size: 1.5rem;
   font-weight: 700;
   color: #22d3ee;
 }
 
-.tg-stat-row {
+.stat-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -1380,7 +1385,7 @@ button {
   color: var(--color-text-secondary);
 }
 
-.tg-achievement-item {
+.achievement-item {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -1390,24 +1395,24 @@ button {
   background: rgba(40, 241, 185, 0.1);
 }
 
-.tg-achievement-title {
+.achievement-title {
   font-size: 0.875rem;
   font-weight: 600;
   color: #67e3ff;
 }
 
-.tg-achievement-desc {
+.achievement-desc {
   font-size: 0.75rem;
   color: var(--color-text-muted);
 }
 
-.tg-achievement-points {
+.achievement-points {
   font-size: 0.75rem;
   font-weight: 700;
   color: #4ade80;
 }
 
-.tg-stats-loading {
+.stats-loading {
   border-radius: 1rem;
   border: 1px solid rgba(30, 41, 59, 0.6);
   background: rgba(15, 23, 42, 0.6);
@@ -1417,13 +1422,13 @@ button {
 }
 
 @supports (backdrop-filter: blur(12px)) {
-  .tg-stats-loading {
+  .stats-loading {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
 }
 
-.tg-stats-error {
+.stats-error {
   color: var(--color-danger);
   background: rgba(255, 95, 122, 0.1);
   border: 1px solid rgba(255, 95, 122, 0.25);
@@ -1433,17 +1438,17 @@ button {
    Контейнеры страниц
    ============================================================================ */
 
-.tg-history-container,
-.tg-payments-container,
-.tg-verification-page {
+.history-container,
+.payments-container,
+.verification-page {
   display: flex;
   flex-direction: column;
   gap: 1.5rem;
 }
 
-.tg-page-section,
-.tg-payment-section,
-.tg-form-group {
+.page-section,
+.payment-section,
+.form-group {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -1457,23 +1462,23 @@ button {
 }
 
 @supports (backdrop-filter: blur(12px)) {
-  .tg-page-section,
-  .tg-payment-section,
-  .tg-form-group {
+  .page-section,
+  .payment-section,
+  .form-group {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
   }
 }
 
-.tg-page-section-title,
-.tg-payment-section > h2 {
+.page-section-title,
+.payment-section > h2 {
   font-size: 1.125rem;
   line-height: 1.625rem;
   font-weight: 700;
   color: #ffffff;
 }
 
-.tg-table-wrapper {
+.table-wrapper {
   overflow-x: auto;
   border-radius: 0.75rem;
   border: 1px solid rgba(15, 35, 64, 0.35);
@@ -1482,20 +1487,20 @@ button {
 }
 
 @supports (backdrop-filter: blur(10px)) {
-  .tg-table-wrapper {
+  .table-wrapper {
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
   }
 }
 
-.tg-table-wrapper table {
+.table-wrapper table {
   width: 100%;
   border-collapse: collapse;
   font-size: 0.82rem;
   color: #d1d9e5;
 }
 
-.tg-table-wrapper th {
+.table-wrapper th {
   background: rgba(8, 20, 40, 0.6);
   padding: 0.65rem 0.85rem;
   text-align: left;
@@ -1506,24 +1511,24 @@ button {
   color: var(--color-text-muted);
 }
 
-.tg-table-wrapper td {
+.table-wrapper td {
   padding: 0.65rem 0.85rem;
   color: var(--color-text-secondary);
   border-top: 1px solid rgba(30, 50, 80, 0.6);
 }
 
-.tg-table-wrapper tbody tr:hover {
+.table-wrapper tbody tr:hover {
   background: rgba(30, 64, 116, 0.2);
 }
 
-.tg-table-heading {
+.table-heading {
   margin-bottom: 0.5rem;
   font-size: 1rem;
   font-weight: 600;
   color: #ffffff;
 }
 
-.tg-table-controls {
+.table-controls {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -1533,32 +1538,32 @@ button {
   padding: 0 0.25rem;
 }
 
-.tg-table-controls .tg-table-heading {
+.table-controls .table-heading {
   margin-bottom: 0;
 }
 
-.tg-table-controls-group {
+.table-controls-group {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
 }
 
-.tg-table-count {
+.table-count {
   font-size: 0.7rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
-.tg-table-pagination {
+.table-pagination {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
 }
 
-.tg-pagination-button {
+.pagination-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -1575,18 +1580,18 @@ button {
   min-width: 44px;
 }
 
-.tg-pagination-button:hover:not(:disabled) {
+.pagination-button:hover:not(:disabled) {
   border-color: rgba(0, 198, 255, 0.5);
   background: rgba(0, 198, 255, 0.18);
   color: #ffffff;
 }
 
-.tg-pagination-button:disabled {
+.pagination-button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
-.tg-pagination-select {
+.pagination-select {
   min-width: 4.5rem;
   border-radius: 0.75rem;
   border: 1px solid rgba(0, 198, 255, 0.2);
@@ -1597,53 +1602,53 @@ button {
   min-height: 44px;
 }
 
-.tg-pagination-info {
+.pagination-info {
   font-size: 0.72rem;
   color: var(--color-text-muted);
 }
 
-.tg-table-cell-right {
+.table-cell-right {
   text-align: right;
 }
 
-.tg-table-cell-emoji {
+.table-cell-emoji {
   font-family: "Segoe UI Emoji", "Apple Color Emoji", sans-serif;
 }
 
-.tg-table-cell-positive {
+.table-cell-positive {
   color: var(--color-success);
 }
 
-.tg-table-cell-negative {
+.table-cell-negative {
   color: var(--color-danger);
 }
 
-.tg-table-cell-flex-col {
+.table-cell-flex-col {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.tg-font-weight-600 {
+.font-weight-600 {
   font-weight: 600;
 }
 
-.tg-stat-value.positive,
-.tg-stat-row .tg-stat-value.positive {
+.stat-value.positive,
+.stat-row .stat-value.positive {
   color: var(--color-success);
 }
 
-.tg-stat-value.negative,
-.tg-stat-row .tg-stat-value.negative {
+.stat-value.negative,
+.stat-row .stat-value.negative {
   color: var(--color-danger);
 }
 
-.tg-stat-value.warning,
-.tg-stat-row .tg-stat-value.warning {
+.stat-value.warning,
+.stat-row .stat-value.warning {
   color: var(--color-warning);
 }
 
-.tg-stat-divider {
+.stat-divider {
   border-top: 1px solid rgba(71, 85, 105, 0.5);
   padding-top: 0.5rem;
 }
@@ -1652,9 +1657,9 @@ button {
    Формы и вводы
    ============================================================================ */
 
-.tg-form-field,
-.tg-form-label-group,
-.tg-form-label-group-wide {
+.form-field,
+.form-label-group,
+.form-label-group-wide {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -1662,28 +1667,28 @@ button {
   line-height: 1.25rem;
 }
 
-.tg-form-field-label,
-.tg-form-label,
-.tg-input-label {
+.form-field-label,
+.form-label,
+.input-label {
   font-size: 0.875rem;
   font-weight: 600;
   color: #e2e8f0;
 }
 
-.tg-form-input,
-.tg-form-select,
-.tg-form-field input,
-.tg-form-field select,
-.tg-form-field textarea,
-.tg-form-label-group input,
-.tg-form-label-group select,
-.tg-form-label-group textarea,
-.tg-form-label-group-wide input,
-.tg-form-label-group-wide select,
-.tg-form-label-group-wide textarea,
-.tg-input-group textarea,
-.tg-input-group input,
-.tg-input-group select {
+.form-input,
+.form-select,
+.form-field input,
+.form-field select,
+.form-field textarea,
+.form-label-group input,
+.form-label-group select,
+.form-label-group textarea,
+.form-label-group-wide input,
+.form-label-group-wide select,
+.form-label-group-wide textarea,
+.input-group textarea,
+.input-group input,
+.input-group select {
   width: 100%;
   border-radius: 0.75rem;
   border: 1px solid rgba(0, 198, 255, 0.2);
@@ -1695,45 +1700,45 @@ button {
   min-height: 44px;
 }
 
-.tg-form-input:focus,
-.tg-form-select:focus,
-.tg-form-field input:focus,
-.tg-form-field select:focus,
-.tg-form-field textarea:focus,
-.tg-form-label-group input:focus,
-.tg-form-label-group select:focus,
-.tg-form-label-group textarea:focus,
-.tg-form-label-group-wide input:focus,
-.tg-form-label-group-wide select:focus,
-.tg-form-label-group-wide textarea:focus,
-.tg-input-group textarea:focus,
-.tg-input-group input:focus,
-.tg-input-group select:focus {
+.form-input:focus,
+.form-select:focus,
+.form-field input:focus,
+.form-field select:focus,
+.form-field textarea:focus,
+.form-label-group input:focus,
+.form-label-group select:focus,
+.form-label-group textarea:focus,
+.form-label-group-wide input:focus,
+.form-label-group-wide select:focus,
+.form-label-group-wide textarea:focus,
+.input-group textarea:focus,
+.input-group input:focus,
+.input-group select:focus {
   border-color: rgba(0, 198, 255, 0.6);
   box-shadow: 0 0 0 3px rgba(0, 198, 255, 0.18);
   outline: none;
 }
 
-.tg-form-field textarea,
-.tg-form-label-group textarea,
-.tg-form-label-group-wide textarea,
-.tg-input-group textarea {
+.form-field textarea,
+.form-label-group textarea,
+.form-label-group-wide textarea,
+.input-group textarea {
   min-height: 6rem;
 }
 
-.tg-input-group {
+.input-group {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
 }
 
-.tg-verification-status {
+.verification-status {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
-.tg-verification-status-text {
+.verification-status-text {
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -1741,24 +1746,24 @@ button {
   color: #e2e8f0;
 }
 
-.tg-status-label {
+.status-label {
   font-weight: 600;
   color: var(--color-text-secondary);
 }
 
-.tg-status-value {
+.status-value {
   font-weight: 600;
 }
 
-.tg-status-value.verified {
+.status-value.verified {
   color: var(--color-success);
 }
 
-.tg-status-value.pending {
+.status-value.pending {
   color: var(--color-warning);
 }
 
-.tg-verification-request {
+.verification-request {
   background: rgba(10, 18, 36, 0.75);
   border-radius: 0.75rem;
   padding: 1rem;
@@ -1767,13 +1772,13 @@ button {
   gap: 0.75rem;
 }
 
-.tg-request-title {
+.request-title {
   font-size: 1.125rem;
   font-weight: 600;
   color: #ffffff;
 }
 
-.tg-request-details {
+.request-details {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
@@ -1781,25 +1786,25 @@ button {
   color: var(--color-text-secondary);
 }
 
-.tg-request-row {
+.request-row {
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
 }
 
-.tg-request-label {
+.request-label {
   font-size: 0.75rem;
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
 
-.tg-request-value {
+.request-value {
   font-size: 0.875rem;
   color: #e2e8f0;
 }
 
-.tg-request-status {
+.request-status {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
@@ -1813,21 +1818,21 @@ button {
   text-transform: uppercase;
 }
 
-.tg-request-status.approved {
+.request-status.approved {
   color: var(--color-success);
 }
 
-.tg-request-status.rejected {
+.request-status.rejected {
   color: var(--color-danger);
 }
 
-.tg-request-status.pending,
-.tg-request-status.resubmit {
+.request-status.pending,
+.request-status.resubmit {
   color: var(--color-warning);
 }
 
-.tg-no-requests,
-.tg-verification-hint {
+.no-requests,
+.verification-hint {
   font-size: 0.875rem;
   color: var(--color-text-muted);
 }
@@ -1836,14 +1841,14 @@ button {
    Платежи и вывод средств
    ============================================================================ */
 
-.tg-payment-form,
-.tg-withdrawal-form {
+.payment-form,
+.withdrawal-form {
   display: flex;
   flex-direction: column;
   gap: 1rem;
 }
 
-.tg-payment-success {
+.payment-success {
   margin-top: 0.75rem;
   border-radius: 0.75rem;
   border: 1px solid rgba(0, 198, 255, 0.2);
@@ -1854,12 +1859,12 @@ button {
   word-break: break-word;
 }
 
-.tg-payment-success a {
+.payment-success a {
   color: #63c5ff;
   text-decoration: underline;
 }
 
-.tg-payment-btn {
+.payment-btn {
   display: inline-flex;
   width: 100%;
   align-items: center;
@@ -1878,39 +1883,39 @@ button {
   will-change: transform;
 }
 
-.tg-payment-btn:hover:not(:disabled) {
+.payment-btn:hover:not(:disabled) {
   transform: translate3d(0, -2px, 0);
   box-shadow: 0 14px 28px rgba(0, 198, 255, 0.35);
 }
 
-.tg-payment-btn:disabled {
+.payment-btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
   box-shadow: none;
 }
 
-.tg-payment-btn:focus-visible {
+.payment-btn:focus-visible {
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 
-.tg-withdrawal-method-section {
+.withdrawal-method-section {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: 1rem;
 }
 
-.tg-withdrawal-crypto-fields {
+.withdrawal-crypto-fields {
   display: grid;
   grid-template-columns: repeat(1, minmax(0, 1fr));
   gap: 1rem;
 }
 
-.tg-form-label-group-wide {
+.form-label-group-wide {
   grid-column: span 1;
 }
 
-.tg-withdrawal-urgent-checkbox {
+.withdrawal-urgent-checkbox {
   display: flex;
   align-items: center;
   gap: 0.75rem;
@@ -1921,7 +1926,7 @@ button {
   min-height: 44px;
 }
 
-.tg-withdrawal-urgent-text {
+.withdrawal-urgent-text {
   font-size: 0.875rem;
   color: var(--color-text-secondary);
 }
@@ -1932,7 +1937,7 @@ button {
 
 @media (max-width: 767px) {
   /* Мобильные стили с улучшенной сенсорной поддержкой */
-  .tg-header-balance-row {
+  .header-balance-row {
     flex-direction: row;
     align-items: center;
     gap: 0.35rem;
@@ -1940,7 +1945,7 @@ button {
     justify-content: center;
   }
 
-  .tg-header-balance-pill {
+  .header-balance-pill {
     min-width: 6.2rem;
     max-width: 45%;
     padding: 0.28rem 0.5rem;
@@ -1948,16 +1953,16 @@ button {
     box-sizing: border-box;
   }
 
-  .tg-header-balance-pill .tg-pill-meta {
+  .header-balance-pill .pill-meta {
     gap: 0.22rem;
   }
 
-  .tg-header-balance-pill .tg-pill-meta span[aria-hidden] {
+  .header-balance-pill .pill-meta span[aria-hidden] {
     font-size: 0.9rem;
     line-height: 1;
   }
 
-  .tg-header-balance-pill .tg-pill-value {
+  .header-balance-pill .pill-value {
     display: inline-block;
     max-width: 5.1rem;
     white-space: nowrap;
@@ -1967,29 +1972,29 @@ button {
     font-size: 0.88rem;
   }
 
-  .tg-header-balance-pill .tg-pill-label {
+  .header-balance-pill .pill-label {
     font-size: 0.68rem;
   }
 
-  .tg-player-nav-bar {
+  .player-nav-bar {
     justify-content: center;
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
 
   /* Отключить дорогие эффекты на мобильных */
-  .tg-card,
-  .tg-modal-content,
-  .tg-fairness-section {
+  .card,
+  .modal-content,
+  .fairness-section {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
   }
 
-  .tg-header-balance-pill {
+  .header-balance-pill {
     max-width: 48%;
   }
 
-  .tg-header-balance-pill .tg-pill-value {
+  .header-balance-pill .pill-value {
     min-width: 0 !important;
     max-width: 5.1rem !important;
     white-space: nowrap !important;
@@ -2000,36 +2005,36 @@ button {
 }
 
 @media (min-width: 768px) {
-  .tg-header-balance-row {
+  .header-balance-row {
     flex-wrap: nowrap;
     justify-content: flex-end;
     gap: 0.65rem;
   }
 
-  .tg-header-balance-pill {
+  .header-balance-pill {
     flex: 0 0 12.25rem;
     min-width: auto;
   }
 
-  .tg-stats-grid {
+  .stats-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .tg-withdrawal-method-section {
+  .withdrawal-method-section {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .tg-withdrawal-crypto-fields {
+  .withdrawal-crypto-fields {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
-  .tg-form-label-group-wide {
+  .form-label-group-wide {
     grid-column: span 2;
   }
 }
 
 @media (min-width: 1024px) {
-  .tg-player-nav-bar {
+  .player-nav-bar {
     gap: 0.35rem;
     padding: 0.45rem 0.9rem;
     justify-content: center;
@@ -2038,38 +2043,38 @@ button {
     max-width: 28rem;
   }
 
-  .tg-player-nav-link {
+  .player-nav-link {
     min-width: 2.8rem;
     min-height: 2.4rem;
     padding: 0.35rem 0.5rem;
   }
 
-  .tg-player-nav-icon {
+  .player-nav-icon {
     width: 1.15rem;
     height: 1.15rem;
     font-size: 0.7rem;
   }
 
-  .tg-player-nav-label {
+  .player-nav-label {
     font-size: 0.5rem;
     letter-spacing: 0.055em;
   }
 
-  .tg-header-balance-row {
+  .header-balance-row {
     gap: 0.85rem;
   }
 
-  .tg-header-balance-pill {
+  .header-balance-pill {
     flex: 0 0 13rem;
   }
 
-  .tg-stats-grid {
+  .stats-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 }
 
 @media (min-width: 1280px) {
-  .tg-header-balance-pill {
+  .header-balance-pill {
     flex: 0 0 13.75rem;
   }
 }
@@ -2079,14 +2084,14 @@ button {
    ============================================================================ */
 
 @supports not (backdrop-filter: blur(10px)) {
-  .tg-card,
-  .tg-modal-content,
-  .tg-fairness-section,
-  .tg-page-section,
-  .tg-payment-section,
-  .tg-form-group,
-  .tg-table-wrapper,
-  .tg-stats-loading {
+  .card,
+  .modal-content,
+  .fairness-section,
+  .page-section,
+  .payment-section,
+  .form-group,
+  .table-wrapper,
+  .stats-loading {
     background: rgba(15, 26, 46, 0.95);
   }
 }
@@ -2107,68 +2112,4 @@ body,
   :root {
     color-scheme: light;
   }
-}
-
-/* ============================================================================
-   Обеспечение обратной совместимости со старыми классами
-   ============================================================================ */
-
-/* Старые классы для обратной совместимости */
-.card {
-  composes: tg-card;
-}
-
-.primary {
-  composes: tg-primary-btn;
-}
-
-.secondary {
-  composes: tg-secondary-btn;
-}
-
-.danger {
-  composes: tg-danger-btn;
-}
-
-.nav-link {
-  composes: tg-nav-link;
-}
-
-.player-nav-link {
-  composes: tg-player-nav-link;
-}
-
-.wallet-toggle {
-  composes: tg-wallet-toggle;
-}
-
-.header-balance-pill {
-  composes: tg-header-balance-pill;
-}
-
-.status-badge {
-  composes: tg-status-badge;
-}
-
-.modal {
-  composes: tg-modal;
-}
-
-.firework {
-  composes: tg-firework;
-}
-
-/* Обеспечиваем, что старые классы все еще работают */
-.card,
-.primary,
-.secondary,
-.danger,
-.nav-link,
-.player-nav-link,
-.wallet-toggle,
-.header-balance-pill,
-.status-badge,
-.modal,
-.firework {
-  /* Стили применятся через composes */
 }
